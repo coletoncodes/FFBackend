@@ -25,7 +25,8 @@ struct UserController: RouteCollection {
         passwordProtected.delete(":userID", use: delete)
     }
     
-    /// Login User
+    /// Verifies the user's email exists in the request, and the database.
+    /// Then saves the token into the database for future requests using token validation.
     func login(req: Request) async throws -> UserToken {
         let user = try req.auth.require(User.self)
         let token = try user.generateToken()
@@ -71,6 +72,7 @@ struct UserController: RouteCollection {
         }
         let updatedUser = try req.content.decode(User.self)
         existingUser.name = updatedUser.name
+        existingUser.email = updatedUser.email
         try await existingUser.save(on: req.db)
         return existingUser
     }

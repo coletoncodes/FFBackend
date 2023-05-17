@@ -1,0 +1,11 @@
+{
+    "applinks": {
+        "apps": [],
+        "details": [
+            {
+        "appID": "<Your Team ID>.com.cg.FinanceFlow",
+        "paths": ["*"]
+            }
+        ]
+    }
+}
