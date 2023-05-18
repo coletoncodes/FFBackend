@@ -23,11 +23,20 @@ private extension Vapor.Application {
 @main
 enum Entrypoint {
     static func main() async throws {
-        var env = try Environment.detect()
+        var env: Environment
+        
+        if let envString = Environment.get("ENV") {
+            env = .init(name: envString)
+        } else {
+            env = try .detect()
+        }
+        
         try LoggingSystem.bootstrap(from: &env)
         
         let app = Application(env)
         defer { app.shutdown() }
+        
+        app.logger.info("Running on Environment: \(env.name)")
         
         try await configure(app)
         try await app.runFromAsyncMainEntrypoint()
