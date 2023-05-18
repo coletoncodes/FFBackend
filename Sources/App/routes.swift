@@ -5,6 +5,7 @@ import NIO
 func routes(_ app: Application) throws {
     try app.register(collection: UserController())
     
+    //
     app.get { req async throws -> View in
         try await app.view.render("index")
     }
