@@ -8,15 +8,14 @@ func routes(_ app: Application) throws {
     // TODO: Add once finalized.
 //    try app.register(collection: UserController())
     
-    
-    
     // Serve apple-app-site-association
     app.get(".well-known", "apple-app-site-association") { req async throws -> Response in
         let fileio = req.application.fileio
         let allocator = ByteBufferAllocator()
         let eventLoop = req.eventLoop
         
-        let fileHandle = try NIOFileHandle(path: req.application.directory.resourcesDirectory + "apple-app-site-association.json")
+        let filePath = req.application.directory.resourcesDirectory + "apple-app-site-association"
+        let fileHandle = try NIOFileHandle(path: filePath)
         defer { try? fileHandle.close() }
         
         let fileRegion = try FileRegion(fileHandle: fileHandle)
@@ -32,5 +31,4 @@ func routes(_ app: Application) throws {
         
         return Response(status: .ok, headers: headers, body: .init(data: data))
     }
-    
 }
