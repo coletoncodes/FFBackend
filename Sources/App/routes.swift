@@ -3,12 +3,12 @@ import Vapor
 import NIO
 
 func routes(_ app: Application) throws {
-    try app.register(collection: UserController())
+    try app.register(collection: LeafController())
+
+    // TODO: Add once finalized.
+//    try app.register(collection: UserController())
     
-    //
-    app.get { req async throws -> View in
-        try await app.view.render("index")
-    }
+    
     
     // Serve apple-app-site-association
     app.get(".well-known", "apple-app-site-association") { req async throws -> Response in
