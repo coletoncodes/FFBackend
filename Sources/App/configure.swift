@@ -32,6 +32,8 @@ fileprivate func configureDatabase(for app: Application) throws {
             database: "financeflow_test",
             tls: .prefer(try .init(configuration: .clientDefault))
         )
+        // AutoMigrate database
+        try app.autoMigrate().wait()
     case .development:
         configuration = SQLPostgresConfiguration(
             hostname: "localhost",
@@ -40,26 +42,14 @@ fileprivate func configureDatabase(for app: Application) throws {
             database: "financeflow_dev",
             tls: .prefer(try .init(configuration: .clientDefault))
         )
+        // AutoMigrate database
+        try app.autoMigrate().wait()
     case .production:
-        guard
-            let hostname = Environment.get("DATABASE_HOST"),
-            let portString = Environment.get("DATABASE_PORT"),
-            let port = Int(portString),
-            let username = Environment.get("DATABASE_USERNAME"),
-            let password = Environment.get("DATABASE_PASSWORD"),
-            let database = Environment.get("DATABASE_NAME")
-        else {
-            app.logger.error("Cannot run Production locally. Set the DATABASE_URL environment variable, or use Development scheme")
+        guard let databaseURL = Environment.get("DATABASE_URL") else {
+            app.logger.error("Cannot run Production locally. Set the DATABASE_URL environment variable, or use development scheme")
             throw Abort(.internalServerError)
         }
-        configuration = SQLPostgresConfiguration(
-            hostname: hostname,
-            port: port,
-            username: username,
-            password: password,
-            database: database,
-            tls: .prefer(try .init(configuration: .clientDefault))
-        )
+        configuration = try SQLPostgresConfiguration(url: databaseURL)
     default:
         throw Abort(.internalServerError)
     }
