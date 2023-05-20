@@ -20,8 +20,8 @@ import Vapor
 struct AuthenticationController: RouteCollection {
     // MARK: - Dependencies
     // TODO: Move to DI
-    let jwtTokenProvider: JWTTokenProviding = JWTTokenProvider()
-    let refreshTokenProvider: RefreshTokenProviding = RefreshTokenProvider()
+    private let accessTokenProvider: AccessTokenProviding = AccessTokenProvider()
+    private let refreshTokenProvider: RefreshTokenProviding = RefreshTokenProvider()
     
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
@@ -63,14 +63,11 @@ private extension AuthenticationController {
         try await user.save(on: req.db)
         
         // Generate tokens
-        let jwtToken = try jwtTokenProvider.generateToken(for: user)
+        let accessTokenDTO = try accessTokenProvider.generateAccessToken(for: user)
         let refreshTokenDTO = try refreshTokenProvider.generateToken(for: user)
-        
-        // Create DTOs
         let userDTO = UserDTO(from: user)
-        let jwtTokenDTO = JWTTokenDTO(token: jwtToken.token, expiresAt: jwtToken.expiresAt)
         
-        return LoginResponse(user: userDTO, jwtToken: jwtTokenDTO, refreshToken: refreshTokenDTO)
+        return LoginResponse(user: userDTO, accessToken: accessTokenDTO, refreshToken: refreshTokenDTO)
     }
     
     /// Authenticates an existing user, generates new JWT and refresh tokens, and returns them in the response.
@@ -106,14 +103,11 @@ private extension AuthenticationController {
             }
             
             // Generate tokens
-            let jwtToken = try jwtTokenProvider.generateToken(for: user)
+            let accessTokenDTO = try accessTokenProvider.generateAccessToken(for: user)
             let refreshTokenDTO = try refreshTokenProvider.generateToken(for: user)
-            
-            // Create DTOs
             let userDTO = UserDTO(from: user)
-            let jwtTokenDTO = JWTTokenDTO(token: jwtToken.token, expiresAt: jwtToken.expiresAt)
             
-            return LoginResponse(user: userDTO, jwtToken: jwtTokenDTO, refreshToken: refreshTokenDTO)
+            return LoginResponse(user: userDTO, accessToken: accessTokenDTO, refreshToken: refreshTokenDTO)
         } catch {
             let logStr = "Password verification failed: \(error)"
             throw Abort(.internalServerError, reason: logStr)

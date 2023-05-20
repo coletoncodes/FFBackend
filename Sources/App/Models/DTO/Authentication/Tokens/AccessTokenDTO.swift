@@ -1,5 +1,5 @@
 //
-//  JWTTokenDTO.swift
+//  AccessTokenDTO.swift
 //  
 //
 //  Created by Coleton Gorecke on 5/20/23.
@@ -8,15 +8,15 @@
 import JWT
 import Vapor
 
-/// The JWTToken Data Transfer Object.
+/// The AccessToken Data Transfer Object.
 ///
-/// Used to encapsulate a JWT Token.
+/// Used to encapsulate a JWT.
 /// The JWT token is an access token that is used to secure API endpoints.
 /// It is included in the HTTP header for every API request.
 /// The server validates this token and if it's valid, processes the request.
 /// Access tokens have a short lifespan for security reasons.
 /// If a token is stolen, it's only valid for a short time.
-struct JWTTokenDTO: Content {
+struct AccessTokenDTO: Content {
     let token: String
     let expiresAt: Date?
     

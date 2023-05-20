@@ -9,6 +9,6 @@ import Vapor
 
 struct LoginResponse: Content {
     let user: UserDTO
-    let jwtToken: JWTTokenDTO
+    let accessToken: AccessTokenDTO
     let refreshToken: RefreshTokenDTO
 }
