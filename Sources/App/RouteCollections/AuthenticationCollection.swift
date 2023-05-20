@@ -20,8 +20,7 @@ struct AuthenticationCollection: RouteCollection {
 
 // MARK: - Requests
 private extension AuthenticationCollection {
-    
-    /// Register's the user and save's them to the database.
+    /// Register's the user and save to the database.
     func register(_ req: Request) async throws -> LoginResponse {
         do {
             try RegisterRequest.validate(content: req)
@@ -42,7 +41,7 @@ private extension AuthenticationCollection {
         return LoginResponse(user: UserDTO(from: user))
     }
     
-    /// Logs the user in if the request is met.
+    /// Log the user in
     func login(_ req: Request) async throws -> LoginResponse {
         do {
             try LoginRequest.validate(content: req)
@@ -70,5 +69,4 @@ private extension AuthenticationCollection {
             throw Abort(.internalServerError, reason: logStr)
         }
     }
-    
 }
