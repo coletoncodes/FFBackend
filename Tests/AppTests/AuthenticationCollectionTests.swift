@@ -31,7 +31,7 @@ final class AuthenticationCollectionTests: XCTestCase {
 
     // MARK: - func register(_ req: Request)
     /// Test valid registration succeeds
-    func testRegisterWithValidData() throws {
+    func testRegisterSuccess() throws {
         let user = RegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
         
         try app.test(.POST, "auth/register", beforeRequest: { req in
@@ -102,7 +102,7 @@ final class AuthenticationCollectionTests: XCTestCase {
     
     // MARK: - func login(_ req: Request)
     /// Test for a successful login.
-    func testSuccessfulLogin() throws {
+    func testLoginSuccess() throws {
         // Register the user first
         let user = RegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
         
@@ -133,9 +133,9 @@ final class AuthenticationCollectionTests: XCTestCase {
         })
     }
 
-    // Test for a Bad Request error due to validation failure.
-    func testBadRequestError() throws {
-        let loginRequest = LoginRequest(email: "invalid email", password: "short")
+    /// Test for a Bad Request error due to an invalid email.
+    func testLoginInvalidEmail() throws {
+        let loginRequest = LoginRequest(email: "invalid email", password: testUserPassword)
         // Make a login request with invalid data.
         try app.test(.POST, "auth/login", beforeRequest: { req in
             try req.content.encode(loginRequest)
