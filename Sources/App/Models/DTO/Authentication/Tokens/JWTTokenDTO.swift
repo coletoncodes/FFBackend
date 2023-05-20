@@ -17,26 +17,16 @@ import Vapor
 /// Access tokens have a short lifespan for security reasons.
 /// If a token is stolen, it's only valid for a short time.
 struct JWTTokenDTO: Content {
-    let userID: UUID?
     let token: String
     let expiresAt: Date?
     
-    init(
-        userID: UUID?,
-        token: String,
-        expiresAt: Date?
-    ) {
-        self.userID = userID
+    init(token: String, expiresAt: Date?) {
         self.token = token
         self.expiresAt = expiresAt
     }
     
-    init(from jwtToken: JWTToken) {
-        self.init(
-            userID: jwtToken.user.id,
-            token: jwtToken.token,
-            expiresAt: jwtToken.expiresAt
-        )
+    init(token: String, payload: JWTTokenPayload) {
+        self.init(token: token, expiresAt: payload.expiration.value)
     }
 }
 

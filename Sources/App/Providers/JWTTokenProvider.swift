@@ -18,8 +18,8 @@ protocol JWTTokenProviding {
     /// created with the necessary claims and signed with the application's secret key.
     ///
     /// - Parameter user: The User object for which to generate a token.
-    /// - Returns: The newly generated JWTToken.
-    func generateToken(for user: User) throws -> JWTToken
+    /// - Returns: The newly generated JWTToken as a String.
+    func generateToken(for user: User) throws -> JWTTokenDTO
     
     /// Validates a provided JWT token.
     ///
@@ -28,8 +28,8 @@ protocol JWTTokenProviding {
     /// the token is valid.
     ///
     /// - Parameter token: The token string to validate.
-    /// - Returns: A JWTToken object representing the validated token.
-    func validateToken(_ token: String) throws -> JWTToken
+    /// - Returns: A JWTTokenPayload object representing the validated token.
+    func validateToken(_ token: String) throws -> JWTTokenPayload
 }
 
 /// The concrete implementation of the JWTTokenProviding protocol.
@@ -40,34 +40,26 @@ final class JWTTokenProvider: JWTTokenProviding {
     
     init() {
         // Create an HMAC with SHA-256 signer using your application's secret key
+        // TODO: Inject from environment
         self.signer = JWTSigner.hs256(key: "your-secret-key")
     }
     
-    func generateToken(for user: User) throws -> JWTToken {
+    func generateToken(for user: User) throws -> JWTTokenDTO {
         guard let userID = user.id else {
             throw Abort(.internalServerError, reason: "Missing userID in payload.")
         }
         
         // Create the JWT payload
-        guard let payload = JWTTokenPayload(expiration: .init(value: .distantFuture), userID: userID) else {
-            throw Abort(.internalServerError, reason: "Missing token in payload.")
-        }
+        let payload = JWTTokenPayload(expiration: .init(value: .distantFuture), userID: userID)
         
-        // Sign the JWT payload
+        // Sign the JWT payload & return
         let token = try signer.sign(payload)
-        
-        // Create and return a JWTToken object
-        return try JWTToken(token: token, payload: payload)
+        return JWTTokenDTO(token: token, payload: payload)
     }
     
-    func validateToken(_ token: String) throws -> JWTToken {
+    func validateToken(_ token: String) throws -> JWTTokenPayload {
         // Verify the JWT signature and decode the payload
-        guard let payload = try signer.verify(token) else {
-            throw Abort(.internalServerError, reason: "Missing token in payload.")
-        }
-        
-        // Create and return a JWTToken object
-        return JWTToken(token: token, payload: payload)
+        return try signer.verify(token)
     }
 }
 

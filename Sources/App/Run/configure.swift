@@ -21,7 +21,7 @@ public func configure(_ app: Application) async throws {
     
     // Setup JSW signer
     // TODO: Add to env
-    app.jwt.signers.use(.hs256(key: "secret"))
+    app.jwt.signers.use(.hs256(key: "your-secret-key"))
     
     // register routes
     try routes(app)

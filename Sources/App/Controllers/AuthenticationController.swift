@@ -64,17 +64,13 @@ private extension AuthenticationController {
         
         // Generate tokens
         let jwtToken = try jwtTokenProvider.generateToken(for: user)
-        let refreshToken = try refreshTokenProvider.generateToken(for: user)
+        let refreshTokenDTO = try refreshTokenProvider.generateToken(for: user)
         
-        // Save tokens
-        try await jwtToken.save(on: req.db)
-        try await refreshToken.save(on: req.db)
+        // Create DTOs
+        let userDTO = UserDTO(from: user)
+        let jwtTokenDTO = JWTTokenDTO(token: jwtToken.token, expiresAt: jwtToken.expiresAt)
         
-        return LoginResponse(
-            user: UserDTO(from: user),
-            jwtToken: JWTTokenDTO(from: jwtToken),
-            refreshToken: RefreshTokenDTO(from: refreshToken)
-        )
+        return LoginResponse(user: userDTO, jwtToken: jwtTokenDTO, refreshToken: refreshTokenDTO)
     }
     
     /// Authenticates an existing user, generates new JWT and refresh tokens, and returns them in the response.
@@ -109,15 +105,15 @@ private extension AuthenticationController {
                 throw Abort(.unauthorized, reason: "Password is invalid.")
             }
             
-            // Generate Tokens
+            // Generate tokens
             let jwtToken = try jwtTokenProvider.generateToken(for: user)
-            let refreshToken = try refreshTokenProvider.generateToken(for: user)
+            let refreshTokenDTO = try refreshTokenProvider.generateToken(for: user)
             
-            return LoginResponse(
-                user: UserDTO(from: user),
-                jwtToken: JWTTokenDTO(from: jwtToken),
-                refreshToken: RefreshTokenDTO(from: refreshToken)
-            )
+            // Create DTOs
+            let userDTO = UserDTO(from: user)
+            let jwtTokenDTO = JWTTokenDTO(token: jwtToken.token, expiresAt: jwtToken.expiresAt)
+            
+            return LoginResponse(user: userDTO, jwtToken: jwtTokenDTO, refreshToken: refreshTokenDTO)
         } catch {
             let logStr = "Password verification failed: \(error)"
             throw Abort(.internalServerError, reason: logStr)

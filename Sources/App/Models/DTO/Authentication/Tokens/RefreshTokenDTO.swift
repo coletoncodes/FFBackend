@@ -28,12 +28,4 @@ struct RefreshTokenDTO: Content {
         self.token = token
         self.expiresAt = expiresAt
     }
-    
-    init(from refreshToken: RefreshToken) {
-        self.init(
-                userID: refreshToken.id,
-                token: refreshToken.token,
-                expiresAt: refreshToken.expiresAt
-            )
-    }
 }

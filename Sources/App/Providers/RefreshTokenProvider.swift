@@ -8,18 +8,18 @@
 import Vapor
 
 protocol RefreshTokenProviding {
-    func generateToken(for user: User) throws -> RefreshToken
-    func validateToken(_ token: String) throws -> RefreshToken
+    func generateToken(for user: User) throws -> RefreshTokenDTO
+    func validateToken(_ token: String) throws -> RefreshTokenDTO
 }
 
 final class RefreshTokenProvider: RefreshTokenProviding {
-    func generateToken(for user: User) throws -> RefreshToken {
+    func generateToken(for user: User) throws -> RefreshTokenDTO {
         // Implement the logic for generating a RefreshToken here.
-        RefreshToken()
+        RefreshTokenDTO(userID: nil, token: "", expiresAt: nil)
     }
     
-    func validateToken(_ token: String) throws -> RefreshToken {
+    func validateToken(_ token: String) throws -> RefreshTokenDTO {
         // Implement the logic for validating a RefreshToken here.
-        RefreshToken()
+        RefreshTokenDTO(userID: nil, token: "", expiresAt: nil)
     }
 }
