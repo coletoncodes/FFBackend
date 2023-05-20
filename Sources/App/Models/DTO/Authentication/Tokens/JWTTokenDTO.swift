@@ -5,6 +5,7 @@
 //  Created by Coleton Gorecke on 5/20/23.
 //
 
+import JWT
 import Vapor
 
 /// The JWTToken Data Transfer Object.
@@ -32,9 +33,18 @@ struct JWTTokenDTO: Content {
     
     init(from jwtToken: JWTToken) {
         self.init(
-                userID: jwtToken.id,
-                token: jwtToken.token,
-                expiresAt: jwtToken.expiresAt
-            )
+            userID: jwtToken.user.id,
+            token: jwtToken.token,
+            expiresAt: jwtToken.expiresAt
+        )
+    }
+}
+
+struct JWTTokenPayload: JWTPayload, Authenticatable {
+    let expiration: ExpirationClaim
+    let userID: User.IDValue
+    
+    func verify(using signer: JWTSigner) throws {
+        try expiration.verifyNotExpired()
     }
 }

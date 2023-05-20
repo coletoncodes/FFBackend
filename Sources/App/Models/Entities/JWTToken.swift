@@ -31,12 +31,11 @@ final class JWTToken: Model, Content {
     init(
         id: UUID? = nil,
         token: String,
-        userId: User.IDValue,
-        expiresAt: Date?
-    ) {
+        payload: JWTTokenPayload
+    ) throws {
         self.id = id
         self.token = token
-        self.$user.id = userId
-        self.expiresAt = expiresAt
+        self.$user.id = payload.userID
+        self.expiresAt = payload.expiration.value
     }
 }
