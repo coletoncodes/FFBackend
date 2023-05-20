@@ -4,6 +4,7 @@ import NIO
 
 func routes(_ app: Application) throws {
     try app.register(collection: LeafController())
+    try app.register(collection: PlaidController())
 
     // TODO: Add once finalized.
 //    try app.register(collection: UserController())
