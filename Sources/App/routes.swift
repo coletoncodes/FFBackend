@@ -5,8 +5,7 @@ import NIO
 func routes(_ app: Application) throws {
     try app.register(collection: LeafController())
 
-    // TODO: Add once finalized.
-//    try app.register(collection: UserController())
+    try app.register(collection: AuthenticationCollection())
     
     // Serve apple-app-site-association
     app.get(".well-known", "apple-app-site-association") { req async throws -> Response in

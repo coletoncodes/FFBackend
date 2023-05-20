@@ -27,23 +27,19 @@ fileprivate func configureDatabase(for app: Application) throws {
     case .testing:
         configuration = SQLPostgresConfiguration(
             hostname: "localhost",
-            username: "vapor_username",
-            password: "vapor_password",
-            database: "financeflow_test",
+            username: "cgorecke",
+            password: "",
+            database: "financeflowtest",
             tls: .prefer(try .init(configuration: .clientDefault))
         )
-        // AutoMigrate database
-        try app.autoMigrate().wait()
     case .development:
         configuration = SQLPostgresConfiguration(
             hostname: "localhost",
-            username: "vapor_username",
-            password: "vapor_password",
-            database: "financeflow_dev",
+            username: "cgorecke",
+            password: "",
+            database: "financeflowtest",
             tls: .prefer(try .init(configuration: .clientDefault))
         )
-        // AutoMigrate database
-        try app.autoMigrate().wait()
     case .production:
         guard let databaseURL = Environment.get("DATABASE_URL") else {
             app.logger.error("Cannot run Production locally. Set the DATABASE_URL environment variable, or use development scheme")
