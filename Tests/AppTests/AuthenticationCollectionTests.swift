@@ -1,5 +1,5 @@
 //
-//  AuthenticationCollectionTests.swift
+//  AuthenticationControllerTests.swift
 //  
 //
 //  Created by Coleton Gorecke on 5/19/23.
@@ -9,7 +9,7 @@
 import Fluent
 import XCTVapor
 
-final class AuthenticationCollectionTests: XCTestCase {
+final class AuthenticationControllerTests: XCTestCase {
     private var app: Application!
     private let testUserFirstName = "John"
     private let testUserLastName = "Doe"

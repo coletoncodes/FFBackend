@@ -3,9 +3,9 @@ import Vapor
 import NIO
 
 func routes(_ app: Application) throws {
+    // register controllers
     try app.register(collection: LeafController())
-
-    try app.register(collection: AuthenticationCollection())
+    try app.register(collection: AuthenticationController())
     
     // Serve apple-app-site-association
     app.get(".well-known", "apple-app-site-association") { req async throws -> Response in

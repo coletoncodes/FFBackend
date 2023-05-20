@@ -7,6 +7,9 @@
 
 import Vapor
 
+/// The User Data Transfer Object.
+///
+/// Used to pass user data between different parts of the application or across network boundaries.
 struct UserDTO: Content {
     let id: UUID?
     let firstName: String

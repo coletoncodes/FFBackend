@@ -10,7 +10,8 @@ import Vapor
 
 struct CreateUser: AsyncMigration {
     func prepare(on database: Database) async throws {
-        try await database.schema(User.schema)
+        try await database
+            .schema(User.schema)
             .id()
             .field("first_name", .string, .required)
             .field("last_name", .string, .required)
@@ -21,6 +22,8 @@ struct CreateUser: AsyncMigration {
     }
     
     func revert(on database: Database) async throws {
-        try await database.schema(User.schema).delete()
+        try await database
+            .schema(User.schema)
+            .delete()
     }
 }
