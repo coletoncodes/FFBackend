@@ -22,6 +22,7 @@ struct AuthenticationController: RouteCollection {
     // TODO: Move to DI
     private let accessTokenProvider: AccessTokenProviding = AccessTokenProvider()
     private let refreshTokenProvider: RefreshTokenProviding = RefreshTokenProvider()
+    private let userStore: UserStore = UserRepository()
     
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
@@ -90,10 +91,7 @@ private extension AuthenticationController {
         
         let loginRequest = try req.content.decode(LoginRequest.self)
         
-        guard let user = try await User
-            .query(on: req.db)
-            .filter(\.$email == loginRequest.email)
-            .first() else {
+        guard let user = try await userStore.find(byEmail: loginRequest.email, on: req.db) else {
             throw Abort(.unauthorized, reason: "Failed to find user with a matching email.")
         }
         

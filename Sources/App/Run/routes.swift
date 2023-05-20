@@ -3,7 +3,7 @@ import Vapor
 import NIO
 
 func routes(_ app: Application) throws {
-    // register controllers
+    // MARK: - Unprotected Routes
     try app.register(collection: LeafController())
     try app.register(collection: AuthenticationController())
     
@@ -30,4 +30,9 @@ func routes(_ app: Application) throws {
         
         return Response(status: .ok, headers: headers, body: .init(data: data))
     }
+    
+    // MARK: - Protected Routes
+    let protectedRoutes = app.grouped("api")
+        .grouped(AuthenticationMiddleware())
+    try protectedRoutes.register(collection: UserController())
 }
