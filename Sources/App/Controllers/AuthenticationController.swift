@@ -64,7 +64,7 @@ private extension AuthenticationController {
         
         // Generate tokens
         let accessTokenDTO = try accessTokenProvider.generateAccessToken(for: user)
-        let refreshTokenDTO = try refreshTokenProvider.generateToken(for: user)
+        let refreshTokenDTO = try await refreshTokenProvider.generateToken(for: user, on: req)
         let userDTO = UserDTO(from: user)
         
         return LoginResponse(user: userDTO, accessToken: accessTokenDTO, refreshToken: refreshTokenDTO)
@@ -104,7 +104,7 @@ private extension AuthenticationController {
             
             // Generate tokens
             let accessTokenDTO = try accessTokenProvider.generateAccessToken(for: user)
-            let refreshTokenDTO = try refreshTokenProvider.generateToken(for: user)
+            let refreshTokenDTO = try await refreshTokenProvider.generateToken(for: user, on: req)
             let userDTO = UserDTO(from: user)
             
             return LoginResponse(user: userDTO, accessToken: accessTokenDTO, refreshToken: refreshTokenDTO)
