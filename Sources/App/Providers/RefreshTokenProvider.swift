@@ -42,15 +42,19 @@ final class RefreshTokenProvider: RefreshTokenProviding {
             throw Abort(.unauthorized)
         }
         
+        // Get the user associated with the token
+        let user = try await foundToken.$user.get(on: req.db)
+
         // If the token has expired, delete it
         if let expiresAt = foundToken.expiresAt, expiresAt < Date() {
             try await tokenStore.delete(foundToken, on: req.db)
             
             // Generate a new refresh token for the user
-            return try await generateToken(for: foundToken.user, on: req)
+            return try await generateToken(for: user, on: req)
         }
         
         // If the token has not expired, return the existing one
         return RefreshTokenDTO(userID: foundToken.$user.id, token: foundToken.token, expiresAt: foundToken.expiresAt)
     }
+
 }

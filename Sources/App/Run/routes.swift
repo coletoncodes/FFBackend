@@ -32,7 +32,8 @@ func routes(_ app: Application) throws {
     }
     
     // MARK: - Protected Routes
-    let protectedRoutes = app.grouped("api")
-        .grouped(AuthenticationMiddleware())
-    try protectedRoutes.register(collection: UserController())
+    try app.group("api") { api in
+        let protectedRoutes = api.grouped(AuthenticationMiddleware())
+        try protectedRoutes.register(collection: UserController())
+    }
 }

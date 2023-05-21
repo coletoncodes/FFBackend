@@ -62,4 +62,3 @@ final class AccessTokenProvider: AccessTokenProviding {
         return try signer.verify(token)
     }
 }
-

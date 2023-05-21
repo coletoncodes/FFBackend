@@ -10,9 +10,6 @@ public func configure(_ app: Application) async throws {
     // uncomment to serve files from /Public folder
     //    app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
     
-    // Register middleware
-    app.middleware.use(AuthenticationMiddleware())
-    
     // Setup Database
     try configureDatabase(for: app)
     
@@ -23,7 +20,7 @@ public func configure(_ app: Application) async throws {
     app.views.use(.leaf)
     
     // Setup JSW signer
-    // TODO: Add to env
+    // TODO: Inject from environment
     app.jwt.signers.use(.hs256(key: "your-secret-key"))
     
     // register routes

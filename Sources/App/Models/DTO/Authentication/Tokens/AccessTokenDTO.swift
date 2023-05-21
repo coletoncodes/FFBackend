@@ -19,14 +19,24 @@ import Vapor
 struct AccessTokenDTO: Content {
     let token: String
     let expiresAt: Date?
+    let userID: User.IDValue
     
-    init(token: String, expiresAt: Date?) {
+    init(
+        token: String,
+        expiresAt: Date?,
+        userID: User.IDValue
+    ) {
         self.token = token
         self.expiresAt = expiresAt
+        self.userID = userID
     }
     
     init(token: String, payload: JWTTokenPayload) {
-        self.init(token: token, expiresAt: payload.expiration.value)
+        self.init(
+            token: token,
+            expiresAt: payload.expiration.value,
+            userID: payload.userID
+        )
     }
 }
 

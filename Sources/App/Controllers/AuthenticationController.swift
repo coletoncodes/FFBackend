@@ -29,6 +29,7 @@ struct AuthenticationController: RouteCollection {
         routes.group("auth") { auth in
             auth.post("register", use: register)
             auth.post("login", use: login)
+            auth.post("refresh", use: refreshAccessToken)
         }
     }
 }
@@ -110,5 +111,45 @@ private extension AuthenticationController {
             let logStr = "Password verification failed: \(error)"
             throw Abort(.internalServerError, reason: logStr)
         }
+    }
+    
+    /// This function is responsible for refreshing the user's access token.
+    ///
+    /// It takes the refresh token from the request's authorization header, validates it,
+    /// and then generates a new access token for the associated user.
+    /// This function is typically used when a client's access token has expired, but their refresh token is still valid.
+    ///
+    /// - Parameter req: The incoming `Request`, which should contain the refresh token in the authorization header.
+    ///
+    /// - Throws: An `Abort` error with a `.unauthorized` status and a relevant message if:
+    ///     - The refresh token is not found in the request's authorization header.
+    ///     - The refresh token is not valid.
+    ///     - The user associated with the refresh token cannot be found.
+    /// - Returns: `AccessTokenDTO`
+    func refreshAccessToken(_ req: Request) async throws -> AccessTokenDTO {
+        // Extract the refresh token from the request
+        guard let token = req.headers.bearerAuthorization?.token else {
+            throw Abort(.unauthorized, reason: "No refresh token found in request.")
+        }
+        
+        // Validate the refresh token
+        let refreshTokenDTO: RefreshTokenDTO
+        do {
+            refreshTokenDTO = try await refreshTokenProvider.validateToken(token, on: req)
+        } catch {
+            throw Abort(.unauthorized, reason: "Invalid refresh token.")
+        }
+        
+        guard let userID = refreshTokenDTO.userID else {
+            throw Abort(.internalServerError, reason: "The ID for this user doesn't exist.")
+        }
+        
+        // Fetch the user associated with the refresh token
+        guard let user = try await userStore.find(byID: userID, on: req.db) else {
+            throw Abort(.unauthorized, reason: "No matching user's with id: \(userID)")
+        }
+        
+        // Generate and return a new access token for the user
+        return try accessTokenProvider.generateAccessToken(for: user)
     }
 }
