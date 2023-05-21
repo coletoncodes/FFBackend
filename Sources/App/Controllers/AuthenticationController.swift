@@ -13,9 +13,8 @@ import Vapor
  - The server validates the username and password, generates an access token and a refresh token, and sends them both back to the client.
  - The client stores the refresh token securely and starts using the access token for API requests.
  - When the access token expires, the client sends the refresh token to the server and asks for a new access token.
- - The server validates the refresh token and if it's valid, generates a new access token (and possibly a new refresh token) and sends them back to the client.
+ - The server validates the refresh token and if it's valid, generates a new access token and a new refresh token and sends them back to the client.
  - The client replaces the old access token with the new one and continues making API requests.
- - If the user logs out, the server invalidates the refresh token.
  */
 struct AuthenticationController: RouteCollection {
     // MARK: - Dependencies

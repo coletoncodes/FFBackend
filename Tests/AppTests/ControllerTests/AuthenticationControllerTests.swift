@@ -15,6 +15,7 @@ final class AuthenticationControllerTests: XCTestCase {
     private let testUserLastName = "Doe"
     private let testUserEmail = "john@example.com"
     private let testUserPassword = "password"
+    private let refreshTokenStore: RefreshTokenStore
 
     // MARK: - Lifecycle
     override func setUp() async throws {
@@ -23,12 +24,14 @@ final class AuthenticationControllerTests: XCTestCase {
         try await configure(app)
         try await app.autoRevert()
         try await app.autoMigrate()
+        refreshTokenStore = RefreshTokenRepository()
     }
 
     override func tearDownWithError() throws {
         try super.tearDownWithError()
         app.shutdown()
         app = nil
+        refreshTokenStore = nil
     }
 
     // MARK: - func register(_ req: Request)
@@ -217,7 +220,7 @@ final class AuthenticationControllerTests: XCTestCase {
         })
     }
 
-    /// Verify that  an invalidToken throws 401
+    /// Verify that an invalidToken throws 401
     func testRefreshAccessTokenWithInvalidToken() async throws {
         let invalidToken = "invalidToken"
         

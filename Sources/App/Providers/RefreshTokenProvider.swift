@@ -46,7 +46,7 @@ final class RefreshTokenProvider: RefreshTokenProviding {
         let user = try await foundToken.$user.get(on: req.db)
 
         // If the token has expired, delete it
-        if let expiresAt = foundToken.expiresAt, expiresAt < Date() {
+        if let expiresAt = foundToken.expiresAt, expiresAt < .now {
             try await tokenStore.delete(foundToken, on: req.db)
             
             // Generate a new refresh token for the user
