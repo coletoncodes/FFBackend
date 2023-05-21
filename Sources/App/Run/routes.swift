@@ -3,10 +3,9 @@ import Vapor
 import NIO
 
 func routes(_ app: Application) throws {
+    // MARK: - Unprotected Routes
     try app.register(collection: LeafController())
-
-    // TODO: Add once finalized.
-//    try app.register(collection: UserController())
+    try app.register(collection: AuthenticationController())
     
     // Serve apple-app-site-association
     app.get(".well-known", "apple-app-site-association") { req async throws -> Response in
@@ -30,5 +29,11 @@ func routes(_ app: Application) throws {
         headers.add(name: .contentType, value: "application/json")
         
         return Response(status: .ok, headers: headers, body: .init(data: data))
+    }
+    
+    // MARK: - Protected Routes
+    try app.group("api") { api in
+        let protectedRoutes = api.grouped(AuthenticationMiddleware())
+        try protectedRoutes.register(collection: UserController())
     }
 }
