@@ -15,7 +15,7 @@ final class AuthenticationControllerTests: XCTestCase {
     private let testUserLastName = "Doe"
     private let testUserEmail = "john@example.com"
     private let testUserPassword = "password"
-s
+    
     // MARK: - Lifecycle
     override func setUp() async throws {
         try await super.setUp()
