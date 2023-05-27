@@ -11,6 +11,7 @@ import Vapor
 protocol RefreshTokenProviding {
     func generateToken(for user: User, on req: Request) async throws -> RefreshTokenDTO
     func validateToken(_ token: String, on req: Request) async throws -> RefreshTokenDTO
+    func invalidateToken(_ token: String, on req: Request) async throws
 }
 
 final class RefreshTokenProvider: RefreshTokenProviding {
@@ -39,12 +40,12 @@ final class RefreshTokenProvider: RefreshTokenProviding {
     func validateToken(_ token: String, on req: Request) async throws -> RefreshTokenDTO {
         // Find the token in the database
         guard let foundToken = try await tokenStore.find(token, on: req.db) else {
-            throw Abort(.unauthorized)
+            throw Abort(.unauthorized, reason: "Unable to find matching token in database.")
         }
         
         // Get the user associated with the token
         let user = try await foundToken.$user.get(on: req.db)
-
+        
         // If the token has expired, delete it
         if let expiresAt = foundToken.expiresAt, expiresAt < .now {
             try await tokenStore.delete(foundToken, on: req.db)
@@ -56,5 +57,14 @@ final class RefreshTokenProvider: RefreshTokenProviding {
         // If the token has not expired, return the existing one
         return RefreshTokenDTO(userID: foundToken.$user.id, token: foundToken.token, expiresAt: foundToken.expiresAt)
     }
-
+    
+    func invalidateToken(_ token: String, on req: Request) async throws {
+        // Find the token in the database
+        guard let foundToken = try await tokenStore.find(token, on: req.db) else {
+            throw Abort(.unauthorized, reason: "Unable to find matching token in database.")
+        }
+        
+        // Delete the token
+        try await tokenStore.delete(foundToken, on: req.db)
+    }
 }

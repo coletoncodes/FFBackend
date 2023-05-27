@@ -26,9 +26,12 @@ struct AuthenticationController: RouteCollection {
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
         routes.group("auth") { auth in
+            // auth/register
             auth.post("register", use: register)
+            // auth/login
             auth.post("login", use: login)
-            auth.post("refresh", use: refreshAccessToken)
+            // auth/refresh
+            auth.post("refresh", use: refreshSession)
         }
     }
 }
@@ -39,13 +42,15 @@ private extension AuthenticationController {
     ///
     /// This endpoint requires a `RegisterRequest` object with valid user details. It validates the
     /// request content, creates a new User record, and generates JWT and refresh tokens associated
-    /// with the user. Finally, it responds with a `LoginResponse` containing the user details and
+    /// with the user.
+    ///
+    /// Finally, it responds with a `SessionResponse` containing the user details and
     /// the newly generated tokens.
     ///
     /// - Parameters:
     ///     - req: The request received from the client, containing the `RegisterRequest` object.
-    /// - Returns: A `LoginResponse` object containing the user details and associated tokens.
-    func register(_ req: Request) async throws -> LoginResponse {
+    /// - Returns: A `SessionResponse` object containing the user details and associated tokens.
+    func register(_ req: Request) async throws -> SessionResponse {
         do {
             try RegisterRequest.validate(content: req)
         } catch {
@@ -63,25 +68,23 @@ private extension AuthenticationController {
         let user = try User(from: registerRequest)
         try await user.save(on: req.db)
         
-        // Generate tokens
-        let accessTokenDTO = try accessTokenProvider.generateAccessToken(for: user)
-        let refreshTokenDTO = try await refreshTokenProvider.generateToken(for: user, on: req)
-        let userDTO = UserDTO(from: user)
-        
-        return LoginResponse(user: userDTO, accessToken: accessTokenDTO, refreshToken: refreshTokenDTO)
+        // Return the session for the user
+        return try await createSession(for: user, on: req)
     }
     
     /// Authenticates an existing user, generates new JWT and refresh tokens, and returns them in the response.
     ///
     /// This endpoint requires a `LoginRequest` object with valid user details. It validates the
     /// request content, verifies the user's password, and generates new JWT and refresh tokens
-    /// associated with the user. Finally, it responds with a `LoginResponse` containing the user
+    /// associated with the user.
+    ///
+    /// Finally, it responds with a `SessionResponse` containing the user
     /// details and the newly generated tokens.
     ///
     /// - Parameters:
     ///     - req: The request received from the client, containing the `LoginRequest` object.
-    /// - Returns: A `LoginResponse` object containing the user details and associated tokens.
-    func login(_ req: Request) async throws -> LoginResponse {
+    /// - Returns: A `SessionResponse` object containing the user details and associated tokens.
+    func login(_ req: Request) async throws -> SessionResponse {
         do {
             try LoginRequest.validate(content: req)
         } catch {
@@ -100,12 +103,8 @@ private extension AuthenticationController {
                 throw Abort(.unauthorized, reason: "Password is invalid.")
             }
             
-            // Generate tokens
-            let accessTokenDTO = try accessTokenProvider.generateAccessToken(for: user)
-            let refreshTokenDTO = try await refreshTokenProvider.generateToken(for: user, on: req)
-            let userDTO = UserDTO(from: user)
-            
-            return LoginResponse(user: userDTO, accessToken: accessTokenDTO, refreshToken: refreshTokenDTO)
+            // Create the session
+            return try await createSession(for: user, on: req)
         } catch {
             let logStr = "Password verification failed: \(error)"
             throw Abort(.internalServerError, reason: logStr)
@@ -124,8 +123,8 @@ private extension AuthenticationController {
     ///     - The refresh token is not found in the request's authorization header.
     ///     - The refresh token is not valid.
     ///     - The user associated with the refresh token cannot be found.
-    /// - Returns: `AccessTokenDTO`
-    func refreshAccessToken(_ req: Request) async throws -> AccessTokenDTO {
+    /// - Returns: `SessionResponse`
+    func refreshSession(_ req: Request) async throws -> SessionResponse {
         // Extract the refresh token from the request
         guard let token = req.headers.bearerAuthorization?.token else {
             throw Abort(.unauthorized, reason: "No refresh token found in request.")
@@ -148,7 +147,20 @@ private extension AuthenticationController {
             throw Abort(.unauthorized, reason: "No matching user's with id: \(userID)")
         }
         
-        // Generate and return a new access token for the user
-        return try accessTokenProvider.generateAccessToken(for: user)
+        // Invalidate the old refresh token
+//        try await refreshTokenProvider.invalidateToken(token, on: req)
+        // Create the session
+        return try await createSession(for: user, on: req)
+    }
+
+    func createSession(for user: User, on req: Request) async throws -> SessionResponse {
+        // Generate tokens
+        let accessTokenDTO = try accessTokenProvider.generateAccessToken(for: user)
+        let refreshTokenDTO = try await refreshTokenProvider.generateToken(for: user, on: req)
+        let userDTO = UserDTO(from: user)
+        
+        // Return session
+        let session = SessionDTO(accessToken: accessTokenDTO, refreshToken: refreshTokenDTO)
+        return SessionResponse(user: userDTO, session: session)
     }
 }
