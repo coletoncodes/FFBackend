@@ -133,7 +133,7 @@ private extension AuthenticationController {
         // Validate the refresh token
         let refreshTokenDTO: RefreshTokenDTO
         do {
-            refreshTokenDTO = try await refreshTokenProvider.validateToken(token, on: req)
+            refreshTokenDTO = try await refreshTokenProvider.validateRefreshToken(token, on: req)
         } catch {
             throw Abort(.unauthorized, reason: "Invalid refresh token.")
         }
@@ -147,8 +147,6 @@ private extension AuthenticationController {
             throw Abort(.unauthorized, reason: "No matching user's with id: \(userID)")
         }
         
-        // Invalidate the old refresh token
-//        try await refreshTokenProvider.invalidateToken(token, on: req)
         // Create the session
         return try await createSession(for: user, on: req)
     }
@@ -156,7 +154,7 @@ private extension AuthenticationController {
     func createSession(for user: User, on req: Request) async throws -> SessionResponse {
         // Generate tokens
         let accessTokenDTO = try accessTokenProvider.generateAccessToken(for: user)
-        let refreshTokenDTO = try await refreshTokenProvider.generateToken(for: user, on: req)
+        let refreshTokenDTO = try await refreshTokenProvider.generateRefreshToken(for: user, on: req)
         let userDTO = UserDTO(from: user)
         
         // Return session
