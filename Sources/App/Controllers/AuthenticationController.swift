@@ -32,6 +32,8 @@ struct AuthenticationController: RouteCollection {
             auth.post("login", use: login)
             // auth/refresh
             auth.post("refresh", use: refreshSession)
+            // auth/logout
+            auth.post("logout", use: logout)
         }
     }
 }
@@ -138,19 +140,33 @@ private extension AuthenticationController {
             throw Abort(.unauthorized, reason: "Invalid refresh token.")
         }
         
-        guard let userID = refreshTokenDTO.userID else {
-            throw Abort(.internalServerError, reason: "The ID for this user doesn't exist.")
-        }
-        
-        // Fetch the user associated with the refresh token
-        guard let user = try await userStore.find(byID: userID, on: req.db) else {
-            throw Abort(.unauthorized, reason: "No matching user's with id: \(userID)")
+        guard
+            let userID = refreshTokenDTO.userID,
+            let user = try await userStore.find(byID: userID, on: req.db)
+        else {
+            throw Abort(.internalServerError, reason: "The user doesn't exist.")
         }
         
         // Create the session
         return try await createSession(for: user, on: req)
     }
+    
+    func logout(_ req: Request) async throws -> HTTPStatus {
+        // Extract the refresh token from the request
+        guard let token = req.headers.bearerAuthorization?.token else {
+            throw Abort(.unauthorized, reason: "No refresh token found in request.")
+        }
+        
+        // Invalidate the refreshToken. Removing access completely.
+        try await refreshTokenProvider.invalidate(token, on: req)
+        
+        // Return success
+        return .ok
+    }
+}
 
+// MARK: - Helpers
+extension AuthenticationController {
     func createSession(for user: User, on req: Request) async throws -> SessionResponse {
         // Generate tokens
         let accessTokenDTO = try accessTokenProvider.generateAccessToken(for: user)

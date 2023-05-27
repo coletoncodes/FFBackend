@@ -11,6 +11,7 @@ import Vapor
 protocol RefreshTokenProviding {
     func generateRefreshToken(for user: User, on req: Request) async throws -> RefreshTokenDTO
     func validateRefreshToken(_ token: String, on req: Request) async throws -> RefreshTokenDTO
+    func invalidate(_ token: String, on req: Request) async throws
 }
 
 final class RefreshTokenProvider: RefreshTokenProviding {
@@ -46,13 +47,18 @@ final class RefreshTokenProvider: RefreshTokenProviding {
         let user = try await foundRefreshToken.$user.get(on: req.db)
         
         // Invalidate the old token.
-        try await invalidate(foundRefreshToken, on: req)
+        try await invalidate(foundRefreshToken.token, on: req)
         // Return the new token
         return try await generateRefreshToken(for: user, on: req)
     }
     
-    private func invalidate(_ token: RefreshToken, on req: Request) async throws {
+    func invalidate(_ token: String, on req: Request) async throws {
+        // Find the token in the database
+        guard let foundRefreshToken = try await tokenStore.find(token, on: req.db) else {
+            throw Abort(.unauthorized, reason: "Unable to find matching token in database.")
+        }
+        
         // Delete the token
-        try await tokenStore.delete(token, on: req.db)
+        try await tokenStore.delete(foundRefreshToken, on: req.db)
     }
 }
