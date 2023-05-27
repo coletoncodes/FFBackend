@@ -109,7 +109,7 @@ private extension AuthenticationController {
             return try await createSession(for: user, on: req)
         } catch {
             let logStr = "Password verification failed: \(error)"
-            throw Abort(.internalServerError, reason: logStr)
+            throw Abort(.unauthorized, reason: logStr)
         }
     }
     
