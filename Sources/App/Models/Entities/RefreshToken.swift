@@ -20,7 +20,7 @@ final class RefreshToken: Model, Content {
     @Parent(key: "user_id")
     var user: User
 
-    @Timestamp(key: "expires_at", on: .update)
+    @Field(key: "expires_at")
     var expiresAt: Date?
 
     init() { }

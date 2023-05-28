@@ -128,14 +128,14 @@ private extension AuthenticationController {
     /// - Returns: `SessionResponse`
     func refreshSession(_ req: Request) async throws -> SessionResponse {
         // Extract the refresh token from the request
-        guard let token = req.headers.bearerAuthorization?.token else {
+        guard let refreshToken = req.headers.bearerAuthorization?.token else {
             throw Abort(.unauthorized, reason: "No refresh token found in request.")
         }
         
         // Validate the refresh token
         let refreshTokenDTO: RefreshTokenDTO
         do {
-            refreshTokenDTO = try await refreshTokenProvider.validateRefreshToken(token, on: req)
+            refreshTokenDTO = try await refreshTokenProvider.validateRefreshToken(refreshToken, on: req)
         } catch {
             throw Abort(.unauthorized, reason: "Invalid refresh token.")
         }
@@ -151,14 +151,17 @@ private extension AuthenticationController {
         return try await createSession(for: user, on: req)
     }
     
+    /// Log's the user out and deletes the user's latest RefreshToken from the Database.
+    /// - Parameter req: The incoming `Request`, which should contain the refresh token in the authorization header.
+    /// - Returns: .ok if successfully deleted the token.
     func logout(_ req: Request) async throws -> HTTPStatus {
         // Extract the refresh token from the request
-        guard let token = req.headers.bearerAuthorization?.token else {
+        guard let refreshToken = req.headers.bearerAuthorization?.token else {
             throw Abort(.unauthorized, reason: "No refresh token found in request.")
         }
         
         // Invalidate the refreshToken. Removing access completely.
-        try await refreshTokenProvider.invalidate(token, on: req)
+        try await refreshTokenProvider.invalidate(refreshToken, on: req)
         
         // Return success
         return .ok

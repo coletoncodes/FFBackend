@@ -7,6 +7,7 @@
 
 import Foundation
 import Vapor
+import FluentKit
 
 protocol RefreshTokenProviding {
     func generateRefreshToken(for user: User, on req: Request) async throws -> RefreshTokenDTO
@@ -23,11 +24,14 @@ final class RefreshTokenProvider: RefreshTokenProviding {
             throw Abort(.unauthorized, reason: "UserID was nil.")
         }
         
+        // Remove any existing tokens
+        try await removeExistingTokens(for: user, on: req)
+        
         // Create a new RefreshToken that expires in 30 days.
         let refreshToken = RefreshToken(
             userID: userID,
             token: UUID().uuidString,
-            expiresAt: Date().addingTimeInterval(3600 * 24 * 30)
+            expiresAt: Date.thirtyDaysFromNow
         )
         
         // Save it to the database
@@ -48,6 +52,7 @@ final class RefreshTokenProvider: RefreshTokenProviding {
         
         // Invalidate the old token.
         try await invalidate(foundRefreshToken.token, on: req)
+        
         // Return the new token
         return try await generateRefreshToken(for: user, on: req)
     }
@@ -60,5 +65,23 @@ final class RefreshTokenProvider: RefreshTokenProviding {
         
         // Delete the token
         try await tokenStore.delete(foundRefreshToken, on: req.db)
+    }
+    
+    // MARK: - Helpers
+    func removeExistingTokens(for user: User, on req: Request) async throws {
+        guard let userID = user.id else {
+            throw Abort(.unauthorized, reason: "Unable to find matching tokens for user.")
+        }
+        
+        // Get Tokens
+        let tokens = try await RefreshToken
+            .query(on: req.db)
+            .filter(\.$user.$id == userID)
+            .all()
+        
+        // Delete each one
+        for refreshToken in tokens {
+            try await self.invalidate(refreshToken.token, on: req)
+        }
     }
 }

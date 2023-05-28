@@ -49,7 +49,7 @@ final class AccessTokenProvider: AccessTokenProviding {
             throw Abort(.internalServerError, reason: "Missing userID in payload.")
         }
         
-        // Create the JWT payload
+        // Create the JWT payload that expires in one hour.
         let oneHourFromNow = Date().addingTimeInterval(60 * 60)
         let payload = JWTTokenPayload(expiration: .init(value: oneHourFromNow), userID: userID)
         
