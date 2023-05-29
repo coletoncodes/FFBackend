@@ -137,7 +137,7 @@ private extension AuthenticationController {
         do {
             refreshTokenDTO = try await refreshTokenProvider.validateRefreshToken(refreshToken, on: req)
         } catch {
-            throw Abort(.unauthorized, reason: "Invalid refresh token.")
+            throw Abort(.unauthorized, reason: "Invalid refresh token. Please log in again.")
         }
         
         guard
