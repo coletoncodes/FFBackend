@@ -5,13 +5,14 @@
 //  Created by Coleton Gorecke on 5/13/23.
 //
 
+import Factory
 import Fluent
 import Vapor
 import Crypto
 
 struct UserController: RouteCollection {
-    // TODO: Move to DI
-    private let userRepo: UserStore = UserRepository()
+    // MARK: - Dependencies
+    @Injected(\.userStore) private var userStore
     
     init() { }
     
@@ -32,7 +33,7 @@ extension UserController {
             throw Abort(.badRequest, reason: "Invalid User ID.")
         }
         
-        guard let foundUser = try await userRepo.find(byID: userID, on: req.db) else {
+        guard let foundUser = try await userStore.find(byID: userID, on: req.db) else {
             throw Abort(.notFound, reason: "Unable to find a user with id: \(userID)")
         }
         
@@ -45,7 +46,7 @@ extension UserController {
         }
         
         let updatedUser = try req.content.decode(User.self)
-        return try await userRepo.update(user: updatedUser, on: req.db)
+        return try await userStore.update(user: updatedUser, on: req.db)
     }
     
     func deleteUser(_ req: Request) async throws -> HTTPStatus {
@@ -53,7 +54,7 @@ extension UserController {
             throw Abort(.badRequest, reason: "Invalid User ID.")
         }
         
-        try await userRepo.delete(userID: userID, on: req.db)
+        try await userStore.delete(userID: userID, on: req.db)
         return .ok
     }
 }
