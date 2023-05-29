@@ -5,6 +5,7 @@
 //  Created by Coleton Gorecke on 5/19/23.
 //
 
+import Factory
 import Fluent
 import Vapor
 
@@ -18,10 +19,9 @@ import Vapor
  */
 struct AuthenticationController: RouteCollection {
     // MARK: - Dependencies
-    // TODO: Move to DI
-    private let accessTokenProvider: AccessTokenProviding = AccessTokenProvider()
-    private let refreshTokenProvider: RefreshTokenProviding = RefreshTokenProvider()
-    private let userStore: UserStore = UserRepository()
+    @Injected(\.accessTokenProvider) private var accessTokenProvider
+    @Injected(\.refreshTokenProvider) private var refreshTokenProvider
+    @Injected(\.userStore) private var userStore
     
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
