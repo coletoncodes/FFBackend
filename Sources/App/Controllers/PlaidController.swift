@@ -14,7 +14,7 @@ final class PlaidController: RouteCollection {
         plaidRoutes.get("create-link-token", use: createLinkToken)
     }
     
-    /// /plaid/redirect
+    /// api/plaid/redirect
     ///
     /// Handles the redirect and exchanges the public token for an access token
     func handleRedirect(req: Request) async throws -> Response {
@@ -33,7 +33,7 @@ final class PlaidController: RouteCollection {
         return response
     }
     
-    /// /plaid/create-link-token
+    /// api/plaid/create-link-token
     ///
     /// Creates a link_token using the Plaid API
     func createLinkToken(req: Request) async throws -> Response {

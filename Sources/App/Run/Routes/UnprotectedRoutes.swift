@@ -5,11 +5,17 @@
 //  Created by Coleton Gorecke on 5/30/23.
 //
 
+import NIO
 import Vapor
 
 // MARK: - UnprotectedRoutes
 final class UnprotectedRoutes {
     let app: Application
+    
+    // MARK: - Initializer
+    init(_ app: Application) {
+        self.app = app
+    }
     
     func routes() throws {
         try app.register(collection: LeafController())

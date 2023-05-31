@@ -11,6 +11,11 @@ import Vapor
 final class ProtectedRoutes {
     let app: Application
     
+    // MARK: - Initializer
+    init(_ app: Application) {
+        self.app = app
+    }
+    
     func routes() throws {
         try app.group("api") { api in
             let protectedRoutes = api.grouped(AuthenticationMiddleware())
