@@ -1,13 +1,29 @@
-import Fluent
+//
+//  UnprotectedRoutes.swift
+//  
+//
+//  Created by Coleton Gorecke on 5/30/23.
+//
+
 import Vapor
-import NIO
 
-func routes(_ app: Application) throws {
+// MARK: - ProtectedRoutes
+final class ProtectedRoutes {
+    let app: Application
+    
+    func routes() throws {
+        try app.group("api") { api in
+            let protectedRoutes = api.grouped(AuthenticationMiddleware())
+            try protectedRoutes.register(collection: UserController())
+            try protectedRoutes.register(collection: PlaidController())
+        }
+    }
+}
+
+// MARK: - Unprotected Routes
+func unprotectedRoutes(_ app: Application) throws {
     try app.register(collection: LeafController())
-    try app.register(collection: PlaidController())
-
-    // TODO: Add once finalized.
-//    try app.register(collection: UserController())
+    try app.register(collection: AuthenticationController())
     
     // Serve apple-app-site-association
     app.get(".well-known", "apple-app-site-association") { req async throws -> Response in
@@ -26,7 +42,7 @@ func routes(_ app: Application) throws {
         guard let data = byteBuffer.getData(at: 0, length: byteBuffer.readableBytes) else {
             return Response(status: .noContent)
         }
-
+        
         var headers = HTTPHeaders()
         headers.add(name: .contentType, value: "application/json")
         
