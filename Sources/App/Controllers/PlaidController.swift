@@ -5,15 +5,23 @@
 //  Created by Coleton Gorecke on 5/18/23.
 //
 
+import Factory
 import Vapor
 
 final class PlaidController: RouteCollection {
+    // MARK: - Dependencies
+    @Injected(\.userStore) private var userStore
+    
+    // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
         let plaidRoutes = routes.grouped("plaid")
         plaidRoutes.get("redirect", use: handleRedirect)
         plaidRoutes.get("create-link-token", use: createLinkToken)
     }
-    
+}
+
+// MARK: - Requests
+extension PlaidController {
     /// api/plaid/redirect
     ///
     /// Handles the redirect and exchanges the public token for an access token
@@ -35,23 +43,26 @@ final class PlaidController: RouteCollection {
     
     /// api/plaid/create-link-token
     ///
-    /// Creates a link_token using the Plaid API
+    /// Creates a link_token using the Plaid API.
+    /// Must provide a CreateLinkTokenRequest as the body.
     func createLinkToken(req: Request) async throws -> Response {
-        // TODO: Convert to non sandbox, probably.
+        // TODO: Convert to non sandbox, eventually.
         let url = "https://sandbox.plaid.com/link/token/create"
         
-        let body = PlaidLinkTokenCreateRequest(
-            client_id: "644d45b175067100187e30eb",
-            secret: "787992f3ee35e6df430a4fd1f28446",
-            client_name: "FinanceFlow",
-            user: ["client_user_id": "user-id"],
-            products: ["auth", "transactions"],
-            country_codes: ["US"],
-            language: "en",
-            webhook: "https://sample-web-hook.com",
-            redirect_uri: "\(Constants.baseURL)/plaid/redirect",
-            account_filters: ["depository": ["account_subtypes": ["checking", "savings"]]]
-        )
+        // Decode the request body to get the userID
+        let requestBody = try req.content.decode(CreateLinkTokenRequest.self)
+        
+        // Check if the user exists in the database
+        guard let foundUser = try await userStore.find(byID: requestBody.userID, on: req.db) else {
+            throw Abort(.notFound, reason: "Unable to find a user with id: \(requestBody.userID)")
+        }
+        
+        guard let userID = foundUser.id else {
+            throw Abort(.internalServerError, reason: "Missing ID for User.")
+        }
+        
+        let plaidUser = PlaidUser(client_user_id: String(userID))
+        let body = PlaidLinkTokenCreateRequest(user: plaidUser)
         
         let clientResponse = try await req.client.post(URI(string: url)) { req in
             try req.content.encode(body, as: .json)
@@ -73,20 +84,33 @@ final class PlaidController: RouteCollection {
     case baseURL = "https://financeflow-api.herokuapp.com/"
 }
 
-// TODO: Move These
 struct PlaidLinkTokenCreateRequest: Content {
     let client_id: String
     let secret: String
     let client_name: String
-    let user: [String: String]
+    let user: PlaidUser
     let products: [String]
     let country_codes: [String]
     let language: String
-    let webhook: String
-    let redirect_uri: String
-    let account_filters: [String: [String: [String]]]
+    
+    init(user: PlaidUser) {
+        // TODO: Move to environment
+        self.client_id = "644d45b175067100187e30eb"
+        self.secret = "787992f3ee35e6df430a4fd1f28446"
+        self.client_name = "FinanceFlow"
+        self.user = user
+        self.products = ["transactions"]
+        self.country_codes = ["US"]
+        self.language = "en"
+    }
+}
+
+struct PlaidUser: Content {
+    let client_user_id: String
 }
 
 struct PlaidLinkTokenCreateResponse: Content {
     let link_token: String
+    let expiration: Date
+    let request_id: String
 }
