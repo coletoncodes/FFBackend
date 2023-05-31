@@ -40,15 +40,15 @@ final class AuthenticationControllerTests: XCTestCase {
             try req.content.encode(user)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
-            let loginResponse = try res.content.decode(LoginResponse.self)
+            let sessionResponse = try res.content.decode(SessionResponse.self)
             // Assert login response matches expected
-            XCTAssertEqual(loginResponse.user.firstName, testUserFirstName)
-            XCTAssertEqual(loginResponse.user.lastName, testUserLastName)
-            XCTAssertEqual(loginResponse.user.email, testUserEmail)
+            XCTAssertEqual(sessionResponse.user.firstName, testUserFirstName)
+            XCTAssertEqual(sessionResponse.user.lastName, testUserLastName)
+            XCTAssertEqual(sessionResponse.user.email, testUserEmail)
             
             // Assert tokens are generated
-            XCTAssertFalse(loginResponse.accessToken.token.isEmpty)
-            XCTAssertFalse(loginResponse.refreshToken.token.isEmpty)
+            XCTAssertFalse(sessionResponse.session.accessToken.token.isEmpty)
+            XCTAssertFalse(sessionResponse.session.refreshToken.token.isEmpty)
         })
     }
 
@@ -117,10 +117,15 @@ final class AuthenticationControllerTests: XCTestCase {
             try req.content.encode(registerRequest)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
-            let loginResponse = try res.content.decode(LoginResponse.self)
-            XCTAssertEqual(loginResponse.user.firstName, testUserFirstName)
-            XCTAssertEqual(loginResponse.user.lastName, testUserLastName)
-            XCTAssertEqual(loginResponse.user.email, testUserEmail)
+            let sessionResponse = try res.content.decode(SessionResponse.self)
+            // Assert login response matches expected
+            XCTAssertEqual(sessionResponse.user.firstName, testUserFirstName)
+            XCTAssertEqual(sessionResponse.user.lastName, testUserLastName)
+            XCTAssertEqual(sessionResponse.user.email, testUserEmail)
+            
+            // Assert tokens are generated
+            XCTAssertFalse(sessionResponse.session.accessToken.token.isEmpty)
+            XCTAssertFalse(sessionResponse.session.refreshToken.token.isEmpty)
         })
         
         let loginRequest = LoginRequest(email: testUserEmail, password: testUserPassword)
@@ -131,21 +136,44 @@ final class AuthenticationControllerTests: XCTestCase {
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             
-            let loginResponse = try res.content.decode(LoginResponse.self)
-            
-            // Assert the user details in the login response.
-            XCTAssertEqual(loginResponse.user.email, testUserEmail)
-            XCTAssertEqual(loginResponse.user.firstName, testUserFirstName)
-            XCTAssertEqual(loginResponse.user.lastName, testUserLastName)
+            let sessionResponse = try res.content.decode(SessionResponse.self)
+            // Assert login response matches expected
+            XCTAssertEqual(sessionResponse.user.firstName, testUserFirstName)
+            XCTAssertEqual(sessionResponse.user.lastName, testUserLastName)
+            XCTAssertEqual(sessionResponse.user.email, testUserEmail)
             
             // Assert tokens are generated
-            XCTAssertFalse(loginResponse.accessToken.token.isEmpty)
-            XCTAssertFalse(loginResponse.refreshToken.token.isEmpty)
+            XCTAssertFalse(sessionResponse.session.accessToken.token.isEmpty)
+            XCTAssertFalse(sessionResponse.session.refreshToken.token.isEmpty)
         })
     }
 
     /// Test for a Bad Request error due to an invalid email.
     func testLoginInvalidEmail() throws {
+        // Register the user first
+        let registerRequest = RegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
+        var refreshTokenDTO: RefreshTokenDTO?
+        var userDTO: UserDTO?
+        
+        try app.test(.POST, "auth/register", beforeRequest: { req in
+            try req.content.encode(registerRequest)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+            let response = try res.content.decode(SessionResponse.self)
+            XCTAssertEqual(response.user.firstName, testUserFirstName)
+            XCTAssertEqual(response.user.lastName, testUserLastName)
+            XCTAssertEqual(response.user.email, testUserEmail)
+            
+            // Set refresh token
+            refreshTokenDTO = response.session.refreshToken
+            XCTAssertNotNil(refreshTokenDTO)
+            
+            // Set the userDTO
+            userDTO = response.user
+            XCTAssertNotNil(userDTO)
+        })
+        
+        // Try to login with invalid email string.
         let loginRequest = LoginRequest(email: "invalid email", password: testUserPassword)
         // Make a login request with invalid data.
         try app.test(.POST, "auth/login", beforeRequest: { req in
@@ -157,6 +185,29 @@ final class AuthenticationControllerTests: XCTestCase {
 
     // Test for an Unauthorized error due to non-existent email.
     func testLoginNonExistentEmail() throws {
+        // Register the user first
+        let registerRequest = RegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
+        var refreshTokenDTO: RefreshTokenDTO?
+        var userDTO: UserDTO?
+        
+        try app.test(.POST, "auth/register", beforeRequest: { req in
+            try req.content.encode(registerRequest)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+            let response = try res.content.decode(SessionResponse.self)
+            XCTAssertEqual(response.user.firstName, testUserFirstName)
+            XCTAssertEqual(response.user.lastName, testUserLastName)
+            XCTAssertEqual(response.user.email, testUserEmail)
+            
+            // Set refresh token
+            refreshTokenDTO = response.session.refreshToken
+            XCTAssertNotNil(refreshTokenDTO)
+            
+            // Set the userDTO
+            userDTO = response.user
+            XCTAssertNotNil(userDTO)
+        })
+        
         let loginRequest = LoginRequest(email: "non-existent@example.com", password: testUserPassword)
         // Make a login request with a non-existent email.
         try app.test(.POST, "auth/login", beforeRequest: { req in
@@ -168,18 +219,6 @@ final class AuthenticationControllerTests: XCTestCase {
 
     // Test for an Unauthorized error due to incorrect password.
     func testLoginErrorIncorrectPassword() throws {
-        let loginRequest = LoginRequest(email: testUserEmail, password: "incorrectPassword")
-        // Make a login request with a correct email but incorrect password.
-        try app.test(.POST, "auth/login", beforeRequest: { req in
-            try req.content.encode(loginRequest)
-        }, afterResponse: { res in
-            XCTAssertEqual(res.status, .unauthorized)
-        })
-    }
-    
-    // MARK: - func refreshAccessToken(_ req: Request)
-    /// Verify the token is refreshed when it's valid.
-    func testRefreshAccessTokenWithValidToken() async throws {
         // Register the user first
         let registerRequest = RegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
         var refreshTokenDTO: RefreshTokenDTO?
@@ -189,36 +228,75 @@ final class AuthenticationControllerTests: XCTestCase {
             try req.content.encode(registerRequest)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
-            let loginResponse = try res.content.decode(LoginResponse.self)
-            XCTAssertEqual(loginResponse.user.firstName, testUserFirstName)
-            XCTAssertEqual(loginResponse.user.lastName, testUserLastName)
-            XCTAssertEqual(loginResponse.user.email, testUserEmail)
+            let response = try res.content.decode(SessionResponse.self)
+            XCTAssertEqual(response.user.firstName, testUserFirstName)
+            XCTAssertEqual(response.user.lastName, testUserLastName)
+            XCTAssertEqual(response.user.email, testUserEmail)
             
             // Set refresh token
-            refreshTokenDTO = loginResponse.refreshToken
+            refreshTokenDTO = response.session.refreshToken
             XCTAssertNotNil(refreshTokenDTO)
             
             // Set the userDTO
-            userDTO = loginResponse.user
+            userDTO = response.user
             XCTAssertNotNil(userDTO)
         })
         
-        let refreshToken = refreshTokenDTO!.token
-        XCTAssertNotNil(refreshToken)
-
+        // Log in the user
+        let loginRequest = LoginRequest(email: testUserEmail, password: "incorrectPassword")
+        // Make a login request with a correct email but incorrect password.
+        try app.test(.POST, "auth/login", beforeRequest: { req in
+            try req.content.encode(loginRequest)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .unauthorized)
+        })
+    }
+    
+    // MARK: - func refreshSession(_ req: Request)
+    /// Verify the token is refreshed when it's valid.
+    func testRefreshWithValidToken() async throws {
+        // Register the user first
+        let registerRequest = RegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
+        var refreshTokenDTO: RefreshTokenDTO?
+        var userDTO: UserDTO?
+        
+        try app.test(.POST, "auth/register", beforeRequest: { req in
+            try req.content.encode(registerRequest)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+            let response = try res.content.decode(SessionResponse.self)
+            XCTAssertEqual(response.user.firstName, testUserFirstName)
+            XCTAssertEqual(response.user.lastName, testUserLastName)
+            XCTAssertEqual(response.user.email, testUserEmail)
+            
+            // Set refresh token
+            refreshTokenDTO = response.session.refreshToken
+            XCTAssertNotNil(refreshTokenDTO)
+            
+            // Set the userDTO
+            userDTO = response.user
+            XCTAssertNotNil(userDTO)
+        })
+        
+        guard let refreshToken = refreshTokenDTO?.token else {
+            XCTFail("Nil Refresh Token was found")
+            return
+        }
+        
         // Refresh the token
         try app.test(.POST, "auth/refresh", headers: ["Authorization": "Bearer \(refreshToken)"], afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
-            let accessTokenDTO = try res.content.decode(AccessTokenDTO.self)
-            // Assert accessTokenDTO matches expected
-            XCTAssertFalse(accessTokenDTO.token.isEmpty)
+            let response = try res.content.decode(SessionResponse.self)
+            // Assert Tokens are not empty
+            XCTAssertFalse(response.session.accessToken.token.isEmpty)
+            XCTAssertFalse(response.session.refreshToken.token.isEmpty)
             // Assert UserID matches
-            XCTAssertEqual(accessTokenDTO.userID, userDTO!.id)
+            XCTAssertEqual(response.user.id, userDTO!.id)
         })
     }
 
     /// Verify that an invalidToken throws 401
-    func testRefreshAccessTokenWithInvalidToken() async throws {
+    func testRefreshWithInvalidToken() async throws {
         let invalidToken = "invalidToken"
         
         try app.test(.POST, "auth/refresh", headers: ["Authorization": "Bearer \(invalidToken)"], afterResponse: { res in
@@ -227,9 +305,45 @@ final class AuthenticationControllerTests: XCTestCase {
     }
 
     /// Verify that no token in request throws 401
-    func testRefreshAccessTokenWithNoToken() async throws {
+    func testRefreshWithNoToken() async throws {
         try app.test(.POST, "auth/refresh", afterResponse: { res in
             XCTAssertEqual(res.status, .unauthorized)
+        })
+    }
+    
+    // MARK: - func logout(_ req: Request)
+    func testLogoutSuccess() async throws {
+        // Register the user first
+        let registerRequest = RegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
+        var refreshTokenDTO: RefreshTokenDTO?
+        var userDTO: UserDTO?
+        
+        try app.test(.POST, "auth/register", beforeRequest: { req in
+            try req.content.encode(registerRequest)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+            let response = try res.content.decode(SessionResponse.self)
+            XCTAssertEqual(response.user.firstName, testUserFirstName)
+            XCTAssertEqual(response.user.lastName, testUserLastName)
+            XCTAssertEqual(response.user.email, testUserEmail)
+            
+            // Set refresh token
+            refreshTokenDTO = response.session.refreshToken
+            XCTAssertNotNil(refreshTokenDTO)
+            
+            // Set the userDTO
+            userDTO = response.user
+            XCTAssertNotNil(userDTO)
+        })
+        
+        guard let refreshToken = refreshTokenDTO?.token else {
+            XCTFail("Nil Refresh Token was found")
+            return
+        }
+        
+        // Logout
+        try app.test(.POST, "auth/logout", headers: ["Authorization": "Bearer \(refreshToken)"], afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
         })
     }
 }
