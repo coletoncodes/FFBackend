@@ -8,7 +8,7 @@
 import Fluent
 import Vapor
 
-final class RefreshToken: Model, Content {
+final class RefreshToken: Model {
     static let schema = "refresh_tokens"
 
     @ID(key: .id)
