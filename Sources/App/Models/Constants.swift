@@ -13,4 +13,8 @@ import Foundation
     
     // TODO: Convert to non sandbox, eventually.
     case plaidBaseURL = "https://sandbox.plaid.com/link/token/create"
+    
+    // TODO: Move to environment
+    case plaidClientId = "644d45b175067100187e30eb"
+    case plaidSecretKey = "787992f3ee35e6df430a4fd1f28446"
 }

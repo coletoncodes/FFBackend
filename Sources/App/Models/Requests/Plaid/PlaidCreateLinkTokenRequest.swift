@@ -21,8 +21,8 @@ struct PlaidCreateLinkTokenRequest: Content {
     
     init(user: PlaidUser) {
         // TODO: Move to environment
-        self.client_id = "644d45b175067100187e30eb"
-        self.secret = "787992f3ee35e6df430a4fd1f28446"
+        self.client_id = Constants.plaidClientId.rawValue
+        self.secret = Constants.plaidSecretKey.rawValue
         self.client_name = "FinanceFlow"
         self.user = user
         self.products = ["transactions"]
