@@ -15,8 +15,8 @@ final class PlaidController: RouteCollection {
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
         let plaidRoutes = routes.grouped("plaid")
-        plaidRoutes.get("redirect", use: handleRedirect)
-        plaidRoutes.get("create-link-token", use: createLinkToken)
+        plaidRoutes.post("redirect", use: handleRedirect)
+        plaidRoutes.post("create-link-token", use: createLinkToken)
     }
 }
 
@@ -45,10 +45,7 @@ extension PlaidController {
     ///
     /// Creates a link_token using the Plaid API.
     /// Must provide a CreateLinkTokenRequest as the body.
-    func createLinkToken(req: Request) async throws -> Response {
-        // TODO: Convert to non sandbox, eventually.
-        let url = "https://sandbox.plaid.com/link/token/create"
-        
+    func createLinkToken(req: Request) async throws -> PlaidCreateLinkTokenResponse {
         // Decode the request body to get the userID
         let requestBody = try req.content.decode(CreateLinkTokenRequest.self)
         
@@ -57,60 +54,29 @@ extension PlaidController {
             throw Abort(.notFound, reason: "Unable to find a user with id: \(requestBody.userID)")
         }
         
+        // Verify the foundUser's id isn't nil
         guard let userID = foundUser.id else {
             throw Abort(.internalServerError, reason: "Missing ID for User.")
         }
         
+        // Create request body.
         let plaidUser = PlaidUser(client_user_id: String(userID))
-        let body = PlaidLinkTokenCreateRequest(user: plaidUser)
+        let body = PlaidCreateLinkTokenRequest(user: plaidUser)
         
-        let clientResponse = try await req.client.post(URI(string: url)) { req in
+        // Create Client URL
+        let clientURI = URI(string: Constants.plaidBaseURL.rawValue)
+        
+        // Wait for response
+        let clientResponse = try await req.client.post(clientURI) { req in
             try req.content.encode(body, as: .json)
         }
         
+        // Verify it's status .200
         guard clientResponse.status == .ok else {
             throw Abort(.badRequest, reason: "Plaid API request failed")
         }
         
-        let responseBody = try clientResponse.content.decode(PlaidLinkTokenCreateResponse.self)
-        
-        let response = Response()
-        response.body = .init(string: responseBody.link_token)
-        return response
+        // Return the response
+        return try clientResponse.content.decode(PlaidCreateLinkTokenResponse.self)
     }
-}
-
-@frozen enum Constants: String {
-    case baseURL = "https://financeflow-api.herokuapp.com/"
-}
-
-struct PlaidLinkTokenCreateRequest: Content {
-    let client_id: String
-    let secret: String
-    let client_name: String
-    let user: PlaidUser
-    let products: [String]
-    let country_codes: [String]
-    let language: String
-    
-    init(user: PlaidUser) {
-        // TODO: Move to environment
-        self.client_id = "644d45b175067100187e30eb"
-        self.secret = "787992f3ee35e6df430a4fd1f28446"
-        self.client_name = "FinanceFlow"
-        self.user = user
-        self.products = ["transactions"]
-        self.country_codes = ["US"]
-        self.language = "en"
-    }
-}
-
-struct PlaidUser: Content {
-    let client_user_id: String
-}
-
-struct PlaidLinkTokenCreateResponse: Content {
-    let link_token: String
-    let expiration: Date
-    let request_id: String
 }

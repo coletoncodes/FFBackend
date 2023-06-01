@@ -9,8 +9,7 @@
 import Fluent
 import XCTVapor
 
-final class AuthenticationControllerTests: XCTestCase {
-    private var app: Application!
+final class AuthenticationControllerTests: DatabaseInteracting {
     private let testUserFirstName = "John"
     private let testUserLastName = "Doe"
     private let testUserEmail = "john@example.com"
@@ -19,25 +18,19 @@ final class AuthenticationControllerTests: XCTestCase {
     // MARK: - Lifecycle
     override func setUp() async throws {
         try await super.setUp()
-        app = Application(.testing)
-        try await configure(app)
-        try await app.autoRevert()
-        try await app.autoMigrate()
     }
 
     override func tearDownWithError() throws {
         try super.tearDownWithError()
-        app.shutdown()
-        app = nil
     }
 
     // MARK: - func register(_ req: Request)
     /// Test valid registration succeeds
     func testRegisterSuccess() throws {
-        let user = RegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
+        let registerRequest = RegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
         
         try app.test(.POST, "auth/register", beforeRequest: { req in
-            try req.content.encode(user)
+            try req.content.encode(registerRequest)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             let sessionResponse = try res.content.decode(SessionResponse.self)
@@ -54,10 +47,10 @@ final class AuthenticationControllerTests: XCTestCase {
 
     /// Verify that a badRequest is thrown when the request doesn't provide a proper email.
     func testRegisterWithInvalidEmail() throws {
-        let user = RegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: "not_an_email", password: testUserPassword, confirmPassword: testUserPassword)
+        let registerRequest = RegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: "not_an_email", password: testUserPassword, confirmPassword: testUserPassword)
         
         try app.test(.POST, "auth/register", beforeRequest: { req in
-            try req.content.encode(user)
+            try req.content.encode(registerRequest)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .badRequest)
         })
@@ -65,10 +58,10 @@ final class AuthenticationControllerTests: XCTestCase {
     
     /// Verify a .badRequest is thrown when the first name is empty.
     func testRegisterWithEmptyFirstName() throws {
-        let user = RegisterRequest(firstName: "", lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
+        let registerRequest = RegisterRequest(firstName: "", lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
         
         try app.test(.POST, "auth/register", beforeRequest: { req in
-            try req.content.encode(user)
+            try req.content.encode(registerRequest)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .badRequest)
         })
@@ -76,10 +69,10 @@ final class AuthenticationControllerTests: XCTestCase {
     
     /// Verify a .badRequest is thrown when the last name is empty.
     func testRegisterWithEmptyLastName() throws {
-        let user = RegisterRequest(firstName: testUserFirstName, lastName: "", email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
+        let registerRequest = RegisterRequest(firstName: testUserFirstName, lastName: "", email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
         
         try app.test(.POST, "auth/register", beforeRequest: { req in
-            try req.content.encode(user)
+            try req.content.encode(registerRequest)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .badRequest)
         })
@@ -87,21 +80,21 @@ final class AuthenticationControllerTests: XCTestCase {
     
     /// Verify a .badRequest is thrown when the password is less than 8 characters.
     func testRegisterWithInvalidPassword() throws {
-        let user = RegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: "1234567", confirmPassword: "1234567")
+        let registerRequest = RegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: "1234567", confirmPassword: "1234567")
         
         try app.test(.POST, "auth/register", beforeRequest: { req in
-            try req.content.encode(user)
+            try req.content.encode(registerRequest)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .badRequest)
         })
     }
 
-    /// Verify that a badRequest is thrown when the request contains missmatched passwords.
+    /// Verify that a badRequest is thrown when the request contains miss matched passwords.
     func testRegisterWithMismatchedPasswords() throws {
-        let user = RegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: "wrong_password")
+        let registerRequest = RegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: "wrong_password")
         
         try app.test(.POST, "auth/register", beforeRequest: { req in
-            try req.content.encode(user)
+            try req.content.encode(registerRequest)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .badRequest)
         })

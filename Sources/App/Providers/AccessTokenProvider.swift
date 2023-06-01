@@ -50,7 +50,10 @@ final class AccessTokenProvider: AccessTokenProviding {
         }
         
         // Create the JWT payload that expires in one hour.
-        let oneHourFromNow = Date().addingTimeInterval(60 * 60)
+        guard let oneHourFromNow = Date.oneHourFromNow else {
+            throw Abort(.internalServerError, reason: "Failed to configure date for JWT token.")
+        }
+        
         let payload = JWTTokenPayload(expiration: .init(value: oneHourFromNow), userID: userID)
         
         // Sign the JWT payload & return

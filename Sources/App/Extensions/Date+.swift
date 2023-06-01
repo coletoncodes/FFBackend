@@ -14,4 +14,11 @@ extension Date {
         dateComponents.day = 30
         return calendar.date(byAdding: dateComponents, to: .now)
     }
+    
+    static var oneHourFromNow: Date? {
+        let calendar = Calendar.current
+        var dateComponents = DateComponents()
+        dateComponents.hour = 1
+        return calendar.date(byAdding: dateComponents, to: .now)
+    }
 }
