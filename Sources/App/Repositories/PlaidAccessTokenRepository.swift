@@ -14,7 +14,7 @@ protocol PlaidAccessTokenStore {
     func delete(_ token: PlaidAccessToken, on db: Database) async throws
 }
 
-struct PlaidAccessTokenRepository: PlaidAccessTokenStore {
+final class PlaidAccessTokenRepository: PlaidAccessTokenStore {
     func save(_ token: PlaidAccessToken, on db: Database) async throws {
         try await token.save(on: db)
     }

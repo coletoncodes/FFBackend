@@ -5,14 +5,25 @@
 //  Created by Coleton Gorecke on 5/20/23.
 //
 
-import Factory
+
 import Vapor
 import Fluent
 
 final class AuthenticationMiddleware: AsyncMiddleware {
-    @Injected(\.accessTokenProvider) private var accessTokenProvider
-    @Injected(\.userStore) private var userStore
+    // MARK: - Dependencies
+    private var accessTokenProvider: AccessTokenProviding
+    private var userStore: UserStore
     
+    // MARK: - Initializer
+    init(
+        accessTokenProvider: AccessTokenProviding = AccessTokenProvider(),
+        userStore: UserStore = UserRepository()
+    ) {
+        self.accessTokenProvider = accessTokenProvider
+        self.userStore = userStore
+    }
+    
+    // MARK: - Interface
     func respond(to request: Request, chainingTo next: AsyncResponder) async throws -> Response {
         guard let token = request.headers.bearerAuthorization?.token else {
             throw Abort(.unauthorized)
