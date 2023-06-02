@@ -54,12 +54,6 @@
             </BuildableReference>
             <SkippedTests>
                <Test
-                  Identifier = "AccessTokenProviderTests">
-               </Test>
-               <Test
-                  Identifier = "AuthenticationControllerTests">
-               </Test>
-               <Test
                   Identifier = "DatabaseInteracting">
                </Test>
             </SkippedTests>
