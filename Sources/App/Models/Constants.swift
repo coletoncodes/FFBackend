@@ -8,9 +8,6 @@
 import Foundation
 
 @frozen enum Constants: String {
-    // TODO: Update with real URL
-    case baseURL = "https://financeflow-api.herokuapp.com/"
-    
     // TODO: Convert to non sandbox, eventually.
     case plaidBaseURL = "https://sandbox.plaid.com"
     
