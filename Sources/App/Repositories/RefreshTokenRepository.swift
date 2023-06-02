@@ -27,4 +27,3 @@ struct RefreshTokenRepository: RefreshTokenStore {
         try await token.delete(on: db)
     }
 }
-

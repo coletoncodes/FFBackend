@@ -68,7 +68,7 @@ private extension AuthenticationController {
         }
         
         let user = try User(from: registerRequest)
-        try await user.save(on: req.db)
+        try await userStore.save(user, on: req.db)
         
         // Return the session for the user
         return try await createSession(for: user, on: req)

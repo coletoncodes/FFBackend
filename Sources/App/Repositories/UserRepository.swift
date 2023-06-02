@@ -9,6 +9,7 @@ import Vapor
 import Fluent
 
 protocol UserStore {
+    func save(_ user: User, on db: Database) async throws
     func find(byEmail email: String, on db: Database) async throws -> User?
     func find(byID uuid: UUID, on db: Database) async throws -> User?
     func create(user: User, on db: Database) async throws -> User
@@ -17,6 +18,10 @@ protocol UserStore {
 }
 
 final class UserRepository: UserStore {
+    func save(_ user: User, on db: Database) async throws {
+        try await user.save(on: db)
+    }
+    
     func find(byEmail email: String, on db: Database) async throws -> User? {
         try await User.query(on: db)
             .filter(\.$email == email)

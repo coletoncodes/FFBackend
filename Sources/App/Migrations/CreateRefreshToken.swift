@@ -9,11 +9,12 @@ import Fluent
 
 struct CreateRefreshToken: AsyncMigration {
     func prepare(on database: Database) async throws {
-        return try await database.schema(RefreshToken.schema)
+        return try await database
+            .schema(RefreshToken.schema)
             .id()
             .field("token", .string, .required)
             .field("user_id", .uuid, .required,
-                   .references("users", .id, onDelete: .cascade))
+                   .references(User.schema, .id, onDelete: .cascade))
             .field("expires_at", .datetime, .required)
             .unique(on: "token")
             .create()
@@ -23,4 +24,3 @@ struct CreateRefreshToken: AsyncMigration {
         return try await database.schema(RefreshToken.schema).delete()
     }
 }
-

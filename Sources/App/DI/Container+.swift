@@ -10,6 +10,7 @@ import Foundation
 
 extension Container {
     
+    // MARK: - Providers
     var accessTokenProvider: Factory<AccessTokenProviding> {
         self { AccessTokenProvider() }
             .scope(.graph)
@@ -20,6 +21,7 @@ extension Container {
             .scope(.graph)
     }
     
+    // MARK: - Repositories
     var userStore: Factory<UserStore> {
         self { UserRepository() }
             .scope(.graph)
@@ -27,6 +29,16 @@ extension Container {
     
     var refreshTokenStore: Factory<RefreshTokenStore> {
         self { RefreshTokenRepository() }
+            .scope(.graph)
+    }
+    
+    var plaidAccessTokenStore: Factory<PlaidAccessTokenStore> {
+        self { PlaidAccessTokenRepository() }
+            .scope(.graph)
+    }
+    
+    var plaidLinkTokenStore: Factory<PlaidLinkTokenStore> {
+        self { PlaidLinkTokenRepository() }
             .scope(.graph)
     }
 }
