@@ -1,5 +1,5 @@
 //
-//  CreatePlaidAccessToken.swift
+//  CreatePlaidLinkToken.swift
 //  
 //
 //  Created by Coleton Gorecke on 5/31/23.
@@ -7,19 +7,19 @@
 
 import Fluent
 
-struct CreatePlaidAccessToken: AsyncMigration {
+struct CreatePlaidLinkToken: AsyncMigration {
     func prepare(on database: Database) async throws {
         return try await database
-            .schema(PlaidAccessToken.schema)
+            .schema(PlaidLinkToken.schema)
             .id()
-            .field("access_token", .string, .required)
+            .field("link_token", .string, .required)
             .field("user_id", .uuid, .required,
                    .references(User.schema, .id, onDelete: .cascade))
-            .unique(on: "access_token")
+            .unique(on: "link_token")
             .create()
     }
 
     func revert(on database: Database) async throws {
-        return try await database.schema(PlaidAccessToken.schema).delete()
+        return try await database.schema(PlaidLinkToken.schema).delete()
     }
 }

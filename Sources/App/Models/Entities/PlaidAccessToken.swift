@@ -1,5 +1,5 @@
 //
-//  PlaidPublicToken.swift
+//  PlaidAccessToken.swift
 //  
 //
 //  Created by Coleton Gorecke on 5/31/23.
@@ -8,14 +8,14 @@
 import Vapor
 import Fluent
 
-final class PlaidPublicToken: Model {
-    static let schema = "plaid_public_tokens"
+final class PlaidAccessToken: Model {
+    static let schema = "plaid_access_tokens"
 
     @ID(key: .id)
     var id: UUID?
 
-    @Field(key: "link_token")
-    var linkToken: String
+    @Field(key: "access_token")
+    var accessToken: String
 
     @Parent(key: "user_id")
     var user: User
@@ -25,10 +25,10 @@ final class PlaidPublicToken: Model {
     init(
         id: UUID? = nil,
         userID: UUID,
-        linkToken: String
+        accessToken: String
     ) {
         self.id = id
         self.$user.id = userID
-        self.linkToken = linkToken
+        self.accessToken = accessToken
     }
 }

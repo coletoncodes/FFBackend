@@ -11,6 +11,8 @@ import Vapor
 final class PlaidController: RouteCollection {
     // MARK: - Dependencies
     @Injected(\.userStore) private var userStore
+    @Injected(\.plaidAccessTokenStore) private var plaidAccessTokenStore
+    @Injected(\.plaidLinkTokenStore) private var plaidLinkTokenStore
     
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
@@ -45,7 +47,7 @@ extension PlaidController {
         let body = PlaidCreateLinkTokenRequest(user: plaidUser)
         
         // Create Client URL
-        let clientURI = URI(string: Constants.plaidBaseURL.rawValue)
+        let clientURI = URI(string: Constants.plaidBaseURL.rawValue + "/link/token/create")
         
         // Wait for response
         let clientResponse = try await req.client.post(clientURI) { req in
@@ -57,28 +59,64 @@ extension PlaidController {
             throw Abort(.badRequest, reason: "Plaid API request failed")
         }
         
-        // Return the response
-        return try clientResponse.content.decode(PlaidCreateLinkTokenResponse.self)
+        let response = try clientResponse.content.decode(PlaidCreateLinkTokenResponse.self)
+        
+        // Save Token
+        let plaidLinkToken = PlaidLinkToken(userID: userID, linkToken: response.link_token)
+        try await plaidLinkTokenStore.save(plaidLinkToken, on: req.db)
+        
+        return response
     }
     
     /// api/plaid/exchange-link-token
     ///
-    /// Exchanges the linkToken for a public access token.
-    func exchangeLinkToken(req: Request) async throws -> Response {
-        // Extract the public_token from the request
-        guard let publicToken = req.query[String.self, at: "public_token"] else {
-            throw Abort(.badRequest, reason: "Missing public_token in request")
+    /// Exchanges the linkToken for a public access token using the Plaid API.
+    /// Must provide a ExchangeLinkTokenRequest as the body.
+    func exchangeLinkToken(req: Request) async throws -> PlaidExchangeLinkTokenResponse {
+        // Decode the request body to get the userID
+        let requestBody = try req.content.decode(ExchangeLinkTokenRequest.self)
+        
+        // Check if the user exists in the database
+        guard let foundUser = try await userStore.find(byID: requestBody.userID, on: req.db) else {
+            throw Abort(.notFound, reason: "Unable to find a user with id: \(requestBody.userID)")
         }
         
-        // Here you can process the public_token, such as exchanging it for an access_token.
-        // You should use Plaid's API for this.
-        // Store securely, with the related user.
+        // Verify the foundUser's id isn't nil.
+        guard let userID = foundUser.id else {
+            throw Abort(.internalServerError, reason: "Missing ID for User.")
+        }
         
-        // As an example, here's a placeholder response
-        let response = Response()
-        response.body = .init(string: "Received public_token: \(publicToken)")
+        // Get the saved public_id for the user.
+        guard let plaidLinkToken = try await plaidLinkTokenStore.findTokenForUser(userID, on: req.db) else {
+            throw Abort(.internalServerError, reason: "Unable to find matching Plaid Link Token for user.")
+        }
+        
+        // Create request body.
+        let body = PlaidExchangeLinkTokenRequest(public_token: plaidLinkToken.linkToken)
+        print("Sending Body: \(body)")
+        
+        // Create Client URL
+        let clientURI = URI(string: Constants.plaidBaseURL.rawValue + "/item/public_token/exchange")
+        
+        // Wait for response
+        let clientResponse = try await req.client.post(clientURI) { req in
+            try req.content.encode(body, as: .json)
+        }
+        
+        print(String(buffer: clientResponse.body!))
+        let response = try clientResponse.content.decode(PlaidExchangeLinkTokenResponse.self)
+        
+        // Save the token
+        let plaidAccessToken = PlaidAccessToken(userID: userID, accessToken: response.access_token)
+        try await plaidAccessTokenStore.save(plaidAccessToken, on: req.db)
+        
+        // Return response
         return response
     }
+}
+
+struct ExchangeLinkTokenRequest: Content {
+    let userID: UUID
 }
 
 struct PlaidExchangeLinkTokenRequest: Content {
@@ -91,4 +129,10 @@ struct PlaidExchangeLinkTokenRequest: Content {
         self.secret = Constants.plaidSecretKey.rawValue
         self.public_token = public_token
     }
+}
+
+struct PlaidExchangeLinkTokenResponse: Content {
+    let access_token: String
+    let item_id: String
+    let request_id: String
 }
