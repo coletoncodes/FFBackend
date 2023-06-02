@@ -5,16 +5,21 @@
 //  Created by Coleton Gorecke on 5/13/23.
 //
 
-import Factory
+
 import Fluent
 import Vapor
 import Crypto
 
 struct UserController: RouteCollection {
     // MARK: - Dependencies
-    @Injected(\.userStore) private var userStore
+    private var userStore: UserStore
     
-    init() { }
+    // MARK: - Initializer
+    init(
+        userStore: UserStore = UserRepository()
+    ) {
+        self.userStore = userStore
+    }
     
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {

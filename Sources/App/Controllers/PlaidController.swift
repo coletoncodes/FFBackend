@@ -5,14 +5,25 @@
 //  Created by Coleton Gorecke on 5/18/23.
 //
 
-import Factory
+
 import Vapor
 
 final class PlaidController: RouteCollection {
     // MARK: - Dependencies
-    @Injected(\.userStore) private var userStore
-    @Injected(\.plaidAccessTokenStore) private var plaidAccessTokenStore
-    @Injected(\.plaidLinkTokenStore) private var plaidLinkTokenStore
+    private var userStore: UserStore
+    private var plaidAccessTokenStore: PlaidAccessTokenStore
+    private var plaidLinkTokenStore: PlaidLinkTokenStore
+    
+    // MARK: - Initializer
+    init(
+        userStore: UserStore = UserRepository(),
+        plaidAccessTokenStore: PlaidAccessTokenStore = PlaidAccessTokenRepository(),
+        plaidLinkTokenStore: PlaidLinkTokenStore = PlaidLinkTokenRepository()
+    ) {
+        self.userStore = userStore
+        self.plaidAccessTokenStore = plaidAccessTokenStore
+        self.plaidLinkTokenStore = plaidLinkTokenStore
+    }
     
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
