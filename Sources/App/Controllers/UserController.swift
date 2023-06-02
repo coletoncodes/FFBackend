@@ -5,84 +5,56 @@
 //  Created by Coleton Gorecke on 5/13/23.
 //
 
+import Factory
 import Fluent
 import Vapor
 import Crypto
 
 struct UserController: RouteCollection {
+    // MARK: - Dependencies
+    @Injected(\.userStore) private var userStore
+    
+    init() { }
+    
+    // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
-        let users = routes.grouped("users")
-        
-        // Unprotected routes
-        users.post("create", use: create)
-        
-        // Protected routes
-        let passwordProtected = users.grouped(User.authenticator())
-        passwordProtected.post("login", use: login)
-        passwordProtected.get(use: index)
-        passwordProtected.get(":userID", use: read)
-        passwordProtected.put(":userID", use: update)
-        passwordProtected.delete(":userID", use: delete)
+        routes.group("users") { users in
+            users.get(":userID", use: getUser)
+            users.put(":userID", use: updateUser)
+            users.delete(":userID", use: deleteUser)
+        }
     }
-    
-    /// Verifies the user's email exists in the request, and the database.
-    /// Then saves the token into the database for future requests using token validation.
-    func login(req: Request) async throws -> UserToken {
-        let user = try req.auth.require(User.self)
-        let token = try user.generateToken()
-        try await token.save(on: req.db)
-        return token
-    }
-    
-    // Create user
-    func create(req: Request) async throws -> User {
-        let create = try req.content.decode(User.Create.self)
-        
-        guard create.password == create.confirmPassword else {
-            throw Abort(.badRequest, reason: "Passwords did not match")
+}
+
+// MARK: - Requests
+extension UserController {
+    func getUser(_ req: Request) async throws -> User {
+        guard let userID = req.parameters.get("userID", as: UUID.self) else {
+            throw Abort(.badRequest, reason: "Invalid User ID.")
         }
         
-        let user = try User(
-            name: create.name,
-            email: create.email,
-            passwordHash: Bcrypt.hash(create.password)
-        )
+        guard let foundUser = try await userStore.find(byID: userID, on: req.db) else {
+            throw Abort(.notFound, reason: "Unable to find a user with id: \(userID)")
+        }
         
-        try await user.save(on: req.db)
-        return user
+        return foundUser
     }
     
-    // Get all users
-    func index(req: Request) async throws -> [User] {
-        try await User.query(on: req.db).all()
-    }
-    
-    // Get user by ID
-    func read(req: Request) async throws -> User {
-        guard let user = try await User.find(req.parameters.get("userID"), on: req.db) else {
-            throw Abort(.notFound)
+    func updateUser(_ req: Request) async throws -> User {
+        guard let _ = req.parameters.get("userID", as: UUID.self) else {
+            throw Abort(.badRequest, reason: "Missing User ID")
         }
-        return user
-    }
-    
-    // Update user
-    func update(req: Request) async throws -> User {
-        guard let existingUser = try await User.find(req.parameters.get("userID"), on: req.db) else {
-            throw Abort(.notFound)
-        }
+        
         let updatedUser = try req.content.decode(User.self)
-        existingUser.name = updatedUser.name
-        existingUser.email = updatedUser.email
-        try await existingUser.save(on: req.db)
-        return existingUser
+        return try await userStore.update(user: updatedUser, on: req.db)
     }
     
-    // Delete user
-    func delete(req: Request) async throws -> HTTPStatus {
-        guard let user = try await User.find(req.parameters.get("userID"), on: req.db) else {
-            throw Abort(.notFound)
+    func deleteUser(_ req: Request) async throws -> HTTPStatus {
+        guard let userID = req.parameters.get("userID", as: UUID.self) else {
+            throw Abort(.badRequest, reason: "Invalid User ID.")
         }
-        try await user.delete(on: req.db)
-        return .noContent
+        
+        try await userStore.delete(userID: userID, on: req.db)
+        return .ok
     }
 }

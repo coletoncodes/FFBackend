@@ -10,6 +10,7 @@ import Vapor
 
 struct LeafController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
+        // root
         routes.get { req async throws -> View in
             try await req.view.render("home")
         }
