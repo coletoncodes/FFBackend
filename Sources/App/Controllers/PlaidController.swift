@@ -28,7 +28,7 @@ extension PlaidController {
     ///
     /// Creates a link_token using the Plaid API.
     /// Must provide a CreateLinkTokenRequest as the body.
-    func createLinkToken(req: Request) async throws -> PlaidCreateLinkTokenResponse {
+    func createLinkToken(req: Request) async throws -> CreateLinkTokenResponse {
         // Decode the request body to get the userID
         let requestBody = try req.content.decode(CreateLinkTokenRequest.self)
         
@@ -65,7 +65,7 @@ extension PlaidController {
         let plaidLinkToken = PlaidLinkToken(userID: userID, linkToken: response.link_token)
         try await plaidLinkTokenStore.save(plaidLinkToken, on: req.db)
         
-        return response
+        return CreateLinkTokenResponse(linkToken: response.link_token)
     }
     
     /// api/plaid/exchange-link-token

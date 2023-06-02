@@ -35,9 +35,9 @@ final class PlaidControllerTests: AuthenticatedTestCase {
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             // Decode the response
-            let responseBody = try res.content.decode(PlaidCreateLinkTokenResponse.self)
-            // Check if link_token is non-empty
-            XCTAssertFalse(responseBody.link_token.isEmpty)
+            let responseBody = try res.content.decode(CreateLinkTokenResponse.self)
+            // Check if linkToken is non-empty
+            XCTAssertFalse(responseBody.linkToken.isEmpty)
         })
     }
 
