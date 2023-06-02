@@ -14,7 +14,7 @@ protocol RefreshTokenStore {
     func delete(_ token: RefreshToken, on db: Database) async throws
 }
 
-struct RefreshTokenRepository: RefreshTokenStore {
+final class RefreshTokenRepository: RefreshTokenStore {
     func save(_ token: RefreshToken, on db: Database) async throws {
         try await token.save(on: db)
     }

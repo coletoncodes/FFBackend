@@ -5,7 +5,6 @@
 //  Created by Coleton Gorecke on 5/20/23.
 //
 
-import Factory
 import Foundation
 import Vapor
 import FluentKit
@@ -17,8 +16,17 @@ protocol RefreshTokenProviding {
 }
 
 final class RefreshTokenProvider: RefreshTokenProviding {
-    @Injected(\.refreshTokenStore) private var tokenStore
+    // MARK: - Dependencies
+    private var tokenStore: RefreshTokenStore
     
+    // MARK: - Initializer
+    init(
+        tokenStore: RefreshTokenStore = RefreshTokenRepository()
+    ) {
+        self.tokenStore = tokenStore
+    }
+    
+    // MARK: - Interface
     func generateRefreshToken(for user: User, on req: Request) async throws -> RefreshTokenDTO {
         guard let userID = user.id else {
             throw Abort(.unauthorized, reason: "UserID was nil.")
