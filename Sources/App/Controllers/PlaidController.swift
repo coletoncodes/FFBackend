@@ -12,17 +12,14 @@ final class PlaidController: RouteCollection {
     // MARK: - Dependencies
     private var userStore: UserStore
     private var plaidAccessTokenStore: PlaidAccessTokenStore
-    private var plaidLinkTokenStore: PlaidLinkTokenStore
     
     // MARK: - Initializer
     init(
         userStore: UserStore = UserRepository(),
-        plaidAccessTokenStore: PlaidAccessTokenStore = PlaidAccessTokenRepository(),
-        plaidLinkTokenStore: PlaidLinkTokenStore = PlaidLinkTokenRepository()
+        plaidAccessTokenStore: PlaidAccessTokenStore = PlaidAccessTokenRepository()
     ) {
         self.userStore = userStore
         self.plaidAccessTokenStore = plaidAccessTokenStore
-        self.plaidLinkTokenStore = plaidLinkTokenStore
     }
     
     // MARK: - RoutesBuilder
@@ -71,11 +68,6 @@ extension PlaidController {
         }
         
         let response = try clientResponse.content.decode(PlaidCreateLinkTokenResponse.self)
-        
-        // Save Token
-        let plaidLinkToken = PlaidLinkToken(userID: userID, linkToken: response.link_token)
-        try await plaidLinkTokenStore.save(plaidLinkToken, on: req.db)
-        
         return CreateLinkTokenResponse(linkToken: response.link_token)
     }
     
@@ -97,14 +89,8 @@ extension PlaidController {
             throw Abort(.internalServerError, reason: "Missing ID for User.")
         }
         
-        // Get the saved public_id for the user.
-        guard let plaidLinkToken = try await plaidLinkTokenStore.findTokenForUser(userID, on: req.db) else {
-            throw Abort(.internalServerError, reason: "Unable to find matching Plaid Link Token for user.")
-        }
-        
         // Create request body.
-        let body = PlaidExchangeLinkTokenRequest(public_token: plaidLinkToken.linkToken)
-        print("Sending Body: \(body)")
+        let body = PlaidExchangeLinkTokenRequest(public_token: requestBody.linkToken)
         
         // Create Client URL
         let clientURI = URI(string: Constants.plaidBaseURL.rawValue + "/item/public_token/exchange")
@@ -114,7 +100,6 @@ extension PlaidController {
             try req.content.encode(body, as: .json)
         }
         
-        print(String(buffer: clientResponse.body!))
         let response = try clientResponse.content.decode(PlaidExchangeLinkTokenResponse.self)
         
         // Save the token
@@ -126,8 +111,10 @@ extension PlaidController {
     }
 }
 
+// TODO: This will change, and may need removed.
 struct ExchangeLinkTokenRequest: Content {
     let userID: UUID
+    let linkToken: String
 }
 
 struct PlaidExchangeLinkTokenRequest: Content {
