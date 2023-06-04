@@ -23,6 +23,9 @@ public func configure(_ app: Application) async throws {
     // TODO: Inject from environment
     app.jwt.signers.use(.hs256(key: "your-secret-key"))
     
+    // Migrate database
+    try await app.autoMigrate()
+    
     // register routes
     try routes(app)
 }

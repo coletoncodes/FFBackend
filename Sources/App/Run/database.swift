@@ -15,14 +15,19 @@ func configureDatabase(for app: Application) throws {
         configuration = try SQLPostgresConfiguration.developmentConfig()
     case .production:
         guard let databaseURL = Environment.get("DATABASE_URL") else {
-            app.logger.error("No DATABASE_URL was found, exiting.")
-            throw Abort(.internalServerError)
+            throw Abort(.internalServerError, reason: "No DATABASE_URL was found, exiting.")
         }
+        
+        var tlsConfig: TLSConfiguration = .makeClientConfiguration()
+        tlsConfig.certificateVerification = .none
+        let nioSSLContext = try NIOSSLContext(configuration: tlsConfig)
+        
+        var postgresConfig = try SQLPostgresConfiguration(url: databaseURL)
+        postgresConfig.coreConfiguration.tls = .require(nioSSLContext)
         configuration = try SQLPostgresConfiguration(url: databaseURL)
     default:
         throw Abort(.internalServerError)
     }
-    
     app.databases.use(.postgres(configuration: configuration), as: .psql)
 }
 
