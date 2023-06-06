@@ -24,7 +24,7 @@ func configureDatabase(for app: Application) throws {
         
         var postgresConfig = try SQLPostgresConfiguration(url: databaseURL)
         postgresConfig.coreConfiguration.tls = .require(nioSSLContext)
-        configuration = try SQLPostgresConfiguration(url: databaseURL)
+        configuration = postgresConfig
     default:
         throw Abort(.internalServerError)
     }
