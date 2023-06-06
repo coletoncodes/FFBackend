@@ -16,7 +16,7 @@ class DatabaseInteracting: XCTestCase {
     override func setUp() async throws {
         try await super.setUp()
         app = Application(.testing)
-        try configure(app)
+        try await configure(app)
         try await app.autoRevert()
         try await app.autoMigrate()
     }

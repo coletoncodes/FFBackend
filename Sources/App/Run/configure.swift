@@ -6,7 +6,7 @@ import Leaf
 import Vapor
 
 // configures your application
-public func configure(_ app: Application) throws {
+public func configure(_ app: Application) async throws {
     // uncomment to serve files from /Public folder
     //    app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
     
@@ -24,7 +24,8 @@ public func configure(_ app: Application) throws {
     app.jwt.signers.use(.hs256(key: "your-secret-key"))
     
     // Migrate database
-//    try await app.autoMigrate()
+    try await app.autoRevert()
+    try await app.autoMigrate()
     
     // register routes
     try routes(app)
