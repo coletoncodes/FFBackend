@@ -24,7 +24,8 @@ public func configure(_ app: Application) throws {
     app.jwt.signers.use(.hs256(key: "your-secret-key"))
     
     // Migrate database
-//    try await app.autoMigrate()
+    try app.autoRevert().wait()
+    try app.autoMigrate().wait()
     
     // register routes
     try routes(app)
