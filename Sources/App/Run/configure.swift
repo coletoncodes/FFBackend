@@ -32,12 +32,12 @@ public func configure(_ app: Application) async throws {
 //        fatalError("Failed to run autoRevert." + String(reflecting: error))
 //    }
     
-    do {
-        try await app.autoMigrate()
-    } catch {
-        app.logger.report(error: error)
-        fatalError("Failed to run autoMigrate." + String(reflecting: error))
-    }
+//    do {
+//        try await app.autoMigrate()
+//    } catch {
+//        app.logger.report(error: error)
+//        fatalError("Failed to run autoMigrate." + String(reflecting: error))
+//    }
     
     // register routes
     try routes(app)
