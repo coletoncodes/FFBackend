@@ -1,2 +1,2 @@
 web: App serve --env production --hostname 0.0.0.0 --port $PORT
-release: App migrate -y
+release: App migrate -y --env production
