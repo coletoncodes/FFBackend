@@ -14,6 +14,7 @@ private extension Vapor.Application {
                     continuation.resume()
                 } catch {
                     continuation.resume(throwing: error)
+                    logger.report(error: error.localizedDescription)
                 }
             }
         }
@@ -49,7 +50,7 @@ enum Entrypoint {
         do {
             try await app.runFromAsyncMainEntrypoint()
         } catch {
-            app.logger.report(error: error)
+            app.logger.report(error: error.localizedDescription)
             fatalError("Failed to run from asyncMainEntrypoint at." + String(reflecting: error))
         }
     }
