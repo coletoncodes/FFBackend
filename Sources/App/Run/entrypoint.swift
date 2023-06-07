@@ -39,18 +39,18 @@ enum Entrypoint {
         app.logger.info("Running on Environment: \(env.name)")
         
         
-        Task.detached {
-            do {
-                try await configure(app)
-            } catch {
-                fatalError("Failed to run configure at main." + String(reflecting: error))
-            }
-            
-            do {
-                try await app.runFromAsyncMainEntrypoint()
-            } catch {
-                fatalError("Failed to run from asyncMainEntrypoint at." + String(reflecting: error))
-            }
+        do {
+            try await configure(app)
+        } catch {
+            app.logger.report(error: error)
+            fatalError("Failed to run configure at main." + String(reflecting: error))
+        }
+        
+        do {
+            try await app.runFromAsyncMainEntrypoint()
+        } catch {
+            app.logger.report(error: error)
+            fatalError("Failed to run from asyncMainEntrypoint at." + String(reflecting: error))
         }
     }
 }

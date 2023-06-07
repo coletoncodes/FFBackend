@@ -24,7 +24,20 @@ public func configure(_ app: Application) async throws {
     app.jwt.signers.use(.hs256(key: "your-secret-key"))
     
     // Migrate database
-    try await app.autoMigrate()
+    // TODO: Remove autoRevert
+    do {
+        try await app.autoRevert()
+    } catch {
+        app.logger.report(error: error)
+        fatalError("Failed to run autoRevert." + String(reflecting: error))
+    }
+    
+    do {
+        try await app.autoMigrate()
+    } catch {
+        app.logger.report(error: error)
+        fatalError("Failed to run autoMigrate." + String(reflecting: error))
+    }
     
     // register routes
     try routes(app)
