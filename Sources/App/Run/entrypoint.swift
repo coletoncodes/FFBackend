@@ -13,8 +13,8 @@ private extension Vapor.Application {
                     try self.run()
                     continuation.resume()
                 } catch {
+                    logger.report(error: error)
                     continuation.resume(throwing: error)
-                    logger.report(error: error.localizedDescription)
                 }
             }
         }
@@ -37,21 +37,20 @@ enum Entrypoint {
         let app = Application(env)
         defer { app.shutdown() }
         
-        app.logger.info("Running on Environment: \(env.name)")
-        
+        app.logger.info("Running on Environment: \(env)")
         
         do {
             try await configure(app)
         } catch {
             app.logger.report(error: error)
-            fatalError("Failed to run configure at main." + String(reflecting: error))
+            fatalError("Failed to run configure at main." + String(reflecting: error.localizedDescription))
         }
         
         do {
             try await app.runFromAsyncMainEntrypoint()
         } catch {
-            app.logger.report(error: error.localizedDescription)
-            fatalError("Failed to run from asyncMainEntrypoint at." + String(reflecting: error))
+            app.logger.report(error: error)
+            fatalError("Failed to run from asyncMainEntrypoint at." + String(reflecting: error.localizedDescription))
         }
     }
 }

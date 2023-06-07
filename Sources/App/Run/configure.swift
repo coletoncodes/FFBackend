@@ -11,7 +11,12 @@ public func configure(_ app: Application) async throws {
     //    app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
     
     // Setup Database
-    try configureDatabase(for: app)
+    do {
+        try configureDatabase(for: app)
+    } catch {
+        app.logger.report(error: error)
+        app.logger.debug("Failed to configure database.")
+    }
     
     // Add Migrations
     addMigrations(app)
@@ -22,22 +27,6 @@ public func configure(_ app: Application) async throws {
     // Setup JSW signer
     // TODO: Inject from environment
     app.jwt.signers.use(.hs256(key: "your-secret-key"))
-    
-    // Migrate database
-    // TODO: Remove autoRevert
-//    do {
-//        try await app.autoRevert()
-//    } catch {
-//        app.logger.report(error: error)
-//        fatalError("Failed to run autoRevert." + String(reflecting: error))
-//    }
-    
-//    do {
-//        try await app.autoMigrate()
-//    } catch {
-//        app.logger.report(error: error)
-//        fatalError("Failed to run autoMigrate." + String(reflecting: error))
-//    }
     
     // register routes
     try routes(app)
