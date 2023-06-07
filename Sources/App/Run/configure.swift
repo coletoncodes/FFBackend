@@ -25,12 +25,12 @@ public func configure(_ app: Application) async throws {
     
     // Migrate database
     // TODO: Remove autoRevert
-    do {
-        try await app.autoRevert()
-    } catch {
-        app.logger.report(error: error)
-        fatalError("Failed to run autoRevert." + String(reflecting: error))
-    }
+//    do {
+//        try await app.autoRevert()
+//    } catch {
+//        app.logger.report(error: error)
+//        fatalError("Failed to run autoRevert." + String(reflecting: error))
+//    }
     
     do {
         try await app.autoMigrate()
