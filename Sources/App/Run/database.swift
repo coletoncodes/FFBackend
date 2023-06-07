@@ -18,7 +18,7 @@ func configureDatabase(for app: Application) throws {
             throw Abort(.internalServerError, reason: "No DATABASE_URL was found, exiting.")
         }
         
-        app.logger.info("Running on Database URL: \(databaseURL)")
+        app.logger.log(level: .info, "Running on Database URL: \(databaseURL)")
         
         var tlsConfig: TLSConfiguration = .makeClientConfiguration()
         tlsConfig.certificateVerification = .none
