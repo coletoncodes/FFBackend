@@ -26,7 +26,7 @@ final class AuthenticationMiddleware: AsyncMiddleware {
     // MARK: - Interface
     func respond(to request: Request, chainingTo next: AsyncResponder) async throws -> Response {
         guard let token = request.headers.bearerAuthorization?.token else {
-            throw Abort(.unauthorized)
+            throw Abort(.unauthorized, reason: "Invalid accessToken")
         }
         
         do {
