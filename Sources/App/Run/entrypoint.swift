@@ -1,6 +1,7 @@
 import Vapor
 import Dispatch
 import Logging
+import PostgresNIO
 
 /// This extension is temporary and can be removed once Vapor gets this support.
 private extension Vapor.Application {
@@ -37,7 +38,7 @@ enum Entrypoint {
         let app = Application(env)
         defer { app.shutdown() }
         
-        app.logger.info("Running on Environment: \(env)")
+        app.logger.info("Running on environment: \(env.name)")
         
         do {
             try await configure(app)
@@ -49,8 +50,10 @@ enum Entrypoint {
         do {
             try await app.runFromAsyncMainEntrypoint()
         } catch {
-            app.logger.report(error: error)
-            fatalError("Failed to run from asyncMainEntrypoint at." + String(reflecting: error.localizedDescription))
+            if let psqlError = error as? PSQLError {
+                print(psqlError.underlying)
+            }
+            fatalError("Failed to run from asyncMainEntrypoint" + String(reflecting: error))
         }
     }
 }

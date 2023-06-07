@@ -82,6 +82,24 @@
             ReferencedContainer = "container:">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "serve --auto-migrate"
+            isEnabled = "NO">
+         </CommandLineArgument>
+      </CommandLineArguments>
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "DATABASE_URL"
+            value = "postgres://mmffbixtpmeptz:c0fdf048065474d5425573bafafb8ac9e6e9d3b8b1a85dc7c535b3c873e8865f@ec2-3-214-103-146.compute-1.amazonaws.com:5432/ddr52t0bav1pq2"
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "ENV"
+            value = "production"
+            isEnabled = "NO">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
