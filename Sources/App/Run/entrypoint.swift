@@ -51,7 +51,8 @@ enum Entrypoint {
             try await app.runFromAsyncMainEntrypoint()
         } catch {
             if let psqlError = error as? PSQLError {
-                print(psqlError.underlying)
+                let message = Logger.Message(stringLiteral: "\(String(describing: psqlError.underlying))")
+                app.logger.error(message)
             }
             fatalError("Failed to run from asyncMainEntrypoint" + String(reflecting: error))
         }

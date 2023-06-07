@@ -26,7 +26,7 @@ final class AuthenticationMiddleware: AsyncMiddleware {
     // MARK: - Interface
     func respond(to request: Request, chainingTo next: AsyncResponder) async throws -> Response {
         guard let token = request.headers.bearerAuthorization?.token else {
-            throw Abort(.unauthorized, reason: "Invalid accessToken")
+            throw Abort(.unauthorized, reason: "Missing accessToken in header")
         }
         
         do {
@@ -35,7 +35,7 @@ final class AuthenticationMiddleware: AsyncMiddleware {
             // Verify user exists.
             let _ = try await userStore.find(byID: jwtPayload.userID, on: request.db)
         } catch {
-            throw Abort(.unauthorized)
+            throw Abort(.unauthorized, reason: "Access token is invalid, or the user could not be found.")
         }
         
         return try await next.respond(to: request)
