@@ -38,7 +38,19 @@ enum Entrypoint {
         
         app.logger.info("Running on Environment: \(env.name)")
         
-        try await configure(app)
-        try await app.runFromAsyncMainEntrypoint()
+        
+        
+        do {
+            try await configure(app)
+        } catch {
+            fatalError(String(reflecting: error))
+        }
+        
+        do {
+            try await app.runFromAsyncMainEntrypoint()
+        } catch {
+            fatalError(String(reflecting: error))
+        }
+        
     }
 }
