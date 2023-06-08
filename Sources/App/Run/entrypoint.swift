@@ -6,7 +6,7 @@ import PostgresNIO
 /// This extension is temporary and can be removed once Vapor gets this support.
 private extension Vapor.Application {
     static let baseExecutionQueue = DispatchQueue(label: "vapor.codes.entrypoint")
-    
+
     func runFromAsyncMainEntrypoint() async throws {
         try await withCheckedThrowingContinuation { continuation in
             Vapor.Application.baseExecutionQueue.async { [self] in
