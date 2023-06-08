@@ -47,7 +47,7 @@ extension UserController {
     
     func updateUser(_ req: Request) async throws -> User {
         guard let _ = req.parameters.get("userID", as: UUID.self) else {
-            throw Abort(.badRequest, reason: "Missing User ID")
+            throw Abort(.unauthorized, reason: "Missing User ID")
         }
         
         let updatedUser = try req.content.decode(User.self)

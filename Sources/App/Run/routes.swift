@@ -10,7 +10,6 @@ func routes(_ app: Application) throws {
     let protectedRoutes = ProtectedRoutes(app)
     try protectedRoutes.routes()
     
-//     Print out all available routes
     print("Available Routes:")
     for route in app.routes.all {
         print(route.description)

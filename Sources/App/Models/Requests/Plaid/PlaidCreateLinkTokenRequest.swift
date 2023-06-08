@@ -18,6 +18,7 @@ struct PlaidCreateLinkTokenRequest: Content {
     let products: [String]
     let country_codes: [String]
     let language: String
+    let redirect_uri: String
     
     init(user: PlaidUser) {
         // TODO: Move to environment
@@ -28,6 +29,7 @@ struct PlaidCreateLinkTokenRequest: Content {
         self.products = ["transactions"]
         self.country_codes = ["US"]
         self.language = "en"
+        self.redirect_uri = "https://financeflow-api.herokuapp.com/api/plaid/redirect"
     }
 }
 
