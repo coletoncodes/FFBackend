@@ -5,8 +5,7 @@
             {
                 "appID": "435ZY68D35.com.cg.FinanceFlow",
                 "paths": [
-                    "NOT /_/*",
-                    "/plaid/redirect/*"
+                    "api/plaid/redirect/*"
                 ]
             }
         ]
