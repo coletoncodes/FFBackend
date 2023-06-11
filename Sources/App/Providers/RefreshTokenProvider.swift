@@ -58,7 +58,7 @@ final class RefreshTokenProvider: RefreshTokenProviding {
         // Get the user associated with the token
         let user = try await foundRefreshToken.$user.get(on: req.db)
         
-        // Invalidate the old token.
+        // Invalidate any old tokens for the user.
         try await invalidate(foundRefreshToken.token, on: req)
         
         // Return the new token

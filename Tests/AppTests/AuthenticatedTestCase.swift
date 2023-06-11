@@ -30,13 +30,12 @@ class AuthenticatedTestCase: DatabaseInteracting {
     // MARK: - Interface
     private(set) var sessionResponse: SessionResponse!
     
-    var accessTokenHeader: HTTPHeaders {
-        // Create the headers
+    var authHeaders: HTTPHeaders {
         var headers = HTTPHeaders()
-        // Create the Access Token
         let accessToken = sessionResponse.session.accessToken.token
-        // Add auth header
         headers.add(name: .authorization, value: "Bearer \(accessToken)")
+        let refreshToken = sessionResponse.session.refreshToken.token
+        headers.add(name: "x-refresh-token", value: refreshToken)
         return headers
     }
     
