@@ -46,7 +46,7 @@ final class RefreshTokenProvider: RefreshTokenProviding {
         try await tokenStore.save(refreshToken, on: req.db)
         
         // Return a DTO
-        return RefreshTokenDTO(userID: refreshToken.$user.id, token: refreshToken.token, expiresAt: refreshToken.expiresAt)
+        return RefreshTokenDTO(userID: refreshToken.$user.id, token: refreshToken.token)
     }
     
     func validateRefreshToken(_ token: String, on req: Request) async throws -> RefreshTokenDTO {

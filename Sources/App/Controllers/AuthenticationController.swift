@@ -144,8 +144,8 @@ private extension AuthenticationController {
     /// - Returns: `SessionResponse`
     func refreshSession(_ req: Request) async throws -> SessionResponse {
         // Extract the refresh token from the request
-        guard let refreshToken = req.headers.bearerAuthorization?.token else {
-            throw Abort(.unauthorized, reason: "No refresh token found in request.")
+        guard let refreshToken = req.headers["x-refresh-token"].first else {
+            throw Abort(.unauthorized, reason: "Missing refresh token in header")
         }
         
         // Validate the refresh token

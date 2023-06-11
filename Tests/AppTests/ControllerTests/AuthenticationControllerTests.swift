@@ -277,7 +277,7 @@ final class AuthenticationControllerTests: DatabaseInteracting {
         }
         
         // Refresh the token
-        try app.test(.POST, "auth/refresh", headers: ["Authorization": "Bearer \(refreshToken)"], afterResponse: { res in
+        try app.test(.POST, "auth/refresh", headers: ["x-refresh-token": refreshToken], afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             let response = try res.content.decode(SessionResponse.self)
             // Assert Tokens are not empty
