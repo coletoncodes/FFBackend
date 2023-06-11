@@ -56,7 +56,7 @@ final class PlaidControllerTests: AuthenticatedTestCase {
     
     // MARK: - exchangeLinkToken(req: Request)
     // Test valid exchangeLinkToken request succeeds
-    // TODO: This is only testable for live accounts.
+    // TODO: This is only testable for real tokens/ accounts.
 //    func testExchangeLinkTokenSuccess() async throws {
 //        // Get the authenticated user's id.
 //        let userID = sessionResponse.user.id!
@@ -92,6 +92,4 @@ final class PlaidControllerTests: AuthenticatedTestCase {
 //            XCTAssertFalse(responseBody.request_id.isEmpty)
 //        })
 //    }
-
 }
-

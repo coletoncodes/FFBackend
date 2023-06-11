@@ -64,7 +64,7 @@ extension PlaidController {
         
         // Verify it's status .200
         guard clientResponse.status == .ok else {
-            throw Abort(.badRequest, reason: "Plaid API request failed")
+            throw Abort(.badRequest, reason: "Plaid API request failed with status: \(clientResponse.status) and error: \(clientResponse.description)")
         }
         
         let response = try clientResponse.content.decode(PlaidCreateLinkTokenResponse.self)
@@ -75,7 +75,7 @@ extension PlaidController {
     ///
     /// Exchanges the linkToken for a public access token using the Plaid API.
     /// Must provide a ExchangeLinkTokenRequest as the body.
-    func exchangeLinkToken(req: Request) async throws -> PlaidExchangeLinkTokenResponse {
+    func exchangeLinkToken(req: Request) async throws -> HTTPStatus {
         // Decode the request body to get the userID
         let requestBody = try req.content.decode(ExchangeLinkTokenRequest.self)
         
@@ -90,7 +90,7 @@ extension PlaidController {
         }
         
         // Create request body.
-        let body = PlaidExchangeLinkTokenRequest(public_token: requestBody.linkToken)
+        let body = PlaidExchangeLinkTokenRequest(public_token: requestBody.publicToken)
         
         // Create Client URL
         let clientURI = URI(string: Constants.plaidBaseURL.rawValue + "/item/public_token/exchange")
@@ -105,19 +105,16 @@ extension PlaidController {
         // Save the token
         let plaidAccessToken = PlaidAccessToken(userID: userID, accessToken: response.access_token)
         try await plaidAccessTokenStore.save(plaidAccessToken, on: req.db)
-        
-        // Return response
-        return response
+        return .ok
     }
 }
 
-// TODO: This will change, and may need removed.
 struct ExchangeLinkTokenRequest: Content {
     let userID: UUID
-    let linkToken: String
+    let publicToken: String
 }
 
-struct PlaidExchangeLinkTokenRequest: Content {
+private struct PlaidExchangeLinkTokenRequest: Content {
     let client_id: String
     let secret: String
     let public_token: String
@@ -129,7 +126,7 @@ struct PlaidExchangeLinkTokenRequest: Content {
     }
 }
 
-struct PlaidExchangeLinkTokenResponse: Content {
+private struct PlaidExchangeLinkTokenResponse: Content {
     let access_token: String
     let item_id: String
     let request_id: String
