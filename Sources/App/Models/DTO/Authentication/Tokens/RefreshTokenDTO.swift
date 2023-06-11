@@ -17,15 +17,12 @@ import Vapor
 struct RefreshTokenDTO: Content {
     let userID: UUID?
     let token: String
-    let expiresAt: Date?
     
     init(
         userID: UUID?,
-        token: String,
-        expiresAt: Date?
+        token: String
     ) {
         self.userID = userID
         self.token = token
-        self.expiresAt = expiresAt
     }
 }

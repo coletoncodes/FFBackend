@@ -31,7 +31,7 @@ final class PlaidControllerTests: AuthenticatedTestCase {
                 
         try app.test(.POST, "api/plaid/create-link-token", beforeRequest: { req in
             try req.content.encode(request)
-            req.headers.add(contentsOf: accessTokenHeader)
+            req.headers.add(contentsOf: authHeaders)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             // Decode the response

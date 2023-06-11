@@ -20,16 +20,19 @@ struct AuthenticationController: RouteCollection {
     // MARK: - Dependencies
     private var accessTokenProvider: AccessTokenProviding
     private var refreshTokenProvider: RefreshTokenProviding
+    private var refreshTokenStore: RefreshTokenStore
     private var userStore: UserStore
     
     // MARK: - Initializer
     init(
         accessTokenProvider: AccessTokenProviding = AccessTokenProvider(),
         refreshTokenProvider: RefreshTokenProviding = RefreshTokenProvider(),
+        refreshTokenStore: RefreshTokenStore = RefreshTokenRepository(),
         userStore: UserStore = UserRepository()
     ) {
         self.accessTokenProvider = accessTokenProvider
         self.refreshTokenProvider = refreshTokenProvider
+        self.refreshTokenStore = refreshTokenStore
         self.userStore = userStore
     }
     
@@ -44,7 +47,9 @@ struct AuthenticationController: RouteCollection {
             // auth/refresh
             auth.post("refresh", use: refreshSession)
             // auth/logout
-            auth.post("logout", use: logout)
+            auth.post("logout", ":userID", use: logout)
+            // auth/load-session
+            auth.post("load-session", use: loadSession)
         }
     }
 }
@@ -139,8 +144,8 @@ private extension AuthenticationController {
     /// - Returns: `SessionResponse`
     func refreshSession(_ req: Request) async throws -> SessionResponse {
         // Extract the refresh token from the request
-        guard let refreshToken = req.headers.bearerAuthorization?.token else {
-            throw Abort(.unauthorized, reason: "No refresh token found in request.")
+        guard let refreshToken = req.headers["x-refresh-token"].first else {
+            throw Abort(.unauthorized, reason: "Missing refresh token in header")
         }
         
         // Validate the refresh token
@@ -166,16 +171,67 @@ private extension AuthenticationController {
     /// - Parameter req: The incoming `Request`, which should contain the refresh token in the authorization header.
     /// - Returns: .ok if successfully deleted the token.
     func logout(_ req: Request) async throws -> HTTPStatus {
-        // Extract the refresh token from the request
-        guard let refreshToken = req.headers.bearerAuthorization?.token else {
-            throw Abort(.unauthorized, reason: "No refresh token found in request.")
+        // Verify userID is provided in request.
+        guard let userID = req.parameters.get("userID", as: UUID.self) else {
+            throw Abort(.badRequest, reason: "Missing User ID in request.")
+        }
+        
+        // Get the user for the userID
+        guard let user = try await userStore.find(byID: userID, on: req.db) else {
+            throw Abort(.notFound, reason: "No User exists for the given id: \(userID)")
+        }
+        
+        guard let refreshToken = try await refreshTokenStore.findToken(for: user, on: req.db) else {
+            throw Abort(.unauthorized, reason: "No refresh token's exist for the given user.")
         }
         
         // Invalidate the refreshToken. Removing access completely.
-        try await refreshTokenProvider.invalidate(refreshToken, on: req)
+        try await refreshTokenProvider.invalidate(refreshToken.token, on: req)
         
         // Return success
         return .ok
+    }
+    
+    func loadSession(_ req: Request) async throws -> SessionResponse {
+        // Extract the tokens from the request
+        guard let accessToken = req.headers.bearerAuthorization?.token else {
+            throw Abort(.unauthorized, reason: "Missing access token in header")
+        }
+
+        guard let refreshToken = req.headers["x-refresh-token"].first else {
+            throw Abort(.unauthorized, reason: "Missing refresh token in header")
+        }
+
+        // Attempt to validate the access token and get its payload
+        var jwtPayload: JWTTokenPayload?
+        do {
+            jwtPayload = try accessTokenProvider.validateAccessToken(accessToken)
+        } catch {
+            // Access token is invalid or expired.
+            // This is okay as long as refresh token is valid.
+            req.logger.debug("Access Token is invalid or expired, checking if refresh token is Valid.")
+        }
+
+        // Validate the refresh token
+        do {
+            _ = try await refreshTokenProvider.validateRefreshToken(refreshToken, on: req)
+        } catch {
+            throw Abort(.unauthorized, reason: "Refresh token is invalid. Please login again.")
+        }
+        
+        // Ensure we have a valid JWT payload to work with (either from a valid access token, or a valid refresh token)
+        guard let jwtPayload = jwtPayload else {
+            throw Abort(.internalServerError, reason: "Unable to process JWT payload.")
+        }
+
+        // Check if the refresh token corresponds to the same user as the access token
+        guard let user = try await userStore.find(byID: jwtPayload.userID, on: req.db) else {
+            throw Abort(.unauthorized, reason: "No user exists for this id.")
+        }
+
+        // Whether access token was valid or not,
+        // we now create a new session as we have a valid refresh token
+        return try await createSession(for: user, on: req)
     }
 }
 
