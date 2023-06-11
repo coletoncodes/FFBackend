@@ -20,16 +20,19 @@ struct AuthenticationController: RouteCollection {
     // MARK: - Dependencies
     private var accessTokenProvider: AccessTokenProviding
     private var refreshTokenProvider: RefreshTokenProviding
+    private var refreshTokenStore: RefreshTokenStore
     private var userStore: UserStore
     
     // MARK: - Initializer
     init(
         accessTokenProvider: AccessTokenProviding = AccessTokenProvider(),
         refreshTokenProvider: RefreshTokenProviding = RefreshTokenProvider(),
+        refreshTokenStore: RefreshTokenStore = RefreshTokenRepository(),
         userStore: UserStore = UserRepository()
     ) {
         self.accessTokenProvider = accessTokenProvider
         self.refreshTokenProvider = refreshTokenProvider
+        self.refreshTokenStore = refreshTokenStore
         self.userStore = userStore
     }
     
@@ -44,7 +47,7 @@ struct AuthenticationController: RouteCollection {
             // auth/refresh
             auth.post("refresh", use: refreshSession)
             // auth/logout
-            auth.post("logout", use: logout)
+            auth.post("logout", ":userID", use: logout)
         }
     }
 }
@@ -166,13 +169,22 @@ private extension AuthenticationController {
     /// - Parameter req: The incoming `Request`, which should contain the refresh token in the authorization header.
     /// - Returns: .ok if successfully deleted the token.
     func logout(_ req: Request) async throws -> HTTPStatus {
-        // Extract the refresh token from the request
-        guard let refreshToken = req.headers.bearerAuthorization?.token else {
-            throw Abort(.unauthorized, reason: "No refresh token found in request.")
+        // Verify userID is provided in request.
+        guard let userID = req.parameters.get("userID", as: UUID.self) else {
+            throw Abort(.badRequest, reason: "Missing User ID in request.")
+        }
+        
+        // Get the user for the userID
+        guard let user = try await userStore.find(byID: userID, on: req.db) else {
+            throw Abort(.notFound, reason: "No User exists for the given id: \(userID)")
+        }
+        
+        guard let refreshToken = try await refreshTokenStore.findToken(for: user, on: req.db) else {
+            throw Abort(.unauthorized, reason: "No refresh token's exist for the given user.")
         }
         
         // Invalidate the refreshToken. Removing access completely.
-        try await refreshTokenProvider.invalidate(refreshToken, on: req)
+        try await refreshTokenProvider.invalidate(refreshToken.token, on: req)
         
         // Return success
         return .ok

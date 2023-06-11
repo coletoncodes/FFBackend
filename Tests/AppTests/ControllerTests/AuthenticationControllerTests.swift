@@ -329,13 +329,14 @@ final class AuthenticationControllerTests: DatabaseInteracting {
             XCTAssertNotNil(userDTO)
         })
         
-        guard let refreshToken = refreshTokenDTO?.token else {
-            XCTFail("Nil Refresh Token was found")
+        XCTAssertNotNil(refreshTokenDTO?.token)
+        
+        guard let userID = userDTO?.id else {
+            XCTFail("The user ID was nil and shouldn't be.")
             return
         }
         
-        // Logout
-        try app.test(.POST, "auth/logout", headers: ["Authorization": "Bearer \(refreshToken)"], afterResponse: { res in
+        try app.test(.POST, "auth/logout/\(userID)", afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
         })
     }
