@@ -48,6 +48,8 @@ struct AuthenticationController: RouteCollection {
             auth.post("refresh", use: refreshSession)
             // auth/logout
             auth.post("logout", ":userID", use: logout)
+            // auth/load-session
+            auth.post("load-session", use: loadSession)
         }
     }
 }
@@ -188,6 +190,48 @@ private extension AuthenticationController {
         
         // Return success
         return .ok
+    }
+    
+    func loadSession(_ req: Request) async throws -> SessionResponse {
+        // Extract the tokens from the request
+        guard let accessToken = req.headers.bearerAuthorization?.token else {
+            throw Abort(.unauthorized, reason: "Missing access token in header")
+        }
+
+        guard let refreshToken = req.headers["x-refresh-token"].first else {
+            throw Abort(.unauthorized, reason: "Missing refresh token in header")
+        }
+
+        // Attempt to validate the access token and get its payload
+        var jwtPayload: JWTTokenPayload?
+        do {
+            jwtPayload = try accessTokenProvider.validateAccessToken(accessToken)
+        } catch {
+            // Access token is invalid or expired.
+            // This is okay as long as refresh token is valid.
+            req.logger.debug("Access Token is invalid or expired, checking if refresh token is Valid.")
+        }
+
+        // Validate the refresh token
+        do {
+            _ = try await refreshTokenProvider.validateRefreshToken(refreshToken, on: req)
+        } catch {
+            throw Abort(.unauthorized, reason: "Refresh token is invalid. Please login again.")
+        }
+        
+        // Ensure we have a valid JWT payload to work with (either from a valid access token, or a valid refresh token)
+        guard let jwtPayload = jwtPayload else {
+            throw Abort(.internalServerError, reason: "Unable to process JWT payload.")
+        }
+
+        // Check if the refresh token corresponds to the same user as the access token
+        guard let user = try await userStore.find(byID: jwtPayload.userID, on: req.db) else {
+            throw Abort(.unauthorized, reason: "No user exists for this id.")
+        }
+
+        // Whether access token was valid or not,
+        // we now create a new session as we have a valid refresh token
+        return try await createSession(for: user, on: req)
     }
 }
 
