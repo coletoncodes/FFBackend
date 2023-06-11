@@ -64,7 +64,7 @@ extension PlaidController {
         
         // Verify it's status .200
         guard clientResponse.status == .ok else {
-            throw Abort(.badRequest, reason: "Plaid API request failed")
+            throw Abort(.badRequest, reason: "Plaid API request failed with status: \(clientResponse.status) and error: \(clientResponse.description)")
         }
         
         let response = try clientResponse.content.decode(PlaidCreateLinkTokenResponse.self)
