@@ -5,7 +5,6 @@
 //  Created by Coleton Gorecke on 5/18/23.
 //
 
-
 import Vapor
 
 final class PlaidController: RouteCollection {
@@ -26,7 +25,7 @@ final class PlaidController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         let plaidRoutes = routes.grouped("plaid")
         plaidRoutes.post("create-link-token", use: createLinkToken)
-        plaidRoutes.post("exchange-link-token", use: exchangeLinkToken)
+        plaidRoutes.post("exchange-public-token", use: exchangePublicToken)
     }
 }
 
@@ -35,7 +34,7 @@ extension PlaidController {
     /// api/plaid/create-link-token
     ///
     /// Creates a link_token using the Plaid API.
-    /// Must provide a CreateLinkTokenRequest as the body.
+    /// Must provide a `CreateLinkTokenRequest` as the body.
     func createLinkToken(req: Request) async throws -> CreateLinkTokenResponse {
         // Decode the request body to get the userID
         let requestBody = try req.content.decode(CreateLinkTokenRequest.self)
@@ -71,13 +70,13 @@ extension PlaidController {
         return CreateLinkTokenResponse(linkToken: response.link_token)
     }
     
-    /// api/plaid/exchange-link-token
+    /// api/plaid/exchange-public-token
     ///
-    /// Exchanges the linkToken for a public access token using the Plaid API.
-    /// Must provide a ExchangeLinkTokenRequest as the body.
-    func exchangeLinkToken(req: Request) async throws -> HTTPStatus {
+    /// Exchanges the public token for an access token for the linked item using the Plaid API.
+    /// Must provide a `ExchangeLinkTokenRequest` as the body.
+    func exchangePublicToken(req: Request) async throws -> HTTPStatus {
         // Decode the request body to get the userID
-        let requestBody = try req.content.decode(ExchangeLinkTokenRequest.self)
+        let requestBody = try req.content.decode(ExchangePublicTokenRequest.self)
         
         // Check if the user exists in the database
         guard let foundUser = try await userStore.find(byID: requestBody.userID, on: req.db) else {
@@ -90,7 +89,7 @@ extension PlaidController {
         }
         
         // Create request body.
-        let body = PlaidExchangeLinkTokenRequest(public_token: requestBody.publicToken)
+        let body = ExchangePublicTokenRequest(userID: userID, publicToken: requestBody.publicToken)
         
         // Create Client URL
         let clientURI = URI(string: Constants.plaidBaseURL.rawValue + "/item/public_token/exchange")
@@ -100,34 +99,11 @@ extension PlaidController {
             try req.content.encode(body, as: .json)
         }
         
-        let response = try clientResponse.content.decode(PlaidExchangeLinkTokenResponse.self)
+        let response = try clientResponse.content.decode(PlaidExchangePublicTokenResponse.self)
         
         // Save the token
         let plaidAccessToken = PlaidAccessToken(userID: userID, accessToken: response.access_token)
         try await plaidAccessTokenStore.save(plaidAccessToken, on: req.db)
         return .ok
     }
-}
-
-struct ExchangeLinkTokenRequest: Content {
-    let userID: UUID
-    let publicToken: String
-}
-
-private struct PlaidExchangeLinkTokenRequest: Content {
-    let client_id: String
-    let secret: String
-    let public_token: String
-    
-    init(public_token: String) {
-        self.client_id = Constants.plaidClientId.rawValue
-        self.secret = Constants.plaidSecretKey.rawValue
-        self.public_token = public_token
-    }
-}
-
-private struct PlaidExchangeLinkTokenResponse: Content {
-    let access_token: String
-    let item_id: String
-    let request_id: String
 }
