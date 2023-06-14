@@ -25,11 +25,11 @@ final class PlaidController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         let plaidRoutes = routes.grouped("plaid")
         plaidRoutes.post("create-link-token", use: createLinkToken)
-        plaidRoutes.post("exchange-public-token", use: exchangePublicToken)
+        plaidRoutes.post("link-success", use: linkSuccess)
     }
 }
 
-// MARK: - Requests
+// MARK: - Public Requests
 extension PlaidController {
     /// api/plaid/create-link-token
     ///
@@ -70,17 +70,31 @@ extension PlaidController {
         return CreateLinkTokenResponse(linkToken: response.link_token)
     }
     
-    /// api/plaid/exchange-public-token
+    /// Handles the linkSuccess from the client and saves the data into the database.
     ///
+    /// api/plaid/link-success
+    ///
+    /// Creates a link_token using the Plaid API.
+    /// Must provide a `CreateLinkTokenRequest` as the body.
+    func linkSuccess(req: Request) async throws -> HTTPStatus {
+        return .ok
+    }
+    
+    // TODO: Finish this
+    func getTransactions(req: Request) async throws -> HTTPStatus {
+        return .ok
+    }
+}
+
+// MARK: - Internal Requests
+extension PlaidController {
     /// Exchanges the public token for an access token for the linked item using the Plaid API.
+    ///
     /// Must provide a `ExchangeLinkTokenRequest` as the body.
-    func exchangePublicToken(req: Request) async throws -> HTTPStatus {
-        // Decode the request body to get the userID
-        let requestBody = try req.content.decode(ExchangePublicTokenRequest.self)
-        
+    func exchangePublicToken(req: Request, publicTokenRequest: ExchangePublicTokenRequest) async throws -> HTTPStatus {
         // Check if the user exists in the database
-        guard let foundUser = try await userStore.find(byID: requestBody.userID, on: req.db) else {
-            throw Abort(.notFound, reason: "Unable to find a user with id: \(requestBody.userID)")
+        guard let foundUser = try await userStore.find(byID: publicTokenRequest.userID, on: req.db) else {
+            throw Abort(.notFound, reason: "Unable to find a user with id: \(publicTokenRequest.userID)")
         }
         
         // Verify the foundUser's id isn't nil.
@@ -89,7 +103,7 @@ extension PlaidController {
         }
         
         // Create request body.
-        let body = ExchangePublicTokenRequest(userID: userID, publicToken: requestBody.publicToken)
+        let body = ExchangePublicTokenRequest(userID: userID, publicToken: publicTokenRequest.publicToken)
         
         // Create Client URL
         let clientURI = URI(string: Constants.plaidBaseURL.rawValue + "/item/public_token/exchange")
@@ -105,5 +119,37 @@ extension PlaidController {
         let plaidAccessToken = PlaidAccessToken(userID: userID, accessToken: response.access_token)
         try await plaidAccessTokenStore.save(plaidAccessToken, on: req.db)
         return .ok
+    }
+}
+
+
+struct PlaidGetTransactionsRequest: Content {
+    let client_id: String
+    let secret: String
+    let access_token: String
+    let start_date: Date
+    let end_date: Date
+    let options: PlaidTransactionOptions
+
+    init(
+        access_token: String,
+        start_date: Date,
+        end_date: Date
+    ) {
+        self.client_id = Constants.plaidClientId.rawValue
+        self.secret = Constants.plaidSecretKey.rawValue
+        self.access_token = access_token
+        self.start_date = start_date
+        self.end_date = end_date
+        self.options = PlaidTransactionOptions()
+    }
+}
+
+// TODO: Add options if needed
+struct PlaidTransactionOptions: Content {
+    let include_personal_finance_category: Bool
+    
+    init() {
+        self.include_personal_finance_category = true
     }
 }
