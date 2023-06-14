@@ -79,6 +79,16 @@ extension PlaidController {
         // Decode the request
         let requestBody = try req.content.decode(LinkSuccessRequest.self)
         
+        // Create the exchange public token request
+        let exchangePublicTokenRequest = ExchangePublicTokenRequest(userID: requestBody.userID, publicToken: requestBody.publicToken)
+        
+        let exchangePublicTokenResponse = try await exchangePublicToken(req: req, publicTokenRequest: exchangePublicTokenRequest)
+        
+        guard exchangePublicTokenResponse == .ok else {
+            throw Abort(.internalServerError, reason: "Failed to exchange public token")
+        }
+        
+        
         // Verify user exists
         return .ok
     }
