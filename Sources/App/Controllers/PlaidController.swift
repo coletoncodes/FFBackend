@@ -74,9 +74,12 @@ extension PlaidController {
     ///
     /// api/plaid/link-success
     ///
-    /// Creates a link_token using the Plaid API.
-    /// Must provide a `CreateLinkTokenRequest` as the body.
+    /// Must provide a `LinkSuccessRequest` as the body.
     func linkSuccess(req: Request) async throws -> HTTPStatus {
+        // Decode the request
+        let requestBody = try req.content.decode(LinkSuccessRequest.self)
+        
+        // Verify user exists
         return .ok
     }
     
@@ -84,6 +87,33 @@ extension PlaidController {
     func getTransactions(req: Request) async throws -> HTTPStatus {
         return .ok
     }
+}
+
+struct LinkSuccessRequest: Content {
+    let userID: UUID
+    let publicToken: String
+    let metadata: PlaidSuccessMetadata
+}
+
+struct PlaidSuccessMetadata: Content {
+    let institution: PlaidInstitution
+    
+    /// The accounts that were linked by the user.
+    let accounts: [PlaidAccount]
+}
+
+struct PlaidInstitution: Content {
+    /// The identifier of an institution, such as `ins_100000`.
+    let id: String
+    
+    /// The full institution name, such as 'Bank of America'.
+    let name: String
+}
+
+struct PlaidAccount: Content {
+    let id: String
+    let name: String
+    let subtype: String
 }
 
 // MARK: - Internal Requests
