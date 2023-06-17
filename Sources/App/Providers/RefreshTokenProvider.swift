@@ -46,7 +46,9 @@ final class RefreshTokenProvider: RefreshTokenProviding {
         try await tokenStore.save(refreshToken, on: req.db)
         
         // Return a DTO
-        return RefreshTokenDTO(userID: refreshToken.$user.id, token: refreshToken.token)
+        let refreshTokenDTO = RefreshTokenDTO(userID: refreshToken.$user.id, token: refreshToken.token)
+        req.logger.debug("Refresh Token is: \(refreshTokenDTO.token)")
+        return refreshTokenDTO
     }
     
     func validateRefreshToken(_ token: String, on req: Request) async throws -> RefreshTokenDTO {
@@ -58,12 +60,20 @@ final class RefreshTokenProvider: RefreshTokenProviding {
         // Get the user associated with the token
         let user = try await foundRefreshToken.$user.get(on: req.db)
         
-        // Invalidate any old tokens for the user.
-        try await invalidate(foundRefreshToken.token, on: req)
+        guard let userID = user.id else {
+            throw Abort(.internalServerError, reason: "Cannot validate token for user, id is nil.")
+        }
         
-        // Return the new token
-        return try await generateRefreshToken(for: user, on: req)
+        // Verify the user exists, and the token is theirs.
+        do {
+            let _ = try await userStore.find(byID: userID, on: req.db)
+        } catch {
+            throw Abort(.unauthorized, reason: "Unable to find matching user.")
+        }
+        
+        return RefreshTokenDTO(userID: userID, token: foundRefreshToken.token)
     }
+    
     
     func invalidate(_ token: String, on req: Request) async throws {
         // Find the token in the database
@@ -86,6 +96,8 @@ final class RefreshTokenProvider: RefreshTokenProviding {
             .query(on: req.db)
             .filter(\.$user.$id == userID)
             .all()
+        
+        guard !tokens.isEmpty else { return }
         
         // Delete each one
         for refreshToken in tokens {

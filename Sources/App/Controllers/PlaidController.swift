@@ -79,17 +79,24 @@ extension PlaidController {
         // Decode the request
         let requestBody = try req.content.decode(LinkSuccessRequest.self)
         
+        // Get the access and refresh tokens
+        guard let accessToken = req.headers.bearerAuthorization?.token else {
+            throw Abort(.unauthorized, reason: "Missing access token in header")
+        }
+        guard let refreshToken = req.headers["x-refresh-token"].first else {
+            throw Abort(.unauthorized, reason: "Missing refresh token value in header")
+        }
+        
         // Create the exchange public token request
         let exchangePublicTokenRequest = ExchangePublicTokenRequest(userID: requestBody.userID, publicToken: requestBody.publicToken)
         
         let exchangePublicTokenResponse = try await exchangePublicToken(req: req, publicTokenRequest: exchangePublicTokenRequest)
         
         guard exchangePublicTokenResponse == .ok else {
+            req.logger.error("Failed to exchange public token")
             throw Abort(.internalServerError, reason: "Failed to exchange public token")
         }
         
-        
-        // Verify user exists
         return .ok
     }
     
@@ -149,14 +156,18 @@ extension PlaidController {
         let clientURI = URI(string: Constants.plaidBaseURL.rawValue + "/item/public_token/exchange")
         
         // Wait for response
-        let clientResponse = try await req.client.post(clientURI) { req in
+        let exchangeTokenResponse = try await req.client.post(clientURI) { req in
             try req.content.encode(body, as: .json)
         }
         
-        let response = try clientResponse.content.decode(PlaidExchangePublicTokenResponse.self)
+        guard exchangeTokenResponse.status == .ok else {
+            throw Abort(.badRequest, reason: "Unable to exchange token, received status: \(exchangeTokenResponse.status)")
+        }
+        
+        let publicTokenResponse = try exchangeTokenResponse.content.decode(PlaidExchangePublicTokenResponse.self)
         
         // Save the token
-        let plaidAccessToken = PlaidAccessToken(userID: userID, accessToken: response.access_token)
+        let plaidAccessToken = PlaidAccessToken(userID: userID, accessToken: publicTokenResponse.access_token)
         try await plaidAccessTokenStore.save(plaidAccessToken, on: req.db)
         return .ok
     }
@@ -170,7 +181,7 @@ struct PlaidGetTransactionsRequest: Content {
     let start_date: Date
     let end_date: Date
     let options: PlaidTransactionOptions
-
+    
     init(
         access_token: String,
         start_date: Date,
