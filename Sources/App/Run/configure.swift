@@ -24,10 +24,6 @@ public func configure(_ app: Application) async throws {
     // Setup leaf
     app.views.use(.leaf)
     
-    // Setup JSW signer
-    // TODO: Inject from environment
-    app.jwt.signers.use(.hs256(key: "your-secret-key"))
-    
     // register routes
     try routes(app)
 }

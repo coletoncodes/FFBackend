@@ -192,6 +192,10 @@ private extension AuthenticationController {
         return .ok
     }
     
+    /// Load's the session for the authenticated user.
+    /// - Parameter req: The incoming `Request`, which
+    /// should contain the refresh & access token in the authorization header.
+    /// - Returns: The newly created session for the user.
     func loadSession(_ req: Request) async throws -> SessionResponse {
         // Extract the tokens from the request
         guard let accessToken = req.headers.bearerAuthorization?.token else {

@@ -54,9 +54,9 @@ final class PlaidControllerTests: AuthenticatedTestCase {
         })
     }
     
-    // MARK: - exchangeLinkToken(req: Request)
+    // MARK: - exchangePublicToken(req: Request)
     // Test valid exchangeLinkToken request succeeds
-    // TODO: This is only testable for real tokens/ accounts.
+    // TODO: This is only testable for real tokens / accounts.
 //    func testExchangeLinkTokenSuccess() async throws {
 //        // Get the authenticated user's id.
 //        let userID = sessionResponse.user.id!
@@ -79,7 +79,7 @@ final class PlaidControllerTests: AuthenticatedTestCase {
 //        // Create a request with the test user's UUID
 //        let exchangeRequest = ExchangeLinkTokenRequest(userID: userID)
 //
-//        try app.test(.POST, "api/plaid/exchange-link-token", beforeRequest: { req in
+//        try app.test(.POST, "api/plaid/exchange-public-token", beforeRequest: { req in
 //            try req.content.encode(exchangeRequest)
 //            req.headers.add(contentsOf: accessTokenHeader)
 //        }, afterResponse: { res in
