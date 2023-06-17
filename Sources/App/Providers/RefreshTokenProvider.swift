@@ -64,13 +64,6 @@ final class RefreshTokenProvider: RefreshTokenProviding {
             throw Abort(.internalServerError, reason: "Cannot validate token for user, id is nil.")
         }
         
-        // Verify the user exists, and the token is theirs.
-        do {
-            let _ = try await userStore.find(byID: userID, on: req.db)
-        } catch {
-            throw Abort(.unauthorized, reason: "Unable to find matching user.")
-        }
-        
         return RefreshTokenDTO(userID: userID, token: foundRefreshToken.token)
     }
     

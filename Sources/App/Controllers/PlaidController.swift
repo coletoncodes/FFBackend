@@ -79,14 +79,6 @@ extension PlaidController {
         // Decode the request
         let requestBody = try req.content.decode(LinkSuccessRequest.self)
         
-        // Get the access and refresh tokens
-        guard let accessToken = req.headers.bearerAuthorization?.token else {
-            throw Abort(.unauthorized, reason: "Missing access token in header")
-        }
-        guard let refreshToken = req.headers["x-refresh-token"].first else {
-            throw Abort(.unauthorized, reason: "Missing refresh token value in header")
-        }
-        
         // Create the exchange public token request
         let exchangePublicTokenRequest = ExchangePublicTokenRequest(userID: requestBody.userID, publicToken: requestBody.publicToken)
         
