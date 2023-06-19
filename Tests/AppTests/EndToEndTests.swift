@@ -9,6 +9,10 @@
 import XCTVapor
 
 final class EndToEndTests: DatabaseInteracting {
+    private let testUserFirstName = "EndToEndFirst"
+    private let testUserLastName = "EndToEndLast"
+    private let testUserEmail = "endToEnd@example.com"
+    private let testUserPassword = "password"
     
     // MARK: - Lifecycle
     override func setUp() async throws {
@@ -20,7 +24,7 @@ final class EndToEndTests: DatabaseInteracting {
     }
     
     // MARK: - Tests
-    /// Verify we can return the JSON data from the apple-app-site-association file,
+    /// Verify the JSON data from the apple-app-site-association file is returned,
     /// and that it matches what we expect.
     func testAppleAppSiteAssociation_Success() throws {
         try app.test(.GET, ".well-known/apple-app-site-association") { res in
@@ -37,4 +41,57 @@ final class EndToEndTests: DatabaseInteracting {
         }
     }
     
+    /// Test the entire auth cycle.
+    /// 1. User creates account.
+    /// 2. User Log's Out.
+    /// 3. User Log's In
+    func testFullAuthCycle() throws {
+        // 1. Create an account
+        let registerRequest = RegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
+        var sessionResponse: SessionResponse?
+        try app.test(.POST, "auth/register", beforeRequest: { req in
+            try req.content.encode(registerRequest)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+            sessionResponse = try res.content.decode(SessionResponse.self)
+            // Assert login response matches expected
+            XCTAssertEqual(sessionResponse!.user.firstName, testUserFirstName)
+            XCTAssertEqual(sessionResponse!.user.lastName, testUserLastName)
+            XCTAssertEqual(sessionResponse!.user.email, testUserEmail)
+            
+            // Assert tokens are generated
+            XCTAssertFalse(sessionResponse!.session.accessToken.token.isEmpty)
+            XCTAssertFalse(sessionResponse!.session.refreshToken.token.isEmpty)
+        })
+        
+        // 2. Log out
+        guard let userID = sessionResponse?.user.id else {
+            XCTFail("The user ID was nil and shouldn't be.")
+            return
+        }
+        
+        try app.test(.POST, "auth/logout/\(userID)", afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+        })
+        
+        // 3. Log in
+        let loginRequest = LoginRequest(email: testUserEmail, password: testUserPassword)
+        
+        // Make a login request with the correct credentials.
+        try app.test(.POST, "auth/login", beforeRequest: { req in
+            try req.content.encode(loginRequest)
+        }, afterResponse: { res in
+            XCTAssertEqual(res.status, .ok)
+            
+            let sessionResponse = try res.content.decode(SessionResponse.self)
+            // Assert login response matches expected
+            XCTAssertEqual(sessionResponse.user.firstName, testUserFirstName)
+            XCTAssertEqual(sessionResponse.user.lastName, testUserLastName)
+            XCTAssertEqual(sessionResponse.user.email, testUserEmail)
+            
+            // Assert tokens are generated
+            XCTAssertFalse(sessionResponse.session.accessToken.token.isEmpty)
+            XCTAssertFalse(sessionResponse.session.refreshToken.token.isEmpty)
+        })
+    }
 }
