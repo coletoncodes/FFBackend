@@ -5,7 +5,6 @@
 //  Created by Coleton Gorecke on 5/18/23.
 //
 
-
 import Vapor
 
 final class PlaidController: RouteCollection {
@@ -26,16 +25,16 @@ final class PlaidController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         let plaidRoutes = routes.grouped("plaid")
         plaidRoutes.post("create-link-token", use: createLinkToken)
-        plaidRoutes.post("exchange-link-token", use: exchangeLinkToken)
+        plaidRoutes.post("link-success", use: linkSuccess)
     }
 }
 
-// MARK: - Requests
+// MARK: - Public Requests
 extension PlaidController {
     /// api/plaid/create-link-token
     ///
     /// Creates a link_token using the Plaid API.
-    /// Must provide a CreateLinkTokenRequest as the body.
+    /// Must provide a `CreateLinkTokenRequest` as the body.
     func createLinkToken(req: Request) async throws -> CreateLinkTokenResponse {
         // Decode the request body to get the userID
         let requestBody = try req.content.decode(CreateLinkTokenRequest.self)
@@ -71,17 +70,70 @@ extension PlaidController {
         return CreateLinkTokenResponse(linkToken: response.link_token)
     }
     
-    /// api/plaid/exchange-link-token
+    /// Handles the linkSuccess from the client and saves the data into the database.
     ///
-    /// Exchanges the linkToken for a public access token using the Plaid API.
-    /// Must provide a ExchangeLinkTokenRequest as the body.
-    func exchangeLinkToken(req: Request) async throws -> HTTPStatus {
-        // Decode the request body to get the userID
-        let requestBody = try req.content.decode(ExchangeLinkTokenRequest.self)
+    /// api/plaid/link-success
+    ///
+    /// Must provide a `LinkSuccessRequest` as the body.
+    func linkSuccess(req: Request) async throws -> HTTPStatus {
+        // Decode the request
+        let requestBody = try req.content.decode(LinkSuccessRequest.self)
         
+        // Create the exchange public token request
+        let exchangePublicTokenRequest = ExchangePublicTokenRequest(userID: requestBody.userID, publicToken: requestBody.publicToken)
+        
+        let exchangePublicTokenResponse = try await exchangePublicToken(req: req, publicTokenRequest: exchangePublicTokenRequest)
+        
+        guard exchangePublicTokenResponse == .ok else {
+            req.logger.error("Failed to exchange public token")
+            throw Abort(.internalServerError, reason: "Failed to exchange public token")
+        }
+        
+        return .ok
+    }
+    
+    // TODO: Finish this
+    func getTransactions(req: Request) async throws -> HTTPStatus {
+        return .ok
+    }
+}
+
+struct LinkSuccessRequest: Content {
+    let userID: UUID
+    let publicToken: String
+    let metadata: PlaidSuccessMetadata
+}
+
+struct PlaidSuccessMetadata: Content {
+    let institution: PlaidInstitution
+    
+    /// The accounts that were linked by the user.
+    let accounts: [PlaidAccount]
+}
+
+struct PlaidInstitution: Content {
+    /// The identifier of an institution, such as `ins_100000`.
+    let id: String
+    
+    /// The full institution name, such as 'Bank of America'.
+    let name: String
+}
+
+struct PlaidAccount: Content {
+    let id: String
+    let name: String
+    let subtype: String
+}
+
+// MARK: - Internal Requests
+extension PlaidController {
+    /// Exchanges the public token for an access token for the linked item using the Plaid API.
+    ///
+    /// Must provide a `ExchangeLinkTokenRequest` as the body.
+    func exchangePublicToken(req: Request, publicTokenRequest: ExchangePublicTokenRequest) async throws -> HTTPStatus {
         // Check if the user exists in the database
-        guard let foundUser = try await userStore.find(byID: requestBody.userID, on: req.db) else {
-            throw Abort(.notFound, reason: "Unable to find a user with id: \(requestBody.userID)")
+        guard let foundUser = try await userStore.find(byID: publicTokenRequest.userID, on: req.db) else {
+            throw Abort(.notFound, reason: "Unable to find a user with id: \(publicTokenRequest.userID)")
         }
         
         // Verify the foundUser's id isn't nil.
@@ -90,44 +142,57 @@ extension PlaidController {
         }
         
         // Create request body.
-        let body = PlaidExchangeLinkTokenRequest(public_token: requestBody.publicToken)
+        let body = ExchangePublicTokenRequest(userID: userID, publicToken: publicTokenRequest.publicToken)
         
         // Create Client URL
         let clientURI = URI(string: Constants.plaidBaseURL.rawValue + "/item/public_token/exchange")
         
         // Wait for response
-        let clientResponse = try await req.client.post(clientURI) { req in
+        let exchangeTokenResponse = try await req.client.post(clientURI) { req in
             try req.content.encode(body, as: .json)
         }
         
-        let response = try clientResponse.content.decode(PlaidExchangeLinkTokenResponse.self)
+        guard exchangeTokenResponse.status == .ok else {
+            throw Abort(.badRequest, reason: "Unable to exchange token, received status: \(exchangeTokenResponse.status)")
+        }
+        
+        let publicTokenResponse = try exchangeTokenResponse.content.decode(PlaidExchangePublicTokenResponse.self)
         
         // Save the token
-        let plaidAccessToken = PlaidAccessToken(userID: userID, accessToken: response.access_token)
+        let plaidAccessToken = PlaidAccessToken(userID: userID, accessToken: publicTokenResponse.access_token)
         try await plaidAccessTokenStore.save(plaidAccessToken, on: req.db)
         return .ok
     }
 }
 
-struct ExchangeLinkTokenRequest: Content {
-    let userID: UUID
-    let publicToken: String
-}
 
-private struct PlaidExchangeLinkTokenRequest: Content {
+struct PlaidGetTransactionsRequest: Content {
     let client_id: String
     let secret: String
-    let public_token: String
+    let access_token: String
+    let start_date: Date
+    let end_date: Date
+    let options: PlaidTransactionOptions
     
-    init(public_token: String) {
+    init(
+        access_token: String,
+        start_date: Date,
+        end_date: Date
+    ) {
         self.client_id = Constants.plaidClientId.rawValue
         self.secret = Constants.plaidSecretKey.rawValue
-        self.public_token = public_token
+        self.access_token = access_token
+        self.start_date = start_date
+        self.end_date = end_date
+        self.options = PlaidTransactionOptions()
     }
 }
 
-private struct PlaidExchangeLinkTokenResponse: Content {
-    let access_token: String
-    let item_id: String
-    let request_id: String
+// TODO: Add options if needed
+struct PlaidTransactionOptions: Content {
+    let include_personal_finance_category: Bool
+    
+    init() {
+        self.include_personal_finance_category = true
+    }
 }

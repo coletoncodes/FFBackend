@@ -63,6 +63,10 @@ final class AccessTokenProvider: AccessTokenProviding {
     
     func validateAccessToken(_ token: String) throws -> JWTTokenPayload {
         // Verify the JWT signature and decode the payload
-        return try signer.verify(token)
+        do {
+            return try signer.verify(token)
+        } catch {
+            throw Abort(.unauthorized, reason: "Access Token is expired or invalid. Please login again.")
+        }
     }
 }

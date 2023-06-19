@@ -39,13 +39,17 @@ final class AuthenticationMiddleware: AsyncMiddleware {
         guard let refreshToken = request.headers["x-refresh-token"].first else {
             throw Abort(.unauthorized, reason: "Missing refresh token value in header")
         }
+        
+        do {
+            let _ = try accessTokenProvider.validateAccessToken(accessToken)
+        } catch {
+            throw Abort(.unauthorized, reason: "Access token is invalid. Error: \(error)")
+        }
 
         do {
-            // Verify tokens
-            let _ = try accessTokenProvider.validateAccessToken(accessToken)
             let _ = try await refreshTokenProvider.validateRefreshToken(refreshToken, on: request)
         } catch {
-            throw Abort(.unauthorized, reason: "Access token or Refresh token is invalid. Error: \(error)")
+            throw Abort(.unauthorized, reason: "Refresh token is invalid. Error: \(error)")
         }
 
         return try await next.respond(to: request)
