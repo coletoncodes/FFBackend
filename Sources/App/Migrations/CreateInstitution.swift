@@ -15,8 +15,9 @@ struct CreateInstitution: AsyncMigration {
             .field("name", .string, .required)
             .field("user_id", .uuid, .required,
                    .references(User.schema, .id, onDelete: .cascade))
-            .field("access_token_id", .uuid, .required, .references(PlaidAccessToken.schema, .id))
+            .field("access_token_id", .uuid, .required, .references(PlaidAccessToken.schema, .id, onDelete: .cascade))
             .field("item_id", .string, .required)
+            .unique(on: "item_id")
             .create()
     }
     

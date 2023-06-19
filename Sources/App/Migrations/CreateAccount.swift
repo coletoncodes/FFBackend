@@ -5,7 +5,8 @@
 //  Created by Coleton Gorecke on 6/18/23.
 //
 
-import Foundation
+import Fluent
+import Vapor
 
 struct CreateAccount: AsyncMigration {
     func prepare(on database: Database) async throws  {
@@ -16,7 +17,8 @@ struct CreateAccount: AsyncMigration {
             .field("subtype", .string, .required)
             .field("user_id", .uuid, .required,
                    .references(User.schema, .id, onDelete: .cascade))
-            .field("institution_id", .uuid, .required, .references(Institution.schema, .id))
+            .field("institution_id", .uuid, .required, .references(Institution.schema, .id, onDelete: .cascade))
+            .unique(on: "account_id")
             .create()
     }
     
