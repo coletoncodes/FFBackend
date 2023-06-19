@@ -103,33 +103,6 @@ extension PlaidController {
     }
 }
 
-struct LinkSuccessRequest: Content {
-    let userID: UUID
-    let publicToken: String
-    let metadata: PlaidSuccessMetadata
-}
-
-struct PlaidSuccessMetadata: Content {
-    let institution: PlaidInstitution
-    
-    /// The accounts that were linked by the user.
-    let accounts: [PlaidAccount]
-}
-
-struct PlaidInstitution: Content {
-    /// The identifier of an institution, such as `ins_100000`.
-    let id: String
-    
-    /// The full institution name, such as 'Bank of America'.
-    let name: String
-}
-
-struct PlaidAccount: Content {
-    let id: String
-    let name: String
-    let subtype: String
-}
-
 // MARK: - Internal Requests
 extension PlaidController {
     /// Exchanges the public token for an access token for the linked item using the Plaid API.
@@ -179,7 +152,8 @@ extension PlaidController {
         let institution = Institution(
             name: metadata.institution.name,
             accessTokenID: accessTokenID,
-            itemID: publicTokenResponse.item_id
+            itemID: publicTokenResponse.item_id,
+            userID: userID
         )
         
         // save institution
@@ -194,7 +168,8 @@ extension PlaidController {
                 accountID: account.id,
                 name: account.name,
                 subtype: account.subtype,
-                institutionID: institutionID
+                institutionID: institutionID,
+                userID: userID
             )
         }
         

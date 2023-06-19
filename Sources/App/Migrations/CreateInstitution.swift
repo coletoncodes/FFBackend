@@ -13,6 +13,8 @@ struct CreateInstitution: AsyncMigration {
         try await database.schema(Institution.schema)
             .id()
             .field("name", .string, .required)
+            .field("user_id", .uuid, .required,
+                   .references(User.schema, .id, onDelete: .cascade))
             .field("access_token_id", .uuid, .required, .references(PlaidAccessToken.schema, .id))
             .field("item_id", .string, .required)
             .create()
@@ -20,21 +22,5 @@ struct CreateInstitution: AsyncMigration {
     
     func revert(on database: Database) async throws {
         try await database.schema(Institution.schema).delete()
-    }
-}
-
-struct CreateAccount: AsyncMigration {
-    func prepare(on database: Database) async throws  {
-        try await database.schema(Account.schema)
-            .id()
-            .field("account_id", .string, .required)
-            .field("name", .string, .required)
-            .field("subtype", .string, .required)
-            .field("institution_id", .uuid, .required, .references(Institution.schema, .id))
-            .create()
-    }
-    
-    func revert(on database: Database) async throws {
-        try await database.schema(Account.schema).delete()
     }
 }

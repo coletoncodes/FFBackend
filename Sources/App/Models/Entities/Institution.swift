@@ -20,6 +20,9 @@ final class Institution: Model {
     @Parent(key: "access_token_id")
     var accessToken: PlaidAccessToken
     
+    @Parent(key: "user_id")
+    var user: User
+    
     @Children(for: \.$institution)
     var accounts: [Account]
     
@@ -32,12 +35,14 @@ final class Institution: Model {
         id: UUID? = nil,
         name: String,
         accessTokenID: UUID,
-        itemID: String
+        itemID: String,
+        userID: UUID
     ) {
         self.id = id
         self.name = name
         self.$accessToken.id = accessTokenID
         self.itemID = itemID
+        self.$user.id = userID
     }
 }
 
@@ -59,14 +64,25 @@ final class Account: Model {
 
     @Parent(key: "institution_id")
     var institution: Institution
+    
+    @Parent(key: "user_id")
+    var user: User
 
     init() {}
 
-    init(id: UUID? = nil, accountID: String, name: String, subtype: String, institutionID: UUID) {
+    init(
+        id: UUID? = nil,
+        accountID: String,
+        name: String,
+        subtype: String,
+        institutionID: UUID,
+        userID: UUID
+    ) {
         self.id = id
         self.accountID = accountID
         self.name = name
         self.subtype = subtype
         self.$institution.id = institutionID
+        self.$user.id = userID
     }
 }
