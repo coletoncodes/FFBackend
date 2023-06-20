@@ -5,6 +5,7 @@
 //  Created by Coleton Gorecke on 5/19/23.
 //
 
+import Factory
 import Fluent
 import Vapor
 
@@ -18,24 +19,10 @@ import Vapor
  */
 struct AuthenticationController: RouteCollection {
     // MARK: - Dependencies
-    private var accessTokenProvider: AccessTokenProviding
-    private var refreshTokenProvider: RefreshTokenProviding
-    private var refreshTokenStore: RefreshTokenStore
-    private var userStore: UserStore
-    
-    // MARK: - Initializer
-    init(
-        accessTokenProvider: AccessTokenProviding = AccessTokenProvider(),
-        refreshTokenProvider: RefreshTokenProviding = RefreshTokenProvider(),
-        refreshTokenStore: RefreshTokenStore = RefreshTokenRepository(),
-        userStore: UserStore = UserRepository()
-    ) {
-        self.accessTokenProvider = accessTokenProvider
-        self.refreshTokenProvider = refreshTokenProvider
-        self.refreshTokenStore = refreshTokenStore
-        self.userStore = userStore
-    }
-    
+    @Injected(\.accessTokenProvider) private var accessTokenProvider
+    @Injected(\.refreshTokenProvider) private var refreshTokenProvider
+    @Injected(\.refreshTokenStore) private var refreshTokenStore
+    @Injected(\.userStore) private var userStore
     
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {

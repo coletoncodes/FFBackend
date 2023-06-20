@@ -5,27 +5,15 @@
 //  Created by Coleton Gorecke on 5/18/23.
 //
 
+import Factory
 import Vapor
 
 final class PlaidController: RouteCollection {
     // MARK: - Dependencies
-    private var userStore: UserStore
-    private var plaidAccessTokenStore: PlaidAccessTokenStore
-    private var institutionStore: InstitutionStore
-    private var accountStore: AccountStore
-    
-    // MARK: - Initializer
-    init(
-        userStore: UserStore = UserRepository(),
-        plaidAccessTokenStore: PlaidAccessTokenStore = PlaidAccessTokenRepository(),
-        institutionStore: InstitutionStore = InstitutionRepository(),
-        accountStore: AccountStore = AccountRepository()
-    ) {
-        self.userStore = userStore
-        self.plaidAccessTokenStore = plaidAccessTokenStore
-        self.institutionStore = institutionStore
-        self.accountStore = accountStore
-    }
+    @Injected(\.userStore) private var userStore
+    @Injected(\.plaidAccessTokenStore) private var plaidAccessTokenStore
+    @Injected(\.institutionStore) private var institutionStore
+    @Injected(\.bankAccountStore) private var bankAccountStore
     
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
@@ -96,11 +84,6 @@ extension PlaidController {
         
         return .ok
     }
-    
-    // TODO: Finish this
-    func getTransactions(req: Request) async throws -> HTTPStatus {
-        return .ok
-    }
 }
 
 // MARK: - Internal Requests
@@ -163,7 +146,7 @@ extension PlaidController {
         }
         
         let accounts = metadata.accounts.map { account in
-            Account(
+            BankAccount(
                 accountID: account.id,
                 name: account.name,
                 subtype: account.subtype,
@@ -173,7 +156,7 @@ extension PlaidController {
         }
         
         // save accounts
-        try await accountStore.save(accounts, on: req.db)
+        try await bankAccountStore.save(accounts, on: req.db)
         
         return .ok
     }

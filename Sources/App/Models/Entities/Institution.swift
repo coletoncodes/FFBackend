@@ -24,7 +24,7 @@ final class Institution: Model {
     var user: User
     
     @Children(for: \.$institution)
-    var accounts: [Account]
+    var accounts: [BankAccount]
     
     @Field(key: "item_id")
     var itemID: String
@@ -42,47 +42,6 @@ final class Institution: Model {
         self.name = name
         self.$accessToken.id = accessTokenID
         self.itemID = itemID
-        self.$user.id = userID
-    }
-}
-
-// MARK: - Move to separate file
-final class Account: Model {
-    static let schema = "accounts"
-
-    @ID(key: .id)
-    var id: UUID?
-
-    @Field(key: "account_id")
-    var accountID: String
-
-    @Field(key: "name")
-    var name: String
-
-    @Field(key: "subtype")
-    var subtype: String
-
-    @Parent(key: "institution_id")
-    var institution: Institution
-    
-    @Parent(key: "user_id")
-    var user: User
-
-    init() {}
-
-    init(
-        id: UUID? = nil,
-        accountID: String,
-        name: String,
-        subtype: String,
-        institutionID: UUID,
-        userID: UUID
-    ) {
-        self.id = id
-        self.accountID = accountID
-        self.name = name
-        self.subtype = subtype
-        self.$institution.id = institutionID
         self.$user.id = userID
     }
 }

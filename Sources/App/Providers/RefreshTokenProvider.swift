@@ -5,6 +5,7 @@
 //  Created by Coleton Gorecke on 5/20/23.
 //
 
+import Factory
 import Foundation
 import Vapor
 import FluentKit
@@ -17,14 +18,7 @@ protocol RefreshTokenProviding {
 
 final class RefreshTokenProvider: RefreshTokenProviding {
     // MARK: - Dependencies
-    private var tokenStore: RefreshTokenStore
-    
-    // MARK: - Initializer
-    init(
-        tokenStore: RefreshTokenStore = RefreshTokenRepository()
-    ) {
-        self.tokenStore = tokenStore
-    }
+    @Injected(\.refreshTokenStore) private var tokenStore
     
     // MARK: - Interface
     func generateRefreshToken(for user: User, on req: Request) async throws -> RefreshTokenDTO {
