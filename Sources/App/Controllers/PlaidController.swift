@@ -12,14 +12,14 @@ final class PlaidController: RouteCollection {
     private var userStore: UserStore
     private var plaidAccessTokenStore: PlaidAccessTokenStore
     private var institutionStore: InstitutionStore
-    private var accountStore: AccountStore
+    private var accountStore: BankAccountStore
     
     // MARK: - Initializer
     init(
         userStore: UserStore = UserRepository(),
         plaidAccessTokenStore: PlaidAccessTokenStore = PlaidAccessTokenRepository(),
         institutionStore: InstitutionStore = InstitutionRepository(),
-        accountStore: AccountStore = AccountRepository()
+        accountStore: BankAccountStore = BankAccountRepository()
     ) {
         self.userStore = userStore
         self.plaidAccessTokenStore = plaidAccessTokenStore
@@ -96,11 +96,6 @@ extension PlaidController {
         
         return .ok
     }
-    
-    // TODO: Finish this
-    func getTransactions(req: Request) async throws -> HTTPStatus {
-        return .ok
-    }
 }
 
 // MARK: - Internal Requests
@@ -163,7 +158,7 @@ extension PlaidController {
         }
         
         let accounts = metadata.accounts.map { account in
-            Account(
+            BankAccount(
                 accountID: account.id,
                 name: account.name,
                 subtype: account.subtype,

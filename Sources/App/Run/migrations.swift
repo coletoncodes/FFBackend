@@ -12,5 +12,5 @@ func addMigrations(_ app: Application) {
     app.migrations.add(CreateRefreshToken())
     app.migrations.add(CreatePlaidAccessToken())
     app.migrations.add(CreateInstitution())
-    app.migrations.add(CreateAccount())
+    app.migrations.add(CreateBankAccount())
 }

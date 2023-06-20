@@ -1,5 +1,5 @@
 //
-//  CreateAccount.swift
+//  CreateBankAccount.swift
 //  
 //
 //  Created by Coleton Gorecke on 6/18/23.
@@ -8,9 +8,9 @@
 import Fluent
 import Vapor
 
-struct CreateAccount: AsyncMigration {
+struct CreateBankAccount: AsyncMigration {
     func prepare(on database: Database) async throws  {
-        try await database.schema(Account.schema)
+        try await database.schema(BankAccount.schema)
             .id()
             .field("account_id", .string, .required)
             .field("name", .string, .required)
@@ -23,6 +23,6 @@ struct CreateAccount: AsyncMigration {
     }
     
     func revert(on database: Database) async throws {
-        try await database.schema(Account.schema).delete()
+        try await database.schema(BankAccount.schema).delete()
     }
 }
