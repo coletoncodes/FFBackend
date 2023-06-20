@@ -148,7 +148,6 @@ extension PlaidController {
             throw Abort(.internalServerError, reason: "Failed to determine accessToken")
         }
         
-        
         let institution = Institution(
             name: metadata.institution.name,
             accessTokenID: accessTokenID,
