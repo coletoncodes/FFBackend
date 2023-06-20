@@ -5,6 +5,7 @@
 //  Created by Coleton Gorecke on 5/18/23.
 //
 
+import Factory
 import Vapor
 
 final class PlaidController: RouteCollection {
