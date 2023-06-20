@@ -10,23 +10,10 @@ import Vapor
 
 final class PlaidController: RouteCollection {
     // MARK: - Dependencies
-    private var userStore: UserStore
-    private var plaidAccessTokenStore: PlaidAccessTokenStore
-    private var institutionStore: InstitutionStore
-    private var accountStore: BankAccountStore
-    
-    // MARK: - Initializer
-    init(
-        userStore: UserStore = UserRepository(),
-        plaidAccessTokenStore: PlaidAccessTokenStore = PlaidAccessTokenRepository(),
-        institutionStore: InstitutionStore = InstitutionRepository(),
-        accountStore: BankAccountStore = BankAccountRepository()
-    ) {
-        self.userStore = userStore
-        self.plaidAccessTokenStore = plaidAccessTokenStore
-        self.institutionStore = institutionStore
-        self.accountStore = accountStore
-    }
+    @Injected(\.userStore) private var userStore
+    @Injected(\.plaidAccessTokenStore) private var plaidAccessTokenStore
+    @Injected(\.institutionStore) private var institutionStore
+    @Injected(\.bankAccountStore) private var bankAccountStore
     
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
@@ -169,7 +156,7 @@ extension PlaidController {
         }
         
         // save accounts
-        try await accountStore.save(accounts, on: req.db)
+        try await bankAccountStore.save(accounts, on: req.db)
         
         return .ok
     }

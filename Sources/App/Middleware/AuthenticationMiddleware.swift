@@ -5,25 +5,15 @@
 //  Created by Coleton Gorecke on 5/20/23.
 //
 
+import Factory
 import Vapor
 import Fluent
 
 final class AuthenticationMiddleware: AsyncMiddleware {
     // MARK: - Dependencies
-    private var accessTokenProvider: AccessTokenProviding
-    private var refreshTokenProvider: RefreshTokenProviding
-    private var userStore: UserStore
-
-    // MARK: - Initializer
-    init(
-        accessTokenProvider: AccessTokenProviding = AccessTokenProvider(),
-        refreshTokenProvider: RefreshTokenProviding = RefreshTokenProvider(),
-        userStore: UserStore = UserRepository()
-    ) {
-        self.accessTokenProvider = accessTokenProvider
-        self.refreshTokenProvider = refreshTokenProvider
-        self.userStore = userStore
-    }
+    @Injected(\.accessTokenProvider) private var accessTokenProvider
+    @Injected(\.refreshTokenProvider) private var refreshTokenProvider
+    @Injected(\.userStore) private var userStore
 
     // MARK: - Interface
     func respond(to request: Request, chainingTo next: AsyncResponder) async throws -> Response {

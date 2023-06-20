@@ -7,6 +7,7 @@
 
 import Factory
 import Foundation
+import JWT
 
 extension Container {
     // MARK: - Providers
@@ -29,5 +30,28 @@ extension Container {
     var userStore: Factory<UserStore> {
         self { UserRepository() }
             .graph
+    }
+    
+    var plaidAccessTokenStore: Factory<PlaidAccessTokenStore> {
+        self { PlaidAccessTokenRepository() }
+            .graph
+    }
+    
+    var institutionStore: Factory<InstitutionStore> {
+        self { InstitutionRepository() }
+            .graph
+    }
+    
+    var bankAccountStore: Factory<BankAccountStore> {
+        self { BankAccountRepository() }
+            .graph
+    }
+    
+    // MARK: - Utilities
+    // TODO: Inject from environment
+    var jwtSigner: Factory<JWTSigner> {
+        self { JWTSigner.hs256(key: "your-secret-key")
+        }
+        .graph
     }
 }

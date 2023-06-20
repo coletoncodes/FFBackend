@@ -5,6 +5,7 @@
 //  Created by Coleton Gorecke on 5/20/23.
 //
 
+import Factory
 import JWT
 import Vapor
 
@@ -36,14 +37,10 @@ protocol AccessTokenProviding {
 ///
 /// This object utilizes Vapor's JWT library to generate and validate JWT tokens.
 final class AccessTokenProvider: AccessTokenProviding {
-    private let signer: JWTSigner
+    // MARK: - Dependencies
+    @Injected(\.jwtSigner) private var signer
     
-    init() {
-        // Create an HMAC with SHA-256 signer using your application's secret key
-        // TODO: Inject from environment
-        self.signer = JWTSigner.hs256(key: "your-secret-key")
-    }
-    
+    // MARK: - Interface
     func generateAccessToken(for user: User) throws -> AccessTokenDTO {
         guard let userID = user.id else {
             throw Abort(.internalServerError, reason: "Missing userID in payload.")
