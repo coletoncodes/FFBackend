@@ -16,33 +16,37 @@ final class Institution: Model {
 
     @Field(key: "name")
     var name: String
-
-    @Siblings(through: InstitutionAccount.self, from: \.$institution, to: \.$account)
-    var accounts: [Account]
-
-    @Parent(key: "user_id")
-    var user: User
-
+    
     @Parent(key: "access_token_id")
     var accessToken: PlaidAccessToken
+    
+    @Parent(key: "user_id")
+    var user: User
+    
+    @Children(for: \.$institution)
+    var accounts: [Account]
+    
+    @Field(key: "item_id")
+    var itemID: String
 
     init() { }
 
     init(
         id: UUID? = nil,
         name: String,
-        accounts: [Account],
-        userID: UUID,
-        accessTokenID: UUID
+        accessTokenID: UUID,
+        itemID: String,
+        userID: UUID
     ) {
         self.id = id
         self.name = name
-        self.accounts = accounts
-        self.$user.id = userID
         self.$accessToken.id = accessTokenID
+        self.itemID = itemID
+        self.$user.id = userID
     }
 }
 
+// MARK: - Move to separate file
 final class Account: Model {
     static let schema = "accounts"
 
@@ -58,31 +62,27 @@ final class Account: Model {
     @Field(key: "subtype")
     var subtype: String
 
-    init() {}
-}
-
-final class InstitutionAccount: Model {
-    static let schema = "institution_accounts"
-
-    @ID(key: .id)
-    var id: UUID?
-
     @Parent(key: "institution_id")
     var institution: Institution
+    
+    @Parent(key: "user_id")
+    var user: User
 
-    @Parent(key: "account_id")
-    var account: Account
-
-    init() { }
+    init() {}
 
     init(
         id: UUID? = nil,
+        accountID: String,
+        name: String,
+        subtype: String,
         institutionID: UUID,
-        accountID: UUID
+        userID: UUID
     ) {
         self.id = id
+        self.accountID = accountID
+        self.name = name
+        self.subtype = subtype
         self.$institution.id = institutionID
-        self.$account.id = accountID
+        self.$user.id = userID
     }
 }
-

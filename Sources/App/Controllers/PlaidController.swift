@@ -11,14 +11,20 @@ final class PlaidController: RouteCollection {
     // MARK: - Dependencies
     private var userStore: UserStore
     private var plaidAccessTokenStore: PlaidAccessTokenStore
+    private var institutionStore: InstitutionStore
+    private var accountStore: AccountStore
     
     // MARK: - Initializer
     init(
         userStore: UserStore = UserRepository(),
-        plaidAccessTokenStore: PlaidAccessTokenStore = PlaidAccessTokenRepository()
+        plaidAccessTokenStore: PlaidAccessTokenStore = PlaidAccessTokenRepository(),
+        institutionStore: InstitutionStore = InstitutionRepository(),
+        accountStore: AccountStore = AccountRepository()
     ) {
         self.userStore = userStore
         self.plaidAccessTokenStore = plaidAccessTokenStore
+        self.institutionStore = institutionStore
+        self.accountStore = accountStore
     }
     
     // MARK: - RoutesBuilder
@@ -82,10 +88,9 @@ extension PlaidController {
         // Create the exchange public token request
         let exchangePublicTokenRequest = ExchangePublicTokenRequest(userID: requestBody.userID, publicToken: requestBody.publicToken)
         
-        let exchangePublicTokenResponse = try await exchangePublicToken(req: req, publicTokenRequest: exchangePublicTokenRequest)
+        let exchangePublicTokenResponse = try await exchangePublicToken(req: req, publicTokenRequest: exchangePublicTokenRequest, metadata: requestBody.metadata)
         
         guard exchangePublicTokenResponse == .ok else {
-            req.logger.error("Failed to exchange public token")
             throw Abort(.internalServerError, reason: "Failed to exchange public token")
         }
         
@@ -98,39 +103,16 @@ extension PlaidController {
     }
 }
 
-struct LinkSuccessRequest: Content {
-    let userID: UUID
-    let publicToken: String
-    let metadata: PlaidSuccessMetadata
-}
-
-struct PlaidSuccessMetadata: Content {
-    let institution: PlaidInstitution
-    
-    /// The accounts that were linked by the user.
-    let accounts: [PlaidAccount]
-}
-
-struct PlaidInstitution: Content {
-    /// The identifier of an institution, such as `ins_100000`.
-    let id: String
-    
-    /// The full institution name, such as 'Bank of America'.
-    let name: String
-}
-
-struct PlaidAccount: Content {
-    let id: String
-    let name: String
-    let subtype: String
-}
-
 // MARK: - Internal Requests
 extension PlaidController {
     /// Exchanges the public token for an access token for the linked item using the Plaid API.
     ///
     /// Must provide a `ExchangeLinkTokenRequest` as the body.
-    func exchangePublicToken(req: Request, publicTokenRequest: ExchangePublicTokenRequest) async throws -> HTTPStatus {
+    func exchangePublicToken(
+        req: Request,
+        publicTokenRequest: ExchangePublicTokenRequest,
+        metadata: PlaidSuccessMetadata
+    ) async throws -> HTTPStatus {
         // Check if the user exists in the database
         guard let foundUser = try await userStore.find(byID: publicTokenRequest.userID, on: req.db) else {
             throw Abort(.notFound, reason: "Unable to find a user with id: \(publicTokenRequest.userID)")
@@ -142,7 +124,7 @@ extension PlaidController {
         }
         
         // Create request body.
-        let body = ExchangePublicTokenRequest(userID: userID, publicToken: publicTokenRequest.publicToken)
+        let body = PlaidExchangePublicTokenRequest(public_token: publicTokenRequest.publicToken)
         
         // Create Client URL
         let clientURI = URI(string: Constants.plaidBaseURL.rawValue + "/item/public_token/exchange")
@@ -153,7 +135,7 @@ extension PlaidController {
         }
         
         guard exchangeTokenResponse.status == .ok else {
-            throw Abort(.badRequest, reason: "Unable to exchange token, received status: \(exchangeTokenResponse.status)")
+            throw Abort(exchangeTokenResponse.status, reason: "Unable to exchange token")
         }
         
         let publicTokenResponse = try exchangeTokenResponse.content.decode(PlaidExchangePublicTokenResponse.self)
@@ -161,6 +143,38 @@ extension PlaidController {
         // Save the token
         let plaidAccessToken = PlaidAccessToken(userID: userID, accessToken: publicTokenResponse.access_token)
         try await plaidAccessTokenStore.save(plaidAccessToken, on: req.db)
+        
+        guard let accessTokenID = plaidAccessToken.id else {
+            throw Abort(.internalServerError, reason: "Failed to determine accessToken")
+        }
+        
+        let institution = Institution(
+            name: metadata.institution.name,
+            accessTokenID: accessTokenID,
+            itemID: publicTokenResponse.item_id,
+            userID: userID
+        )
+        
+        // save institution
+        try await institutionStore.save(institution, on: req.db)
+        
+        guard let institutionID = institution.id else {
+            throw Abort(.internalServerError, reason: "Failed to determine institutionID")
+        }
+        
+        let accounts = metadata.accounts.map { account in
+            Account(
+                accountID: account.id,
+                name: account.name,
+                subtype: account.subtype,
+                institutionID: institutionID,
+                userID: userID
+            )
+        }
+        
+        // save accounts
+        try await accountStore.save(accounts, on: req.db)
+        
         return .ok
     }
 }
