@@ -35,13 +35,13 @@ final class AuthenticationControllerTests: DatabaseInteracting {
             XCTAssertEqual(res.status, .ok)
             let sessionResponse = try res.content.decode(SessionResponse.self)
             // Assert login response matches expected
-            XCTAssertEqual(sessionResponse.user.firstName, testUserFirstName)
-            XCTAssertEqual(sessionResponse.user.lastName, testUserLastName)
-            XCTAssertEqual(sessionResponse.user.email, testUserEmail)
+            XCTAssertEqual(sessionResponse.userDTO.firstName, testUserFirstName)
+            XCTAssertEqual(sessionResponse.userDTO.lastName, testUserLastName)
+            XCTAssertEqual(sessionResponse.userDTO.email, testUserEmail)
             
             // Assert tokens are generated
-            XCTAssertFalse(sessionResponse.session.accessToken.token.isEmpty)
-            XCTAssertFalse(sessionResponse.session.refreshToken.token.isEmpty)
+            XCTAssertFalse(sessionResponse.sessionDTO.accessToken.token.isEmpty)
+            XCTAssertFalse(sessionResponse.sessionDTO.refreshToken.token.isEmpty)
         })
     }
     
@@ -112,13 +112,13 @@ final class AuthenticationControllerTests: DatabaseInteracting {
             XCTAssertEqual(res.status, .ok)
             let sessionResponse = try res.content.decode(SessionResponse.self)
             // Assert login response matches expected
-            XCTAssertEqual(sessionResponse.user.firstName, testUserFirstName)
-            XCTAssertEqual(sessionResponse.user.lastName, testUserLastName)
-            XCTAssertEqual(sessionResponse.user.email, testUserEmail)
+            XCTAssertEqual(sessionResponse.userDTO.firstName, testUserFirstName)
+            XCTAssertEqual(sessionResponse.userDTO.lastName, testUserLastName)
+            XCTAssertEqual(sessionResponse.userDTO.email, testUserEmail)
             
             // Assert tokens are generated
-            XCTAssertFalse(sessionResponse.session.accessToken.token.isEmpty)
-            XCTAssertFalse(sessionResponse.session.refreshToken.token.isEmpty)
+            XCTAssertFalse(sessionResponse.sessionDTO.accessToken.token.isEmpty)
+            XCTAssertFalse(sessionResponse.sessionDTO.refreshToken.token.isEmpty)
         })
         
         let loginRequest = LoginRequest(email: testUserEmail, password: testUserPassword)
@@ -131,13 +131,13 @@ final class AuthenticationControllerTests: DatabaseInteracting {
             
             let sessionResponse = try res.content.decode(SessionResponse.self)
             // Assert login response matches expected
-            XCTAssertEqual(sessionResponse.user.firstName, testUserFirstName)
-            XCTAssertEqual(sessionResponse.user.lastName, testUserLastName)
-            XCTAssertEqual(sessionResponse.user.email, testUserEmail)
+            XCTAssertEqual(sessionResponse.userDTO.firstName, testUserFirstName)
+            XCTAssertEqual(sessionResponse.userDTO.lastName, testUserLastName)
+            XCTAssertEqual(sessionResponse.userDTO.email, testUserEmail)
             
             // Assert tokens are generated
-            XCTAssertFalse(sessionResponse.session.accessToken.token.isEmpty)
-            XCTAssertFalse(sessionResponse.session.refreshToken.token.isEmpty)
+            XCTAssertFalse(sessionResponse.sessionDTO.accessToken.token.isEmpty)
+            XCTAssertFalse(sessionResponse.sessionDTO.refreshToken.token.isEmpty)
         })
     }
     
@@ -153,16 +153,16 @@ final class AuthenticationControllerTests: DatabaseInteracting {
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             let response = try res.content.decode(SessionResponse.self)
-            XCTAssertEqual(response.user.firstName, testUserFirstName)
-            XCTAssertEqual(response.user.lastName, testUserLastName)
-            XCTAssertEqual(response.user.email, testUserEmail)
+            XCTAssertEqual(response.userDTO.firstName, testUserFirstName)
+            XCTAssertEqual(response.userDTO.lastName, testUserLastName)
+            XCTAssertEqual(response.userDTO.email, testUserEmail)
             
             // Set refresh token
-            refreshTokenDTO = response.session.refreshToken
+            refreshTokenDTO = response.sessionDTO.refreshToken
             XCTAssertNotNil(refreshTokenDTO)
             
             // Set the userDTO
-            userDTO = response.user
+            userDTO = response.userDTO
             XCTAssertNotNil(userDTO)
         })
         
@@ -188,16 +188,16 @@ final class AuthenticationControllerTests: DatabaseInteracting {
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             let response = try res.content.decode(SessionResponse.self)
-            XCTAssertEqual(response.user.firstName, testUserFirstName)
-            XCTAssertEqual(response.user.lastName, testUserLastName)
-            XCTAssertEqual(response.user.email, testUserEmail)
+            XCTAssertEqual(response.userDTO.firstName, testUserFirstName)
+            XCTAssertEqual(response.userDTO.lastName, testUserLastName)
+            XCTAssertEqual(response.userDTO.email, testUserEmail)
             
             // Set refresh token
-            refreshTokenDTO = response.session.refreshToken
+            refreshTokenDTO = response.sessionDTO.refreshToken
             XCTAssertNotNil(refreshTokenDTO)
             
             // Set the userDTO
-            userDTO = response.user
+            userDTO = response.userDTO
             XCTAssertNotNil(userDTO)
         })
         
@@ -222,16 +222,16 @@ final class AuthenticationControllerTests: DatabaseInteracting {
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             let response = try res.content.decode(SessionResponse.self)
-            XCTAssertEqual(response.user.firstName, testUserFirstName)
-            XCTAssertEqual(response.user.lastName, testUserLastName)
-            XCTAssertEqual(response.user.email, testUserEmail)
+            XCTAssertEqual(response.userDTO.firstName, testUserFirstName)
+            XCTAssertEqual(response.userDTO.lastName, testUserLastName)
+            XCTAssertEqual(response.userDTO.email, testUserEmail)
             
             // Set refresh token
-            refreshTokenDTO = response.session.refreshToken
+            refreshTokenDTO = response.sessionDTO.refreshToken
             XCTAssertNotNil(refreshTokenDTO)
             
             // Set the userDTO
-            userDTO = response.user
+            userDTO = response.userDTO
             XCTAssertNotNil(userDTO)
         })
         
@@ -257,16 +257,16 @@ final class AuthenticationControllerTests: DatabaseInteracting {
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             let response = try res.content.decode(SessionResponse.self)
-            XCTAssertEqual(response.user.firstName, testUserFirstName)
-            XCTAssertEqual(response.user.lastName, testUserLastName)
-            XCTAssertEqual(response.user.email, testUserEmail)
+            XCTAssertEqual(response.userDTO.firstName, testUserFirstName)
+            XCTAssertEqual(response.userDTO.lastName, testUserLastName)
+            XCTAssertEqual(response.userDTO.email, testUserEmail)
             
             // Set refresh token
-            refreshTokenDTO = response.session.refreshToken
+            refreshTokenDTO = response.sessionDTO.refreshToken
             XCTAssertNotNil(refreshTokenDTO)
             
             // Set the userDTO
-            userDTO = response.user
+            userDTO = response.userDTO
             XCTAssertNotNil(userDTO)
         })
         
@@ -296,19 +296,19 @@ final class AuthenticationControllerTests: DatabaseInteracting {
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             let response = try res.content.decode(SessionResponse.self)
-            XCTAssertEqual(response.user.firstName, testUserFirstName)
-            XCTAssertEqual(response.user.lastName, testUserLastName)
-            XCTAssertEqual(response.user.email, testUserEmail)
+            XCTAssertEqual(response.userDTO.firstName, testUserFirstName)
+            XCTAssertEqual(response.userDTO.lastName, testUserLastName)
+            XCTAssertEqual(response.userDTO.email, testUserEmail)
             
             // Set refresh token
-            refreshTokenDTO = response.session.refreshToken
+            refreshTokenDTO = response.sessionDTO.refreshToken
             XCTAssertNotNil(refreshTokenDTO)
             
             // Set the userDTO
-            userDTO = response.user
+            userDTO = response.userDTO
             XCTAssertNotNil(userDTO)
             
-            accessTokenDTO = response.session.accessToken
+            accessTokenDTO = response.sessionDTO.accessToken
             XCTAssertNotNil(accessTokenDTO)
         })
         
@@ -334,10 +334,10 @@ final class AuthenticationControllerTests: DatabaseInteracting {
                 XCTAssertEqual(res.status, .ok)
                 let response = try res.content.decode(SessionResponse.self)
                 // Assert Tokens are not empty
-                XCTAssertFalse(response.session.accessToken.token.isEmpty)
-                XCTAssertFalse(response.session.refreshToken.token.isEmpty)
+                XCTAssertFalse(response.sessionDTO.accessToken.token.isEmpty)
+                XCTAssertFalse(response.sessionDTO.refreshToken.token.isEmpty)
                 // Assert UserID matches
-                XCTAssertEqual(response.user.id, userDTO!.id)
+                XCTAssertEqual(response.userDTO.id, userDTO!.id)
             })
     }
     

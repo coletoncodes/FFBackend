@@ -28,11 +28,11 @@ extension RegisterRequest: Validatable {
     }
 }
 
-extension User {
+extension UserDTO {
     /// Creates a new user from a `RegisterRequest` and encrypts the password.
     /// - Parameters:
     ///   - request: The registration request sent in the body.
-    convenience init(from request: RegisterRequest) throws {
+    init(from request: RegisterRequest) throws {
         self.init(
             firstName: request.firstName,
             lastName: request.lastName,

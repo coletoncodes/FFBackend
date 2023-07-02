@@ -24,7 +24,7 @@ final class PlaidControllerTests: AuthenticatedTestCase {
     /// Test valid createLinkToken request succeeds
     func testCreateLinkTokenSuccess() throws {
         // Get the authenticated user's id.
-        let userID = sessionResponse.user.id!
+        let userID = sessionResponse.userDTO.id!
         
         // Create a request with the test user's UUID
         let request = CreateLinkTokenRequest(userID: userID)

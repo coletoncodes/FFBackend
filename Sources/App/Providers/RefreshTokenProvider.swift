@@ -11,9 +11,10 @@ import Vapor
 import FluentKit
 
 protocol RefreshTokenProviding {
-    func generateRefreshToken(for user: User, on req: Request) async throws -> RefreshTokenDTO
+    func generateRefreshToken(for userDTO: UserDTO, on req: Request) async throws -> RefreshTokenDTO
     func validateRefreshToken(_ token: String, on req: Request) async throws -> RefreshTokenDTO
     func invalidate(_ token: String, on req: Request) async throws
+    func existingToken(for userDTO: UserDTO, on req: Request) async throws -> RefreshTokenDTO?
 }
 
 final class RefreshTokenProvider: RefreshTokenProviding {
@@ -21,13 +22,13 @@ final class RefreshTokenProvider: RefreshTokenProviding {
     @Injected(\.refreshTokenStore) private var tokenStore
     
     // MARK: - Interface
-    func generateRefreshToken(for user: User, on req: Request) async throws -> RefreshTokenDTO {
-        guard let userID = user.id else {
+    func generateRefreshToken(for userDTO: UserDTO, on req: Request) async throws -> RefreshTokenDTO {
+        guard let userID = userDTO.id else {
             throw Abort(.unauthorized, reason: "UserID was nil.")
         }
         
         // Remove any existing tokens
-        try await removeExistingTokens(for: user, on: req)
+        try await removeExistingTokens(for: userDTO, on: req)
         
         // Create a new RefreshToken that expires in 30 days.
         let refreshToken = RefreshToken(
@@ -60,7 +61,6 @@ final class RefreshTokenProvider: RefreshTokenProviding {
         return RefreshTokenDTO(userID: userID, token: foundRefreshToken.token)
     }
     
-    
     func invalidate(_ token: String, on req: Request) async throws {
         // Find the token in the database
         guard let foundRefreshToken = try await tokenStore.find(token, on: req.db) else {
@@ -71,9 +71,18 @@ final class RefreshTokenProvider: RefreshTokenProviding {
         try await tokenStore.delete(foundRefreshToken, on: req.db)
     }
     
+    func existingToken(for userDTO: UserDTO, on req: Request) async throws -> RefreshTokenDTO? {
+        let user = try User(from: userDTO)
+        guard let existingToken = try await tokenStore.findToken(for: user, on: req.db) else {
+            throw Abort(.unauthorized, reason: "Unable to find matching token in database.")
+        }
+        
+        return RefreshTokenDTO(from: existingToken)
+    }
+    
     // MARK: - Helpers
-    func removeExistingTokens(for user: User, on req: Request) async throws {
-        guard let userID = user.id else {
+    func removeExistingTokens(for userDTO: UserDTO, on req: Request) async throws {
+        guard let userID = userDTO.id else {
             throw Abort(.unauthorized, reason: "Unable to find matching tokens for user.")
         }
         

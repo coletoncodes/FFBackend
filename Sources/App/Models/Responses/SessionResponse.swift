@@ -8,6 +8,6 @@
 import Vapor
 
 struct SessionResponse: Content {
-    let user: UserDTO
-    let session: SessionDTO
+    let userDTO: UserDTO
+    let sessionDTO: SessionDTO
 }

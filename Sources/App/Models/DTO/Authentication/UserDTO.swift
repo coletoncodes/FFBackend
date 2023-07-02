@@ -15,20 +15,29 @@ struct UserDTO: Content {
     let firstName: String
     let lastName: String
     let email: String
+    let passwordHash: String
     
     init(
         id: UUID? = nil,
         firstName: String,
         lastName: String,
-        email: String
+        email: String,
+        passwordHash: String
     ) {
         self.id = id
         self.firstName = firstName
         self.lastName = lastName
         self.email = email
+        self.passwordHash = passwordHash
     }
     
     init(from user: User) {
-        self.init(id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email)
+        self.init(
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            passwordHash: user.passwordHash
+        )
     }
 }

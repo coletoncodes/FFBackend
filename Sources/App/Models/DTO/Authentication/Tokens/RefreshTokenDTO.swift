@@ -25,4 +25,8 @@ struct RefreshTokenDTO: Content {
         self.userID = userID
         self.token = token
     }
+    
+    init(from refreshToken: RefreshToken) {
+        self.init(userID: refreshToken.user.id, token: refreshToken.token)
+    }
 }

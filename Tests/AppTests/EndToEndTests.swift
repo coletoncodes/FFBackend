@@ -55,17 +55,17 @@ final class EndToEndTests: DatabaseInteracting {
             XCTAssertEqual(res.status, .ok)
             sessionResponse = try res.content.decode(SessionResponse.self)
             // Assert login response matches expected
-            XCTAssertEqual(sessionResponse!.user.firstName, testUserFirstName)
-            XCTAssertEqual(sessionResponse!.user.lastName, testUserLastName)
-            XCTAssertEqual(sessionResponse!.user.email, testUserEmail)
+            XCTAssertEqual(sessionResponse!.userDTO.firstName, testUserFirstName)
+            XCTAssertEqual(sessionResponse!.userDTO.lastName, testUserLastName)
+            XCTAssertEqual(sessionResponse!.userDTO.email, testUserEmail)
             
             // Assert tokens are generated
-            XCTAssertFalse(sessionResponse!.session.accessToken.token.isEmpty)
-            XCTAssertFalse(sessionResponse!.session.refreshToken.token.isEmpty)
+            XCTAssertFalse(sessionResponse!.sessionDTO.accessToken.token.isEmpty)
+            XCTAssertFalse(sessionResponse!.sessionDTO.refreshToken.token.isEmpty)
         })
         
         // 2. Log out
-        guard let userID = sessionResponse?.user.id else {
+        guard let userID = sessionResponse?.userDTO.id else {
             XCTFail("The user ID was nil and shouldn't be.")
             return
         }
@@ -85,13 +85,13 @@ final class EndToEndTests: DatabaseInteracting {
             
             let sessionResponse = try res.content.decode(SessionResponse.self)
             // Assert login response matches expected
-            XCTAssertEqual(sessionResponse.user.firstName, testUserFirstName)
-            XCTAssertEqual(sessionResponse.user.lastName, testUserLastName)
-            XCTAssertEqual(sessionResponse.user.email, testUserEmail)
+            XCTAssertEqual(sessionResponse.userDTO.firstName, testUserFirstName)
+            XCTAssertEqual(sessionResponse.userDTO.lastName, testUserLastName)
+            XCTAssertEqual(sessionResponse.userDTO.email, testUserEmail)
             
             // Assert tokens are generated
-            XCTAssertFalse(sessionResponse.session.accessToken.token.isEmpty)
-            XCTAssertFalse(sessionResponse.session.refreshToken.token.isEmpty)
+            XCTAssertFalse(sessionResponse.sessionDTO.accessToken.token.isEmpty)
+            XCTAssertFalse(sessionResponse.sessionDTO.refreshToken.token.isEmpty)
         })
     }
 }

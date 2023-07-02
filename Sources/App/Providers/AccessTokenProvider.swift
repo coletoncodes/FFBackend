@@ -20,7 +20,7 @@ protocol AccessTokenProviding {
     ///
     /// - Parameter user: The User object for which to generate a token.
     /// - Returns: The newly generated JWTToken as a String.
-    func generateAccessToken(for user: User) throws -> AccessTokenDTO
+    func generateAccessToken(for userDTO: UserDTO) throws -> AccessTokenDTO
     
     
     /// Sign's an existing access token for a give JWTTokenPayload
@@ -47,8 +47,8 @@ final class AccessTokenProvider: AccessTokenProviding {
     @Injected(\.jwtSigner) private var signer
     
     // MARK: - Interface
-    func generateAccessToken(for user: User) throws -> AccessTokenDTO {
-        guard let userID = user.id else {
+    func generateAccessToken(for userDTO: UserDTO) throws -> AccessTokenDTO {
+        guard let userID = userDTO.id else {
             throw Abort(.internalServerError, reason: "Missing userID in payload.")
         }
         
@@ -60,12 +60,11 @@ final class AccessTokenProvider: AccessTokenProviding {
         let payload = JWTTokenPayload(expiration: .init(value: oneHourFromNow), userID: userID)
         
         // Sign the JWT payload & return
-        let token = try signer.sign(payload)
-        return AccessTokenDTO(token: token, payload: payload)
+        return try signAccessToken(for: payload)
     }
     
+    // Sign the JWT payload
     func signAccessToken(for payload: JWTTokenPayload) throws -> AccessTokenDTO {
-        // Sign the JWT payload & return
         let token = try signer.sign(payload)
         return AccessTokenDTO(token: token, payload: payload)
     }

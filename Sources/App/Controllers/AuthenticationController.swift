@@ -13,8 +13,7 @@ struct AuthenticationController: RouteCollection {
     // MARK: - Dependencies
     @Injected(\.accessTokenProvider) private var accessTokenProvider
     @Injected(\.refreshTokenProvider) private var refreshTokenProvider
-    @Injected(\.refreshTokenStore) private var refreshTokenStore
-    @Injected(\.userStore) private var userStore
+    @Injected(\.userProvider) private var userProvider
     
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
@@ -46,22 +45,20 @@ private extension AuthenticationController {
         do {
             try RegisterRequest.validate(content: req)
         } catch {
-            let logStr = "Invalid request data: \(error)"
-            throw Abort(.badRequest, reason: logStr)
+            throw Abort(.badRequest, reason: "Invalid request data: \(error)")
         }
         
         let registerRequest = try req.content.decode(RegisterRequest.self)
         
         guard registerRequest.password == registerRequest.confirmPassword else {
-            let logStr = "Provided passwords do not match."
-            throw Abort(.badRequest, reason: logStr)
+            throw Abort(.badRequest, reason: "Provided passwords do not match.")
         }
         
-        let user = try User(from: registerRequest)
-        try await userStore.save(user, on: req.db)
+        let userDTO = try UserDTO(from: registerRequest)
+        try await userProvider.save(userDTO: userDTO, from: req)
         
         // Return the session for the user
-        return try await createSession(for: user, on: req)
+        return try await createSession(for: userDTO, on: req)
     }
     
     /// Authenticates an existing user, generates new JWT and refresh tokens, and returns them in the response.
@@ -83,7 +80,7 @@ private extension AuthenticationController {
         
         let loginRequest = try req.content.decode(LoginRequest.self)
         
-        guard let user = try await userStore.find(byEmail: loginRequest.email, on: req.db) else {
+        guard let user = try await userProvider.findBy(email: loginRequest.email, from: req) else {
             throw Abort(.unauthorized, reason: "Failed to find user with a matching email.")
         }
         
@@ -110,11 +107,11 @@ private extension AuthenticationController {
         }
         
         // Get the user for the userID
-        guard let user = try await userStore.find(byID: userID, on: req.db) else {
+        guard let userDTO = try await userProvider.findBy(id: userID, from: req) else {
             throw Abort(.notFound, reason: "No User exists for the given id: \(userID)")
         }
         
-        guard let refreshToken = try await refreshTokenStore.findToken(for: user, on: req.db) else {
+        guard let refreshToken = try await refreshTokenProvider.existingToken(for: userDTO, on: req) else {
             throw Abort(.unauthorized, reason: "No refresh token's exist for the given user.")
         }
         
@@ -166,27 +163,26 @@ private extension AuthenticationController {
         }
 
         // Check if the refresh token corresponds to the same user as the access token
-        guard let user = try await userStore.find(byID: jwtPayload.userID, on: req.db) else {
+        guard let userDTO = try await userProvider.findBy(id: jwtPayload.userID, from: req) else {
             throw Abort(.unauthorized, reason: "No user exists for this id.")
         }
         
         let accessTokenDTO = try accessTokenProvider.signAccessToken(for: jwtPayload)
         
         let session = SessionDTO(accessToken: accessTokenDTO, refreshToken: refreshTokenDTO)
-        return SessionResponse(user: UserDTO(from: user), session: session)
+        return SessionResponse(userDTO: userDTO, sessionDTO: session)
     }
 }
 
 // MARK: - Helpers
 extension AuthenticationController {
-    func createSession(for user: User, on req: Request) async throws -> SessionResponse {
+    func createSession(for userDTO: UserDTO, on req: Request) async throws -> SessionResponse {
         // Generate tokens
-        let accessTokenDTO = try accessTokenProvider.generateAccessToken(for: user)
-        let refreshTokenDTO = try await refreshTokenProvider.generateRefreshToken(for: user, on: req)
-        let userDTO = UserDTO(from: user)
+        let accessTokenDTO = try accessTokenProvider.generateAccessToken(for: userDTO)
+        let refreshTokenDTO = try await refreshTokenProvider.generateRefreshToken(for: userDTO, on: req)
         
         // Return session
-        let session = SessionDTO(accessToken: accessTokenDTO, refreshToken: refreshTokenDTO)
-        return SessionResponse(user: userDTO, session: session)
+        let sessionDTO = SessionDTO(accessToken: accessTokenDTO, refreshToken: refreshTokenDTO)
+        return SessionResponse(userDTO: userDTO, sessionDTO: sessionDTO)
     }
 }

@@ -5,6 +5,7 @@
 //  Created by Coleton Gorecke on 5/13/23.
 //
 
+import Crypto
 import Fluent
 import Vapor
 
@@ -40,5 +41,15 @@ final class User: Model, Content, Authenticatable {
         self.lastName = lastName
         self.email = email
         self.passwordHash = passwordHash
+    }
+    
+    convenience init(from userDTO: UserDTO) throws {
+        self.init(
+            id: userDTO.id,
+            firstName: userDTO.firstName,
+            lastName: userDTO.lastName,
+            email: userDTO.email,
+            passwordHash: userDTO.passwordHash
+        )
     }
 }
