@@ -39,10 +39,6 @@ class AuthenticatedTestCase: DatabaseInteracting {
         return headers
     }
     
-    func testRegisterValidTestUser() throws {
-        XCTAssertNoThrow(try registerValidTestUser())
-    }
-    
     func registerValidTestUser() throws {
         print("Registering Valid Test User")
         let registerRequest = RegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)

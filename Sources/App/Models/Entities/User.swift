@@ -30,7 +30,7 @@ final class User: Model, Content, Authenticatable {
     init() { }
     
     init(
-        id: UUID? = nil,
+        id: UUID? = UUID(),
         firstName: String,
         lastName: String,
         email: String,

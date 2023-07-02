@@ -27,6 +27,6 @@ struct RefreshTokenDTO: Content {
     }
     
     init(from refreshToken: RefreshToken) {
-        self.init(userID: refreshToken.user.id, token: refreshToken.token)
+        self.init(userID: refreshToken.$user.id, token: refreshToken.token)
     }
 }

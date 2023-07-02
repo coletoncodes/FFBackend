@@ -5,6 +5,7 @@
 //  Created by Coleton Gorecke on 5/19/23.
 //
 
+import Fluent
 import Vapor
 
 /// The User Data Transfer Object.

@@ -54,7 +54,8 @@ private extension AuthenticationController {
             throw Abort(.badRequest, reason: "Provided passwords do not match.")
         }
         
-        let userDTO = try UserDTO(from: registerRequest)
+        let user = try User(from: registerRequest)
+        let userDTO = UserDTO(from: user)
         try await userProvider.save(userDTO: userDTO, from: req)
         
         // Return the session for the user
