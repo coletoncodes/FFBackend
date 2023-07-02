@@ -5,23 +5,24 @@
 //  Created by Coleton Gorecke on 6/20/23.
 //
 
+import Factory
 import Vapor
 
 final class BankAccountsController: RouteCollection {
     // MARK: - Dependencies
-    
-    // MARK: - Initializer
+    @Injected(\.bankAccountStore) private var bankAccountStore
     
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
-        let institutionRoutes = routes.grouped("institution")
-//        let plaidRoutes = routes.grouped("plaid")
-//        plaidRoutes.post("create-link-token", use: createLinkToken)
-//        plaidRoutes.post("link-success", use: linkSuccess)
+        let bankAccountRoutes = routes.grouped("bank-accounts")
+        bankAccountRoutes.get("", use: getBankAccounts)
     }
 }
 
 // MARK: - Public Requests
-//extension InstitutionController {
-//
-//}
+extension BankAccountsController {
+    func getBankAccounts(req: Request) async throws -> [BankAccountDTO] {
+        
+        return []
+    }
+}

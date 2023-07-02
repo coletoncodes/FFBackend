@@ -9,14 +9,6 @@ import Factory
 import Fluent
 import Vapor
 
-/*
- - The user logs in with their username and password.
- - The server validates the username and password, generates an access token and a refresh token, and sends them both back to the client.
- - The client stores the refresh token securely and starts using the access token for API requests.
- - When the access token expires, the client sends the refresh token to the server and asks for a new access token.
- - The server validates the refresh token and if it's valid, generates a new access token and a new refresh token and sends them back to the client.
- - The client replaces the old access token with the new one and continues making API requests.
- */
 struct AuthenticationController: RouteCollection {
     // MARK: - Dependencies
     @Injected(\.accessTokenProvider) private var accessTokenProvider
@@ -31,8 +23,6 @@ struct AuthenticationController: RouteCollection {
             auth.post("register", use: register)
             // auth/login
             auth.post("login", use: login)
-            // auth/refresh
-            auth.post("refresh", use: refreshSession)
             // auth/logout
             auth.post("logout", ":userID", use: logout)
             // auth/load-session
@@ -48,9 +38,6 @@ private extension AuthenticationController {
     /// This endpoint requires a `RegisterRequest` object with valid user details. It validates the
     /// request content, creates a new User record, and generates JWT and refresh tokens associated
     /// with the user.
-    ///
-    /// Finally, it responds with a `SessionResponse` containing the user details and
-    /// the newly generated tokens.
     ///
     /// - Parameters:
     ///     - req: The request received from the client, containing the `RegisterRequest` object.
@@ -83,9 +70,6 @@ private extension AuthenticationController {
     /// request content, verifies the user's password, and generates new JWT and refresh tokens
     /// associated with the user.
     ///
-    /// Finally, it responds with a `SessionResponse` containing the user
-    /// details and the newly generated tokens.
-    ///
     /// - Parameters:
     ///     - req: The request received from the client, containing the `LoginRequest` object.
     /// - Returns: A `SessionResponse` object containing the user details and associated tokens.
@@ -114,44 +98,6 @@ private extension AuthenticationController {
             let logStr = "Password verification failed: \(error)"
             throw Abort(.unauthorized, reason: logStr)
         }
-    }
-    
-    /// This function is responsible for refreshing the user's access token.
-    ///
-    /// It takes the refresh token from the request's authorization header, validates it,
-    /// and then generates a new access token for the associated user.
-    /// This function is typically used when a client's access token has expired, but their refresh token is still valid.
-    ///
-    /// - Parameter req: The incoming `Request`, which should contain the refresh token in the authorization header.
-    ///
-    /// - Throws: An `Abort` error with a `.unauthorized` status and a relevant message if:
-    ///     - The refresh token is not found in the request's authorization header.
-    ///     - The refresh token is not valid.
-    ///     - The user associated with the refresh token cannot be found.
-    /// - Returns: `SessionResponse`
-    func refreshSession(_ req: Request) async throws -> SessionResponse {
-        // Extract the refresh token from the request
-        guard let refreshToken = req.headers["x-refresh-token"].first else {
-            throw Abort(.unauthorized, reason: "Missing refresh token in header")
-        }
-        
-        // Validate the refresh token
-        let refreshTokenDTO: RefreshTokenDTO
-        do {
-            refreshTokenDTO = try await refreshTokenProvider.validateRefreshToken(refreshToken, on: req)
-        } catch {
-            throw Abort(.unauthorized, reason: "Invalid refresh token. Please log in again.")
-        }
-        
-        guard
-            let userID = refreshTokenDTO.userID,
-            let user = try await userStore.find(byID: userID, on: req.db)
-        else {
-            throw Abort(.internalServerError, reason: "The user doesn't exist.")
-        }
-        
-        // Create the session
-        return try await createSession(for: user, on: req)
     }
     
     /// Log's the user out and deletes the user's latest RefreshToken from the Database.
@@ -204,25 +150,30 @@ private extension AuthenticationController {
         }
 
         // Validate the refresh token
+        var refreshTokenDTO: RefreshTokenDTO?
         do {
-            _ = try await refreshTokenProvider.validateRefreshToken(refreshToken, on: req)
+            refreshTokenDTO = try await refreshTokenProvider.validateRefreshToken(refreshToken, on: req)
         } catch {
             throw Abort(.unauthorized, reason: "Refresh token is invalid. Please login again.")
         }
         
-        // Ensure we have a valid JWT payload to work with (either from a valid access token, or a valid refresh token)
         guard let jwtPayload = jwtPayload else {
             throw Abort(.internalServerError, reason: "Unable to process JWT payload.")
+        }
+        
+        guard let refreshTokenDTO = refreshTokenDTO else {
+            throw Abort(.internalServerError, reason: "Refresh token is invalid. Please login again.")
         }
 
         // Check if the refresh token corresponds to the same user as the access token
         guard let user = try await userStore.find(byID: jwtPayload.userID, on: req.db) else {
             throw Abort(.unauthorized, reason: "No user exists for this id.")
         }
-
-        // Whether access token was valid or not,
-        // we now create a new session as we have a valid refresh token
-        return try await createSession(for: user, on: req)
+        
+        let accessTokenDTO = try accessTokenProvider.signAccessToken(for: jwtPayload)
+        
+        let session = SessionDTO(accessToken: accessTokenDTO, refreshToken: refreshTokenDTO)
+        return SessionResponse(user: UserDTO(from: user), session: session)
     }
 }
 

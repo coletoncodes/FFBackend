@@ -41,7 +41,6 @@ final class RefreshTokenProvider: RefreshTokenProviding {
         
         // Return a DTO
         let refreshTokenDTO = RefreshTokenDTO(userID: refreshToken.$user.id, token: refreshToken.token)
-        req.logger.debug("Refresh Token is: \(refreshTokenDTO.token)")
         return refreshTokenDTO
     }
     

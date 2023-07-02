@@ -22,6 +22,12 @@ protocol AccessTokenProviding {
     /// - Returns: The newly generated JWTToken as a String.
     func generateAccessToken(for user: User) throws -> AccessTokenDTO
     
+    
+    /// Sign's an existing access token for a give JWTTokenPayload
+    /// - Parameter payload: The token object representing a validated token.
+    /// - Returns: The access token object
+    func signAccessToken(for payload: JWTTokenPayload) throws -> AccessTokenDTO
+    
     /// Validates a provided Access token.
     ///
     /// This method is responsible for decoding the provided JWT token, verifying its
@@ -53,6 +59,12 @@ final class AccessTokenProvider: AccessTokenProviding {
         
         let payload = JWTTokenPayload(expiration: .init(value: oneHourFromNow), userID: userID)
         
+        // Sign the JWT payload & return
+        let token = try signer.sign(payload)
+        return AccessTokenDTO(token: token, payload: payload)
+    }
+    
+    func signAccessToken(for payload: JWTTokenPayload) throws -> AccessTokenDTO {
         // Sign the JWT payload & return
         let token = try signer.sign(payload)
         return AccessTokenDTO(token: token, payload: payload)

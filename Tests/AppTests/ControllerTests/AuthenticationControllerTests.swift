@@ -244,66 +244,7 @@ final class AuthenticationControllerTests: DatabaseInteracting {
             XCTAssertEqual(res.status, .unauthorized)
         })
     }
-    
-    // MARK: - func refreshSession(_ req: Request)
-    /// Verify the token is refreshed when it's valid.
-    func testRefreshWithValidToken() async throws {
-        // Register the user first
-        let registerRequest = RegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
-        var refreshTokenDTO: RefreshTokenDTO?
-        var userDTO: UserDTO?
         
-        try app.test(.POST, "auth/register", beforeRequest: { req in
-            try req.content.encode(registerRequest)
-        }, afterResponse: { res in
-            XCTAssertEqual(res.status, .ok)
-            let response = try res.content.decode(SessionResponse.self)
-            XCTAssertEqual(response.user.firstName, testUserFirstName)
-            XCTAssertEqual(response.user.lastName, testUserLastName)
-            XCTAssertEqual(response.user.email, testUserEmail)
-            
-            // Set refresh token
-            refreshTokenDTO = response.session.refreshToken
-            XCTAssertNotNil(refreshTokenDTO)
-            
-            // Set the userDTO
-            userDTO = response.user
-            XCTAssertNotNil(userDTO)
-        })
-        
-        guard let refreshToken = refreshTokenDTO?.token else {
-            XCTFail("Nil Refresh Token was found")
-            return
-        }
-        
-        // Refresh the token
-        try app.test(.POST, "auth/refresh", headers: ["x-refresh-token": refreshToken], afterResponse: { res in
-            XCTAssertEqual(res.status, .ok)
-            let response = try res.content.decode(SessionResponse.self)
-            // Assert Tokens are not empty
-            XCTAssertFalse(response.session.accessToken.token.isEmpty)
-            XCTAssertFalse(response.session.refreshToken.token.isEmpty)
-            // Assert UserID matches
-            XCTAssertEqual(response.user.id, userDTO!.id)
-        })
-    }
-    
-    /// Verify that an invalidToken throws 401
-    func testRefreshWithInvalidToken() async throws {
-        let invalidToken = "invalidToken"
-        
-        try app.test(.POST, "auth/refresh", headers: ["Authorization": "Bearer \(invalidToken)"], afterResponse: { res in
-            XCTAssertEqual(res.status, .unauthorized)
-        })
-    }
-    
-    /// Verify that no token in request throws 401
-    func testRefreshWithNoToken() async throws {
-        try app.test(.POST, "auth/refresh", afterResponse: { res in
-            XCTAssertEqual(res.status, .unauthorized)
-        })
-    }
-    
     // MARK: - func logout(_ req: Request)
     func testLogoutSuccess() async throws {
         // Register the user first
