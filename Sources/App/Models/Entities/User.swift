@@ -5,6 +5,7 @@
 //  Created by Coleton Gorecke on 5/13/23.
 //
 
+import FFAPI
 import Crypto
 import Fluent
 import Vapor
@@ -43,13 +44,13 @@ final class User: Model, Content, Authenticatable {
         self.passwordHash = passwordHash
     }
     
-    convenience init(from userDTO: UserDTO) throws {
+    convenience init(from ffUser: FFUser) {
         self.init(
-            id: userDTO.id,
-            firstName: userDTO.firstName,
-            lastName: userDTO.lastName,
-            email: userDTO.email,
-            passwordHash: userDTO.passwordHash
+            id: ffUser.id,
+            firstName: ffUser.firstName,
+            lastName: ffUser.lastName,
+            email: ffUser.email,
+            passwordHash: ffUser.passwordHash
         )
     }
 }

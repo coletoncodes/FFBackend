@@ -5,9 +5,25 @@
 //  Created by Coleton Gorecke on 5/19/23.
 //
 
+import FFAPI
 import Factory
 import Fluent
 import Vapor
+
+// TODO: Move to new file?
+extension FFSessionResponse: Content {}
+
+extension FFUser {
+    init(from user: User) {
+        self.init(
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            passwordHash: user.passwordHash
+        )
+    }
+}
 
 struct AuthenticationController: RouteCollection {
     // MARK: - Dependencies
@@ -41,7 +57,7 @@ private extension AuthenticationController {
     /// - Parameters:
     ///     - req: The request received from the client, containing the `RegisterRequest` object.
     /// - Returns: A `SessionResponse` object containing the user details and associated tokens.
-    func register(_ req: Request) async throws -> SessionResponse {
+    func register(_ req: Request) async throws -> FFSessionResponse {
         do {
             try RegisterRequest.validate(content: req)
         } catch {
@@ -55,11 +71,11 @@ private extension AuthenticationController {
         }
         
         let user = try User(from: registerRequest)
-        let userDTO = UserDTO(from: user)
-        try await userProvider.save(userDTO: userDTO, from: req)
+        let ffUser = FFUser(from: user)
+        try await userProvider.save(ffUser: ffUser, from: req)
         
         // Return the session for the user
-        return try await createSession(for: userDTO, on: req)
+        return try await createSession(for: ffUser, on: req)
     }
     
     /// Authenticates an existing user, generates new JWT and refresh tokens, and returns them in the response.
@@ -71,7 +87,7 @@ private extension AuthenticationController {
     /// - Parameters:
     ///     - req: The request received from the client, containing the `LoginRequest` object.
     /// - Returns: A `SessionResponse` object containing the user details and associated tokens.
-    func login(_ req: Request) async throws -> SessionResponse {
+    func login(_ req: Request) async throws -> FFSessionResponse {
         do {
             try LoginRequest.validate(content: req)
         } catch {
@@ -127,7 +143,7 @@ private extension AuthenticationController {
     /// - Parameter req: The incoming `Request`, which
     /// should contain the refresh & access token in the authorization header.
     /// - Returns: The newly created session for the user.
-    func loadSession(_ req: Request) async throws -> SessionResponse {
+    func loadSession(_ req: Request) async throws -> FFSessionResponse {
         // Extract the tokens from the request
         guard let accessToken = req.headers.bearerAuthorization?.token else {
             throw Abort(.unauthorized, reason: "Missing access token in header")
@@ -148,9 +164,9 @@ private extension AuthenticationController {
         }
 
         // Validate the refresh token
-        var refreshTokenDTO: RefreshTokenDTO?
+        var ffRefreshToken: FFRefreshToken?
         do {
-            refreshTokenDTO = try await refreshTokenProvider.validateRefreshToken(refreshToken, on: req)
+            ffRefreshToken = try await refreshTokenProvider.validateRefreshToken(refreshToken, on: req)
         } catch {
             throw Abort(.unauthorized, reason: "Refresh token is invalid. Please login again.")
         }
@@ -159,31 +175,31 @@ private extension AuthenticationController {
             throw Abort(.internalServerError, reason: "Unable to process JWT payload.")
         }
         
-        guard let refreshTokenDTO = refreshTokenDTO else {
+        guard let ffRefreshToken = ffRefreshToken else {
             throw Abort(.internalServerError, reason: "Refresh token is invalid. Please login again.")
         }
 
         // Check if the refresh token corresponds to the same user as the access token
-        guard let userDTO = try await userProvider.findBy(id: jwtPayload.userID, from: req) else {
+        guard let ffUser = try await userProvider.findBy(id: jwtPayload.userID, from: req) else {
             throw Abort(.unauthorized, reason: "No user exists for this id.")
         }
         
-        let accessTokenDTO = try accessTokenProvider.signAccessToken(for: jwtPayload)
+        let ffAccessToken = try accessTokenProvider.signAccessToken(for: jwtPayload)
         
-        let session = SessionDTO(accessToken: accessTokenDTO, refreshToken: refreshTokenDTO)
-        return SessionResponse(userDTO: userDTO, sessionDTO: session)
+        let session = FFSession(accessToken: ffAccessToken, refreshToken: ffRefreshToken)
+        return FFSessionResponse(user: ffUser, session: session)
     }
 }
 
 // MARK: - Helpers
 extension AuthenticationController {
-    func createSession(for userDTO: UserDTO, on req: Request) async throws -> SessionResponse {
+    func createSession(for ffUser: FFUser, on req: Request) async throws -> FFSessionResponse {
         // Generate tokens
-        let accessTokenDTO = try accessTokenProvider.generateAccessToken(for: userDTO)
-        let refreshTokenDTO = try await refreshTokenProvider.generateRefreshToken(for: userDTO, on: req)
+        let accessToken = try accessTokenProvider.generateAccessToken(for: ffUser)
+        let refreshToken = try await refreshTokenProvider.generateRefreshToken(for: ffUser, on: req)
         
         // Return session
-        let sessionDTO = SessionDTO(accessToken: accessTokenDTO, refreshToken: refreshTokenDTO)
-        return SessionResponse(userDTO: userDTO, sessionDTO: sessionDTO)
+        let ffSession = FFSession(accessToken: accessToken, refreshToken: refreshToken)
+        return FFSessionResponse(user: ffUser, session: ffSession)
     }
 }
