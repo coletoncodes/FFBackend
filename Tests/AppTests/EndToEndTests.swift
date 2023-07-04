@@ -6,6 +6,7 @@
 //
 
 @testable import App
+import FFAPI
 import XCTVapor
 
 final class EndToEndTests: DatabaseInteracting {
@@ -47,13 +48,13 @@ final class EndToEndTests: DatabaseInteracting {
     /// 3. User Log's In
     func testFullAuthCycle() throws {
         // 1. Create an account
-        let registerRequest = RegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
-        var sessionResponse: SessionResponse?
+        let registerRequest = FFRegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
+        var sessionResponse: FFSessionResponse?
         try app.test(.POST, "auth/register", beforeRequest: { req in
             try req.content.encode(registerRequest)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
-            sessionResponse = try res.content.decode(SessionResponse.self)
+            sessionResponse = try res.content.decode(FFSessionResponse.self)
             // Assert login response matches expected
             XCTAssertEqual(sessionResponse!.user.firstName, testUserFirstName)
             XCTAssertEqual(sessionResponse!.user.lastName, testUserLastName)
@@ -75,7 +76,7 @@ final class EndToEndTests: DatabaseInteracting {
         })
         
         // 3. Log in
-        let loginRequest = LoginRequest(email: testUserEmail, password: testUserPassword)
+        let loginRequest = FFLoginRequest(email: testUserEmail, password: testUserPassword)
         
         // Make a login request with the correct credentials.
         try app.test(.POST, "auth/login", beforeRequest: { req in
@@ -83,7 +84,7 @@ final class EndToEndTests: DatabaseInteracting {
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             
-            let sessionResponse = try res.content.decode(SessionResponse.self)
+            let sessionResponse = try res.content.decode(FFSessionResponse.self)
             // Assert login response matches expected
             XCTAssertEqual(sessionResponse.user.firstName, testUserFirstName)
             XCTAssertEqual(sessionResponse.user.lastName, testUserLastName)

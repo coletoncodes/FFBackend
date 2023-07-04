@@ -21,7 +21,6 @@ struct PlaidCreateLinkTokenRequest: Content {
     let redirect_uri: String
     
     init(user: PlaidUser) {
-        // TODO: Move to environment
         self.client_id = Constants.plaidClientId.rawValue
         self.secret = Constants.plaidSecretKey.rawValue
         self.client_name = "FinanceFlow"

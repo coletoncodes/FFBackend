@@ -6,6 +6,7 @@
 //
 
 @testable import App
+import FFAPI
 import Fluent
 import XCTVapor
 
@@ -28,7 +29,7 @@ class AuthenticatedTestCase: DatabaseInteracting {
     }
     
     // MARK: - Interface
-    private(set) var sessionResponse: SessionResponse!
+    private(set) var sessionResponse: FFSessionResponse!
     
     var authHeaders: HTTPHeaders {
         var headers = HTTPHeaders()
@@ -41,13 +42,13 @@ class AuthenticatedTestCase: DatabaseInteracting {
     
     func registerValidTestUser() throws {
         print("Registering Valid Test User")
-        let registerRequest = RegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
+        let registerRequest = FFRegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
         
         try app.test(.POST, "auth/register", beforeRequest: { req in
             try req.content.encode(registerRequest)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
-            sessionResponse = try res.content.decode(SessionResponse.self)
+            sessionResponse = try res.content.decode(FFSessionResponse.self)
             // Assert login response matches expected
             XCTAssertEqual(sessionResponse.user.firstName, testUserFirstName)
             XCTAssertEqual(sessionResponse.user.lastName, testUserLastName)

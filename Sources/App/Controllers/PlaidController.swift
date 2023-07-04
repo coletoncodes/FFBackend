@@ -5,6 +5,7 @@
 //  Created by Coleton Gorecke on 5/18/23.
 //
 
+import FFAPI
 import Factory
 import Vapor
 
@@ -29,9 +30,9 @@ extension PlaidController {
     ///
     /// Creates a link_token using the Plaid API.
     /// Must provide a `CreateLinkTokenRequest` as the body.
-    func createLinkToken(req: Request) async throws -> CreateLinkTokenResponse {
+    func createLinkToken(req: Request) async throws -> FFCreateLinkTokenResponse {
         // Decode the request body to get the userID
-        let requestBody = try req.content.decode(CreateLinkTokenRequest.self)
+        let requestBody = try req.content.decode(FFCreateLinkTokenRequest.self)
         
         // Check if the user exists in the database
         guard let foundUser = try await userStore.find(byID: requestBody.userID, on: req.db) else {
@@ -61,7 +62,7 @@ extension PlaidController {
         }
         
         let response = try clientResponse.content.decode(PlaidCreateLinkTokenResponse.self)
-        return CreateLinkTokenResponse(linkToken: response.link_token)
+        return FFCreateLinkTokenResponse(linkToken: response.link_token)
     }
     
     /// Handles the linkSuccess from the client and saves the data into the database.
@@ -71,10 +72,10 @@ extension PlaidController {
     /// Must provide a `LinkSuccessRequest` as the body.
     func linkSuccess(req: Request) async throws -> HTTPStatus {
         // Decode the request
-        let requestBody = try req.content.decode(LinkSuccessRequest.self)
+        let requestBody = try req.content.decode(FFLinkSuccessRequest.self)
         
         // Create the exchange public token request
-        let exchangePublicTokenRequest = ExchangePublicTokenRequest(userID: requestBody.userID, publicToken: requestBody.publicToken)
+        let exchangePublicTokenRequest = FFExchangePublicTokenRequest(userID: requestBody.userID, publicToken: requestBody.publicToken)
         
         let exchangePublicTokenResponse = try await exchangePublicToken(req: req, publicTokenRequest: exchangePublicTokenRequest, metadata: requestBody.metadata)
         
@@ -93,8 +94,8 @@ extension PlaidController {
     /// Must provide a `ExchangeLinkTokenRequest` as the body.
     func exchangePublicToken(
         req: Request,
-        publicTokenRequest: ExchangePublicTokenRequest,
-        metadata: PlaidSuccessMetadata
+        publicTokenRequest: FFExchangePublicTokenRequest,
+        metadata: FFPlaidSuccessMetadata
     ) async throws -> HTTPStatus {
         // Check if the user exists in the database
         guard let foundUser = try await userStore.find(byID: publicTokenRequest.userID, on: req.db) else {
@@ -185,7 +186,6 @@ struct PlaidGetTransactionsRequest: Content {
     }
 }
 
-// TODO: Add options if needed
 struct PlaidTransactionOptions: Content {
     let include_personal_finance_category: Bool
     

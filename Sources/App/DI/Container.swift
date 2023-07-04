@@ -21,6 +21,11 @@ extension Container {
             .graph
     }
     
+    var userProvider: Factory<UserProviding> {
+        self { UserProvider() }
+            .graph
+    }
+    
     // MARK: - Stores
     var refreshTokenStore: Factory<RefreshTokenStore> {
         self { RefreshTokenRepository() }
@@ -50,8 +55,7 @@ extension Container {
     // MARK: - Utilities
     // TODO: Inject from environment
     var jwtSigner: Factory<JWTSigner> {
-        self { JWTSigner.hs256(key: "your-secret-key")
-        }
-        .graph
+        self { JWTSigner.hs256(key: "your-secret-key") }
+            .graph
     }
 }
