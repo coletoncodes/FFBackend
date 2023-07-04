@@ -40,6 +40,10 @@ class AuthenticatedTestCase: DatabaseInteracting {
         return headers
     }
     
+    var user: FFUser {
+        sessionResponse.user
+    }
+    
     func registerValidTestUser() throws {
         print("Registering Valid Test User")
         let registerRequest = FFRegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)

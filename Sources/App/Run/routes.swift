@@ -9,4 +9,8 @@ func routes(_ app: Application) throws {
     // MARK: - Protected Routes
     let protectedRoutes = ProtectedRoutes(app)
     try protectedRoutes.routes()
+    
+    for route in app.routes.all {
+        print(route)
+    }
 }

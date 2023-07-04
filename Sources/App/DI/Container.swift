@@ -26,6 +26,10 @@ extension Container {
             .graph
     }
     
+    var institutionProvider: Factory<InstitutionsProviding> {
+        self { InstitutionsProvider() }
+            .graph
+    }
     // MARK: - Stores
     var refreshTokenStore: Factory<RefreshTokenStore> {
         self { RefreshTokenRepository() }

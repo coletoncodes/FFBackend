@@ -1,5 +1,5 @@
 //
-//  FFLinkSuccessRequest.swift
+//  FFGetInstitutionsRequest.swift
 //  
 //
 //  Created by Coleton Gorecke on 7/4/23.
@@ -7,15 +7,15 @@
 
 import Foundation
 
-public struct FFLinkSuccessRequest: FFAPIRequest {
-    public typealias Response = FFCreateLinkTokenResponse
+public struct FFGetInstitutionsRequest: FFAPIRequest {
+    typealias Response = [FFInstitution]
     
-    public var body: Encodable?
+    var body: Encodable? = nil
     
-    var method: HTTPMethod { .POST }
+    var method: HTTPMethod { .GET }
     
     var path: String {
-        FFAPIPath.linkSuccess
+        return FFAPIPath.getInstitutions(userID)
     }
     
     var headers: [FFAPIHeader] {
@@ -28,14 +28,16 @@ public struct FFLinkSuccessRequest: FFAPIRequest {
     
     public let refreshToken: FFRefreshToken
     public let accessToken: FFAccessToken
+    public let userID: UUID
     
     public init(
-        body: FFLinkSuccessRequestBody,
         refreshToken: FFRefreshToken,
-        accessToken: FFAccessToken
+        accessToken: FFAccessToken,
+        userID: UUID
     ) {
-        self.body = body
         self.refreshToken = refreshToken
         self.accessToken = accessToken
+        self.userID = userID
     }
+    
 }

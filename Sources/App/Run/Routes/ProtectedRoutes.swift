@@ -20,6 +20,7 @@ final class ProtectedRoutes {
         try app.group("api") { api in 
             let protectedRoutes = api.grouped(AuthenticationMiddleware())
             try protectedRoutes.register(collection: PlaidController())
+            try protectedRoutes.register(collection: InstitutionsController())
         }
     }
 }
