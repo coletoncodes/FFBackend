@@ -15,7 +15,10 @@ public protocol FFInstitutionsNetworkService {
 
 public final class FFInstitutionsNetworkingService: FFInstitutionsNetworkService, FFNetworkService {
 
-    // MARK: - Interface
+    // MARK: - Initializer
+    public init() { }
+    
+    // MARK: - Interace
     public func getInstitutions(
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken,

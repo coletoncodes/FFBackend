@@ -14,7 +14,10 @@ public protocol FFPlaidNetworkService {
 
 public final class FFPlaidNetworkingService: FFPlaidNetworkService, FFNetworkService {
         
-    // MARK: - Interface
+    // MARK: - Initializer
+    public init() {}
+    
+    // MARK: - Interace
     public func createLinkToken(body: FFCreateLinkTokenRequestBody, accessToken: FFAccessToken, refreshToken: FFRefreshToken) async throws -> FFCreateLinkTokenResponse {
         return try await performRequest(
             FFCreateLinkTokenRequest(body: body, refreshToken: refreshToken, accessToken: accessToken))

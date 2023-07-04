@@ -15,6 +15,10 @@ public protocol FFAuthNetworkService {
 }
 
 public final class FFAuthenticationNetworkService: FFAuthNetworkService, FFNetworkService {
+    // MARK: - Initializer
+    public init() { }
+    
+    // MARK: - Interace
     public func registerUser(body: FFRegisterRequest) async throws -> FFSessionResponse {
         return try await performRequest(RegisterUserRequest(body: body))
     }
