@@ -39,4 +39,9 @@ enum FFAPIPath {
     
     /// api/plaid/link-success
     static let linkSuccess = "\(plaid)/link-success"
+    
+    /// api/institutions/:userID
+    static func getInstitutions(_ userID: UUID) -> String {
+        return "\(api)/institutions/\(userID)"
+    }
 }

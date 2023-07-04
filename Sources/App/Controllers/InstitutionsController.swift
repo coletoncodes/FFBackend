@@ -23,7 +23,6 @@ final class InstitutionsController: RouteCollection {
 // MARK: - Public Requests
 extension InstitutionsController {
     func getInstitutions(req: Request) async throws -> [FFInstitution] {
-        
         // Verify userID is provided in request.
         guard let userID = req.parameters.get("userID", as: UUID.self) else {
             throw Abort(.badRequest, reason: "Missing User ID in request.")

@@ -18,7 +18,7 @@ protocol InstitutionStore {
 final class InstitutionRepository: InstitutionStore {
     func getInstitutions(userID: UUID, from db: Database) async throws -> [Institution] {
         try await Institution.query(on: db)
-            .filter(\.user.$id == userID)
+            .filter(\.$user.$id == userID)
             .all()
     }
     
