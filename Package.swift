@@ -17,7 +17,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.7.2"),
         .package(url: "https://github.com/vapor/leaf.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/jwt.git", from: "4.0.0"),
-        .package(url: "git@github.com:hmlongco/Factory.git", from: "2.1.5"),
+        .package(url: "https://github.com/hmlongco/Factory.git", from: "2.1.5"),
     ],
     targets: [
         .executableTarget(
