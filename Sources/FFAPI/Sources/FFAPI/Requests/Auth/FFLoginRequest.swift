@@ -16,11 +16,3 @@ public struct FFLoginRequest: Codable {
         self.password = password
     }
 }
-
-// TODO: Move to FFBackend
-//extension LoginRequest: Validatable {
-//    static func validations(_ validations: inout Validations) {
-//        validations.add("email", as: String.self, is: .email)
-//        validations.add("password", as: String.self, is: .count(8...))
-//    }
-//}

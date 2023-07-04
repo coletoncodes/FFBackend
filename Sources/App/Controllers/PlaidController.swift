@@ -186,7 +186,6 @@ struct PlaidGetTransactionsRequest: Content {
     }
 }
 
-// TODO: Add options if needed
 struct PlaidTransactionOptions: Content {
     let include_personal_finance_category: Bool
     

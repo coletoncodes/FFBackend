@@ -55,8 +55,7 @@ extension Container {
     // MARK: - Utilities
     // TODO: Inject from environment
     var jwtSigner: Factory<JWTSigner> {
-        self { JWTSigner.hs256(key: "your-secret-key")
-        }
-        .graph
+        self { JWTSigner.hs256(key: "your-secret-key") }
+            .graph
     }
 }
