@@ -4,7 +4,11 @@ import PackageDescription
 let package = Package(
     name: "FFBackend",
     platforms: [
-        .macOS(.v12)
+        .macOS(.v12),
+        .iOS(.v16)
+    ],
+    products: [
+        .library(name: "FFBackend", targets: ["FFAPI"])
     ],
     dependencies: [
         // 💧 A server-side Swift web framework.
@@ -32,7 +36,7 @@ let package = Package(
                 // the `.unsafeFlags` construct required by SwiftPM, this flag is recommended for Release
                 // builds. See <https://www.swift.org/server/guides/building.html#building-for-production> for details.
                 .unsafeFlags(["-cross-module-optimization"],
-                    .when(configuration: .release))
+                             .when(configuration: .release))
             ]
         ),
         .target(name: "FFAPI", path: "Sources/FFAPI"),
