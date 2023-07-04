@@ -7,6 +7,27 @@
 
 import Foundation
 
+struct RegisterUserRequest: FFAPIRequest {
+    typealias Response = FFSessionResponse
+    
+    var method: HTTPMethod { .POST }
+    
+    var path: String {
+        FFAPIPath.registerUser
+    }
+    
+    var headers: [FFAPIHeader] {
+        [FFAPIHeader.contentType]
+    }
+    
+    var body: Encodable?
+    
+    init(body: FFRegisterRequest) {
+        self.body = body
+    }
+}
+
+
 public struct FFRegisterRequest: Codable {
     public let firstName: String
     public let lastName: String

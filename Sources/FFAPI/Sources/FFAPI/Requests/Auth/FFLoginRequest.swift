@@ -7,6 +7,26 @@
 
 import Foundation
 
+struct LoginUserRequest: FFAPIRequest {
+    typealias Response = FFSessionResponse
+    
+    var method: HTTPMethod { .POST }
+    
+    var path: String {
+        FFAPIPath.loginUser
+    }
+    
+    var headers: [FFAPIHeader] {
+        [FFAPIHeader.contentType]
+    }
+    
+    var body: Encodable?
+    
+    init(body: FFLoginRequest) {
+        self.body = body
+    }
+}
+
 public struct FFLoginRequest: Codable {
     public let email: String
     public let password: String

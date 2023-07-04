@@ -8,15 +8,15 @@
 import Foundation
 
 public struct FFBankAccount: Codable {
-    public let id: UUID
+    public let id: UUID?
     public let accountID: String
     public let name: String
     public let subtype: String
-    public let institutionID: UUID
-    public let userID: UUID
+    public let institutionID: UUID?
+    public let userID: UUID?
     
     public init(
-        id: UUID,
+        id: UUID?,
         accountID: String,
         name: String,
         subtype: String,
