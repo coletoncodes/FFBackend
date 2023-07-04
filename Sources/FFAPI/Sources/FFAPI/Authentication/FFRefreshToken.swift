@@ -19,8 +19,3 @@ public struct FFRefreshToken: Codable {
         self.token = token
     }
 }
-
-// TODO: Move to FFBackend
-//init(from refreshToken: RefreshToken) {
-//    self.init(userID: refreshToken.$user.id, token: refreshToken.token)
-//}

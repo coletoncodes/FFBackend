@@ -6,6 +6,7 @@
 //
 
 @testable import App
+import FFAPI
 import Fluent
 import XCTVapor
 
@@ -24,10 +25,10 @@ final class PlaidControllerTests: AuthenticatedTestCase {
     /// Test valid createLinkToken request succeeds
     func testCreateLinkTokenSuccess() throws {
         // Get the authenticated user's id.
-        let userID = sessionResponse.userDTO.id!
+        let userID = sessionResponse.user.id!
         
         // Create a request with the test user's UUID
-        let request = CreateLinkTokenRequest(userID: userID)
+        let request = FFCreateLinkTokenRequest(userID: userID)
                 
         try app.test(.POST, "api/plaid/create-link-token", beforeRequest: { req in
             try req.content.encode(request)
@@ -35,7 +36,7 @@ final class PlaidControllerTests: AuthenticatedTestCase {
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             // Decode the response
-            let responseBody = try res.content.decode(CreateLinkTokenResponse.self)
+            let responseBody = try res.content.decode(FFCreateLinkTokenResponse.self)
             // Check if linkToken is non-empty
             XCTAssertFalse(responseBody.linkToken.isEmpty)
         })
@@ -45,7 +46,7 @@ final class PlaidControllerTests: AuthenticatedTestCase {
     func testCreateLinkTokenInvalidUserID() throws {
         // Create a request with invalid userID
         let randomUUID = UUID()
-        let request = CreateLinkTokenRequest(userID: randomUUID)
+        let request = FFCreateLinkTokenRequest(userID: randomUUID)
         
         try app.test(.POST, "api/plaid/create-link-token", beforeRequest: { req in
             try req.content.encode(request)

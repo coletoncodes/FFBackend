@@ -10,21 +10,6 @@ import Factory
 import Fluent
 import Vapor
 
-// TODO: Move to new file?
-extension FFSessionResponse: Content {}
-
-extension FFUser {
-    init(from user: User) {
-        self.init(
-            id: user.id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            passwordHash: user.passwordHash
-        )
-    }
-}
-
 struct AuthenticationController: RouteCollection {
     // MARK: - Dependencies
     @Injected(\.accessTokenProvider) private var accessTokenProvider
@@ -59,12 +44,12 @@ private extension AuthenticationController {
     /// - Returns: A `SessionResponse` object containing the user details and associated tokens.
     func register(_ req: Request) async throws -> FFSessionResponse {
         do {
-            try RegisterRequest.validate(content: req)
+            try FFRegisterRequest.validate(content: req)
         } catch {
             throw Abort(.badRequest, reason: "Invalid request data: \(error)")
         }
         
-        let registerRequest = try req.content.decode(RegisterRequest.self)
+        let registerRequest = try req.content.decode(FFRegisterRequest.self)
         
         guard registerRequest.password == registerRequest.confirmPassword else {
             throw Abort(.badRequest, reason: "Provided passwords do not match.")
@@ -89,13 +74,13 @@ private extension AuthenticationController {
     /// - Returns: A `SessionResponse` object containing the user details and associated tokens.
     func login(_ req: Request) async throws -> FFSessionResponse {
         do {
-            try LoginRequest.validate(content: req)
+            try FFLoginRequest.validate(content: req)
         } catch {
             let logStr = "Invalid request data: \(error)"
             throw Abort(.badRequest, reason: logStr)
         }
         
-        let loginRequest = try req.content.decode(LoginRequest.self)
+        let loginRequest = try req.content.decode(FFLoginRequest.self)
         
         guard let user = try await userProvider.findBy(email: loginRequest.email, from: req) else {
             throw Abort(.unauthorized, reason: "Failed to find user with a matching email.")

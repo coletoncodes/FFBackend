@@ -21,7 +21,8 @@ final class BankAccountsController: RouteCollection {
 
 // MARK: - Public Requests
 extension BankAccountsController {
-    func getBankAccounts(req: Request) async throws -> [BankAccountDTO] {
+    // TODO: Return BankAccount objects
+    func getBankAccounts(req: Request) async throws -> [String] {
         
         return []
     }

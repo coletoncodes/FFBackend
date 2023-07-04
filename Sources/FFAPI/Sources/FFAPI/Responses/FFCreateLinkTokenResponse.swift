@@ -7,6 +7,10 @@
 
 import Foundation
 
-struct FFCreateLinkTokenResponse: Codable {
-    let linkToken: String
+public struct FFCreateLinkTokenResponse: Codable {
+    public let linkToken: String
+    
+    public init(linkToken: String) {
+        self.linkToken = linkToken
+    }
 }

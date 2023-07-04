@@ -40,7 +40,7 @@ public struct FFRegisterRequest: Codable {
 //        validations.add("confirmPassword", as: String.self, is: .count(8...))
 //    }
 //}
-
+//
 // TODO: Move to FFBackend
 //extension User {
 //    /// Creates a new user from a `RegisterRequest` and encrypts the password.
