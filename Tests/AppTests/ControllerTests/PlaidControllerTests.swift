@@ -28,7 +28,7 @@ final class PlaidControllerTests: AuthenticatedTestCase {
         let userID = sessionResponse.user.id!
         
         // Create a request with the test user's UUID
-        let request = FFCreateLinkTokenRequest(userID: userID)
+        let request = FFCreateLinkTokenRequestBody(userID: userID)
                 
         try app.test(.POST, "api/plaid/create-link-token", beforeRequest: { req in
             try req.content.encode(request)
@@ -46,7 +46,7 @@ final class PlaidControllerTests: AuthenticatedTestCase {
     func testCreateLinkTokenInvalidUserID() throws {
         // Create a request with invalid userID
         let randomUUID = UUID()
-        let request = FFCreateLinkTokenRequest(userID: randomUUID)
+        let request = FFCreateLinkTokenRequestBody(userID: randomUUID)
         
         try app.test(.POST, "api/plaid/create-link-token", beforeRequest: { req in
             try req.content.encode(request)

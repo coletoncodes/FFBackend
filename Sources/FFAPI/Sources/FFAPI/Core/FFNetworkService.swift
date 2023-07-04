@@ -7,12 +7,12 @@
 
 import Foundation
 
-public protocol FFNetworkService {
+protocol FFNetworkService {
     func performRequest<U: FFAPIRequest>(_ request: U) async throws
     func performRequest<T: Decodable, U: FFAPIRequest>(_ request: U) async throws -> T
 }
 
-public extension FFNetworkService {
+extension FFNetworkService {
     /// The standard encoder.
     var encoder: JSONEncoder {
         let encoder = JSONEncoder()

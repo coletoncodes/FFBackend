@@ -7,14 +7,14 @@
 
 import Foundation
 
-public protocol FFAuthNetworkService: FFNetworkService {
+public protocol FFAuthNetworkService {
     func registerUser(body: FFRegisterRequest) async throws -> FFSessionResponse
     func loginUser(body: FFLoginRequest) async throws -> FFSessionResponse
     func logout(_ user: FFUser) async throws
     func loadSession(with refreshToken: FFRefreshToken, accessToken: FFAccessToken) async throws -> FFSessionResponse
 }
 
-public final class FFAuthenticationNetworkService: FFAuthNetworkService {
+public final class FFAuthenticationNetworkService: FFAuthNetworkService, FFNetworkService {
     public func registerUser(body: FFRegisterRequest) async throws -> FFSessionResponse {
         return try await performRequest(RegisterUserRequest(body: body))
     }

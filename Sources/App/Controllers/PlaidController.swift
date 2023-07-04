@@ -32,7 +32,7 @@ extension PlaidController {
     /// Must provide a `CreateLinkTokenRequest` as the body.
     func createLinkToken(req: Request) async throws -> FFCreateLinkTokenResponse {
         // Decode the request body to get the userID
-        let requestBody = try req.content.decode(FFCreateLinkTokenRequest.self)
+        let requestBody = try req.content.decode(FFCreateLinkTokenRequestBody.self)
         
         // Check if the user exists in the database
         guard let foundUser = try await userStore.find(byID: requestBody.userID, on: req.db) else {
@@ -72,7 +72,7 @@ extension PlaidController {
     /// Must provide a `LinkSuccessRequest` as the body.
     func linkSuccess(req: Request) async throws -> HTTPStatus {
         // Decode the request
-        let requestBody = try req.content.decode(FFLinkSuccessRequest.self)
+        let requestBody = try req.content.decode(FFLinkSuccessRequestBody.self)
         
         // Create the exchange public token request
         let exchangePublicTokenRequest = FFExchangePublicTokenRequest(userID: requestBody.userID, publicToken: requestBody.publicToken)

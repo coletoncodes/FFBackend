@@ -60,7 +60,7 @@ extension FFLoginRequest: Validatable, Content {
     }
 }
 
-extension FFCreateLinkTokenRequest: Content {}
+extension FFCreateLinkTokenRequestBody: Content {}
 extension FFCreateLinkTokenResponse: Content {}
 
 extension FFInstitution: Content {

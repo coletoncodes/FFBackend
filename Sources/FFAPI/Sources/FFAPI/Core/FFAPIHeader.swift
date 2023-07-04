@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct FFAPIHeader: Codable, Hashable {
+struct FFAPIHeader: Codable, Hashable {
     let key: String
     let value: String
     

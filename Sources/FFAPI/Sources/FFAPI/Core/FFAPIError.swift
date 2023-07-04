@@ -7,14 +7,14 @@
 
 import Foundation
 
-enum FFAPIError: Error {
+public enum FFAPIError: Error {
     case invalidURL(details: String)
     case httpError(details: FFErrorResponse)
     case decodingError(details: String)
     case unknown(details: String)
     case nilValue(details: String)
     
-    var errorDetail: String {
+    public var errorDetail: String {
         switch self {
         case .httpError(let errorResponse):
             return errorResponse.reason

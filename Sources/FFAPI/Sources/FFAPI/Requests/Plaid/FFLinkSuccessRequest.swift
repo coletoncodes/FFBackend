@@ -2,65 +2,40 @@
 //  FFLinkSuccessRequest.swift
 //  
 //
-//  Created by Coleton Gorecke on 6/18/23.
+//  Created by Coleton Gorecke on 7/4/23.
 //
 
 import Foundation
 
-public struct FFLinkSuccessRequest: Codable {
-    public let userID: UUID
-    public let publicToken: String
-    public let metadata: FFPlaidSuccessMetadata
+public struct FFLinkSuccessRequest: FFAPIRequest {
+    public typealias Response = FFCreateLinkTokenResponse
     
-    public init(
-        userID: UUID,
-        publicToken: String,
-        metadata: FFPlaidSuccessMetadata
-    ) {
-        self.userID = userID
-        self.publicToken = publicToken
-        self.metadata = metadata
+    public var body: Encodable?
+    
+    var method: HTTPMethod { .POST }
+    
+    var path: String {
+        FFAPIPath.linkSuccess
     }
-}
-
-public struct FFPlaidSuccessMetadata: Codable {
-    public let institution: FFPlaidInstitution
-    public let accounts: [FFPlaidAccount]
     
-    public init(
-        institution: FFPlaidInstitution,
-        accounts: [FFPlaidAccount] = []
-    ) {
-        self.institution = institution
-        self.accounts = accounts
+    var headers: [FFAPIHeader] {
+        [
+            FFAPIHeader.contentType,
+            FFAPIHeader.auth(refreshToken: refreshToken.token),
+            FFAPIHeader.apiAuth(accessToken: accessToken.token)
+        ]
     }
-}
-
-public struct FFPlaidInstitution: Codable {
-    public let id: String
-    public let name: String
+    
+    public let refreshToken: FFRefreshToken
+    public let accessToken: FFAccessToken
     
     public init(
-        id: String,
-        name: String
+        body: FFLinkSuccessRequestBody,
+        refreshToken: FFRefreshToken,
+        accessToken: FFAccessToken
     ) {
-        self.id = id
-        self.name = name
-    }
-}
-
-public struct FFPlaidAccount: Codable {
-    public let id: String
-    public let name: String
-    public let subtype: String
-    
-    public init(
-        id: String,
-        name: String,
-        subtype: String
-    ) {
-        self.id = id
-        self.name = name
-        self.subtype = subtype
+        self.body = body
+        self.refreshToken = refreshToken
+        self.accessToken = accessToken
     }
 }

@@ -8,7 +8,7 @@
 import Foundation
 
 /// The protocol request objects must conform too.
-public protocol FFAPIRequest {
+protocol FFAPIRequest {
     associatedtype Response: Decodable
     var body: Encodable? { get }
     
@@ -19,7 +19,7 @@ public protocol FFAPIRequest {
     func urlRequest(with body: Data?) throws -> URLRequest
 }
 
-public enum HTTPMethod: String {
+enum HTTPMethod: String {
     case GET
     case POST
     case PUT
