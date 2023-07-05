@@ -151,6 +151,7 @@ extension PlaidController {
                 accountID: account.id,
                 name: account.name,
                 subtype: account.subtype,
+                isSyncingTransactions: true,
                 institutionID: institutionID,
                 userID: userID
             )

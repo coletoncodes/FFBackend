@@ -22,6 +22,9 @@ final class BankAccount: Model {
 
     @Field(key: "subtype")
     var subtype: String
+    
+    @Field(key: "is_syncing_transactions")
+    var isSyncingTransactions: Bool
 
     @Parent(key: "institution_id")
     var institution: Institution
@@ -36,6 +39,7 @@ final class BankAccount: Model {
         accountID: String,
         name: String,
         subtype: String,
+        isSyncingTransactions: Bool,
         institutionID: UUID,
         userID: UUID
     ) {
@@ -43,6 +47,7 @@ final class BankAccount: Model {
         self.accountID = accountID
         self.name = name
         self.subtype = subtype
+        self.isSyncingTransactions = isSyncingTransactions
         self.$institution.id = institutionID
         self.$user.id = userID
     }

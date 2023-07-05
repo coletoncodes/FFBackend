@@ -82,8 +82,9 @@ extension FFBankAccount: Content {
             accountID: bankAccount.accountID,
             name: bankAccount.name,
             subtype: bankAccount.subtype,
-            institutionID: bankAccount.$institution.id,
-            userID: bankAccount.$user.id
+            institutionID: bankAccount.$user.id,
+            userID: bankAccount.$institution.id,
+            isSyncingTransactions: bankAccount.isSyncingTransactions
         )
     }
 }

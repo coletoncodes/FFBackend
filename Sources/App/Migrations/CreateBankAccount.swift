@@ -18,6 +18,7 @@ struct CreateBankAccount: AsyncMigration {
             .field("user_id", .uuid, .required,
                    .references(User.schema, .id, onDelete: .cascade))
             .field("institution_id", .uuid, .required, .references(Institution.schema, .id, onDelete: .cascade))
+            .field("is_syncing_transactions", .bool, .required)
             .unique(on: "account_id")
             .create()
     }

@@ -5,6 +5,8 @@
 //  Created by Coleton Gorecke on 7/4/23.
 //
 
+@testable import App
+import XCTVapor
 import XCTest
 
 final class InstitutionsControllerTests: AuthenticatedTestCase {

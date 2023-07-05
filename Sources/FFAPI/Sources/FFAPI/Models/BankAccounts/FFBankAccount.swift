@@ -14,6 +14,7 @@ public struct FFBankAccount: Codable {
     public let subtype: String
     public let institutionID: UUID?
     public let userID: UUID?
+    public var isSyncingTransactions: Bool
     
     public init(
         id: UUID?,
@@ -21,7 +22,8 @@ public struct FFBankAccount: Codable {
         name: String,
         subtype: String,
         institutionID: UUID,
-        userID: UUID
+        userID: UUID,
+        isSyncingTransactions: Bool
     ) {
         self.id = id
         self.accountID = accountID
@@ -29,5 +31,6 @@ public struct FFBankAccount: Codable {
         self.subtype = subtype
         self.institutionID = institutionID
         self.userID = userID
+        self.isSyncingTransactions = isSyncingTransactions
     }
 }

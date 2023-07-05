@@ -10,7 +10,7 @@ import Foundation
 public struct FFInstitution: Codable {
     public let name: String
     public let institutionID: UUID?
-    public let accounts: [FFBankAccount]
+    public var accounts: [FFBankAccount]
     
     public init(
         name: String,
