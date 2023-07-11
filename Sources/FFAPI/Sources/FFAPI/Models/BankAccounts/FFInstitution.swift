@@ -7,7 +7,11 @@
 
 import Foundation
 
-public struct FFInstitution: Codable {
+public struct FFInstitution: Codable, Equatable, Hashable, Identifiable {
+    public var id: String {
+        name + (institutionID?.uuidString ?? "")
+    }
+    
     public let name: String
     public let institutionID: UUID?
     public var accounts: [FFBankAccount]

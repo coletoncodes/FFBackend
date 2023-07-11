@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct FFUser: Codable {
+public struct FFUser: Codable, Equatable, Hashable, Identifiable {
     public let id: UUID?
     public let firstName: String
     public let lastName: String

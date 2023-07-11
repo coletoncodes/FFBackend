@@ -7,7 +7,11 @@
 
 import Foundation
 
-public struct FFAccessToken: Codable {
+public struct FFAccessToken: Codable, Equatable, Hashable, Identifiable {
+    public var id: String {
+        token + userID.uuidString
+    }
+    
     public let token: String
     public let userID: UUID
     

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct FFBankAccount: Codable {
+public struct FFBankAccount: Codable, Equatable, Hashable, Identifiable {
     public let id: UUID?
     public let accountID: String
     public let name: String
