@@ -13,7 +13,7 @@ public struct FFBudgetItem: Codable, Hashable, Equatable, Identifiable {
     public let planned: Double
     public let transactions: [FFTransaction]
     public let note: String
-    public let dueDate: Date
+    public let dueDate: Date?
     
     public init(
         id: UUID,
@@ -21,7 +21,7 @@ public struct FFBudgetItem: Codable, Hashable, Equatable, Identifiable {
         planned: Double,
         transactions: [FFTransaction],
         note: String,
-        dueDate: Date
+        dueDate: Date?
     ) {
         self.id = id
         self.name = name
