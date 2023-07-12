@@ -10,11 +10,19 @@ import FFAPI
 import Foundation
 import FluentKit
 
-final class BudgetItemProvider {
+protocol BudgetItemProviding {
+    func getItems(categoryID: UUID, database: Database) async throws -> [FFBudgetItem]
+    func delete(budgetItem: FFBudgetItem, database: Database) async throws
+    func save(budgetItem: FFBudgetItem, database: Database) async throws
+    func save(budgetItems: [FFBudgetItem], database: Database) async throws
+}
+
+final class BudgetItemProvider: BudgetItemProviding {
     // MARK: - Dependencies
     @Injected(\.budgetItemStore) private var store
     
     // MARK: - Initializer
+    init() {}
     
     // MARK: - Interface
     func getItems(categoryID: UUID, database: Database) async throws -> [FFBudgetItem] {
@@ -25,5 +33,16 @@ final class BudgetItemProvider {
     func delete(budgetItem: FFBudgetItem, database: Database) async throws {
         let budgetItem = BudgetItem(from: budgetItem)
         try await store.delete(budgetItem, on: database)
+    }
+    
+    func save(budgetItem: FFBudgetItem, database: Database) async throws {
+        let budgetItem = BudgetItem(from: budgetItem)
+        try await store.save(budgetItem, on: database)
+    }
+    
+    func save(budgetItems: [FFBudgetItem], database: Database) async throws {
+        for item in budgetItems {
+            try await save(budgetItem: item, database: database)
+        }
     }
 }
