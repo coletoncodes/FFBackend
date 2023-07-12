@@ -89,6 +89,31 @@ extension FFBankAccount: Content {
     }
 }
 
+extension FFBudgetCategory: Content {
+    init(from category: BudgetCategory) {
+        self.init(
+            id: category.id,
+            userID: category.$user.id,
+            name: category.name,
+            budgetItems: category.budgetItems.map { FFBudgetItem(from: $0) },
+            categoryType: FFBudgetCategoryType(from: category.categoryType)
+        )
+    }
+}
+
+extension FFBudgetCategoryType {
+    init(from type: BudgetCategoryType) {
+        switch type {
+        case .savings:
+            self = .savings
+        case .income:
+            self = .income
+        case .expense:
+            self = .expense
+        }
+    }
+}
+
 extension FFBudgetItem: Content {
     init(from budgetItem: BudgetItem) {
         self.init(

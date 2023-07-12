@@ -5,6 +5,7 @@
 //  Created by Coleton Gorecke on 7/11/23.
 //
 
+import FFAPI
 import Fluent
 import Foundation
 
@@ -16,6 +17,9 @@ final class BudgetCategory: Model {
 
     @Field(key: "name")
     var name: String
+    
+    @Enum(key: "category_type")
+    var categoryType: BudgetCategoryType
 
     @Children(for: \.$budgetCategory)
     var budgetItems: [BudgetItem]
@@ -28,10 +32,21 @@ final class BudgetCategory: Model {
     init(
         id: UUID? = nil,
         name: String,
-        userID: UUID
+        userID: UUID,
+        categoryType: BudgetCategoryType
     ) {
         self.id = id
         self.name = name
         self.$user.id = userID
+        self.categoryType = categoryType
+    }
+    
+    convenience init(from category: FFBudgetCategory) {
+        self.init(
+            id: category.id,
+            name: category.name,
+            userID: category.userID,
+            categoryType: BudgetCategoryType(from: category.categoryType)
+        )
     }
 }

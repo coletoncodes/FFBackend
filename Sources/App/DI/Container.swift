@@ -30,6 +30,12 @@ extension Container {
         self { InstitutionsProvider() }
             .graph
     }
+    
+    var budgetCategoryProvider: Factory<BudgetCategoryProviding> {
+        self { BudgetCategoryProvider() }
+            .graph
+    }
+    
     // MARK: - Stores
     var refreshTokenStore: Factory<RefreshTokenStore> {
         self { RefreshTokenRepository() }
