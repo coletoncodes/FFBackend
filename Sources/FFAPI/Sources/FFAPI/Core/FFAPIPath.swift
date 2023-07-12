@@ -44,4 +44,10 @@ enum FFAPIPath {
     static func getInstitutions(_ userID: UUID) -> String {
         return "\(api)/institutions/\(userID)"
     }
+    
+    /// api/budgeting/categories
+    static let getBudgetCategories = "\(api)/budgeting/categories"
+    
+    /// api/budgeting/items
+    static let getBudgetItems = "\(api)/budgeting/items"
 }
