@@ -119,6 +119,7 @@ extension FFBudgetItem: Content {
         self.init(
             id: budgetItem.id,
             name: budgetItem.name,
+            budgetCategoryID: budgetItem.$budgetCategory.id,
             planned: budgetItem.planned,
             transactions: budgetItem
                 .transactions

@@ -28,6 +28,6 @@ extension InstitutionsController {
             throw Abort(.badRequest, reason: "Missing User ID in request.")
         }
         
-        return try await provider.institutions(userID: userID, request: req)
+        return try await provider.institutions(userID: userID, database: req.db)
     }
 }

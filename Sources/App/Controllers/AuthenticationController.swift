@@ -113,12 +113,12 @@ private extension AuthenticationController {
             throw Abort(.notFound, reason: "No User exists for the given id: \(userID)")
         }
         
-        guard let refreshToken = try await refreshTokenProvider.existingToken(for: userDTO, on: req) else {
+        guard let refreshToken = try await refreshTokenProvider.existingToken(for: userDTO, database: req.db) else {
             throw Abort(.unauthorized, reason: "No refresh token's exist for the given user.")
         }
         
         // Invalidate the refreshToken. Removing access completely.
-        try await refreshTokenProvider.invalidate(refreshToken.token, on: req)
+        try await refreshTokenProvider.invalidate(refreshToken.token, database: req.db)
         
         // Return success
         return .ok
@@ -151,7 +151,7 @@ private extension AuthenticationController {
         // Validate the refresh token
         var ffRefreshToken: FFRefreshToken?
         do {
-            ffRefreshToken = try await refreshTokenProvider.validateRefreshToken(refreshToken, on: req)
+            ffRefreshToken = try await refreshTokenProvider.validateRefreshToken(refreshToken, database: req.db)
         } catch {
             throw Abort(.unauthorized, reason: "Refresh token is expired. Please login again.")
         }
@@ -181,7 +181,7 @@ extension AuthenticationController {
     func createSession(for ffUser: FFUser, on req: Request) async throws -> FFSessionResponse {
         // Generate tokens
         let accessToken = try accessTokenProvider.generateAccessToken(for: ffUser)
-        let refreshToken = try await refreshTokenProvider.generateRefreshToken(for: ffUser, on: req)
+        let refreshToken = try await refreshTokenProvider.generateRefreshToken(for: ffUser, database: req.db)
         
         // Return session
         let ffSession = FFSession(accessToken: accessToken, refreshToken: refreshToken)

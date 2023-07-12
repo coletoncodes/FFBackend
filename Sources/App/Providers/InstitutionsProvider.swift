@@ -8,10 +8,10 @@
 import FFAPI
 import Foundation
 import Factory
-import Vapor
+import Fluent
 
 protocol InstitutionsProviding {
-    func institutions(userID: UUID, request: Request) async throws -> [FFInstitution]
+    func institutions(userID: UUID, database: Database) async throws -> [FFInstitution]
 }
 
 final class InstitutionsProvider: InstitutionsProviding {
@@ -19,8 +19,8 @@ final class InstitutionsProvider: InstitutionsProviding {
     @Injected(\.institutionStore) private var institutionStore
     
     // MARK: - Interface
-    func institutions(userID: UUID, request: Request) async throws -> [FFInstitution] {
-        try await institutionStore.getInstitutions(userID: userID, from: request.db)
+    func institutions(userID: UUID, database: Database) async throws -> [FFInstitution] {
+        try await institutionStore.getInstitutions(userID: userID, from: database)
             .map { FFInstitution(from: $0) }
     }
 }

@@ -33,7 +33,7 @@ final class AuthenticationMiddleware: AsyncMiddleware {
         }
 
         do {
-            let _ = try await refreshTokenProvider.validateRefreshToken(refreshToken, on: request)
+            let _ = try await refreshTokenProvider.validateRefreshToken(refreshToken, database: request.db)
         } catch {
             throw Abort(.unauthorized, reason: "Refresh token is expired")
         }

@@ -10,6 +10,7 @@ import Foundation
 public struct FFBudgetItem: Codable, Hashable, Equatable, Identifiable {
     public let id: UUID?
     public let name: String
+    public let budgetCategoryID: UUID
     public let planned: Double
     public let transactions: [FFTransaction]
     public let note: String
@@ -18,6 +19,7 @@ public struct FFBudgetItem: Codable, Hashable, Equatable, Identifiable {
     public init(
         id: UUID?,
         name: String,
+        budgetCategoryID: UUID,
         planned: Double,
         transactions: [FFTransaction],
         note: String,
@@ -25,6 +27,7 @@ public struct FFBudgetItem: Codable, Hashable, Equatable, Identifiable {
     ) {
         self.id = id
         self.name = name
+        self.budgetCategoryID = budgetCategoryID
         self.planned = planned
         self.transactions = transactions
         self.note = note

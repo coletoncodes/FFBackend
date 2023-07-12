@@ -9,7 +9,7 @@ import Fluent
 import Vapor
 
 protocol BudgetItemStore {
-    func getItems(for categoryID: UUID, on db: Database) async throws -> [BudgetItem]
+    func getItems(categoryID: UUID, on db: Database) async throws -> [BudgetItem]
     func save(_ budgetItem: BudgetItem, on db: Database) async throws
     func save(_ budgetItems: [BudgetItem], on db: Database) async throws
     func delete(_ budgetItem: BudgetItem, on db: Database) async throws
@@ -20,7 +20,7 @@ final class BudgetItemRepository: BudgetItemStore {
     init() {}
     
     // MARK: - Interface
-    func getItems(for categoryID: UUID, on db: Database) async throws -> [BudgetItem] {
+    func getItems(categoryID: UUID, on db: Database) async throws -> [BudgetItem] {
         try await BudgetItem
             .query(on: db)
             .filter(\.$budgetCategory.$id == categoryID)

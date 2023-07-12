@@ -8,13 +8,13 @@
 import FFAPI
 import Foundation
 import Factory
-import Vapor
+import Fluent
 
 protocol BudgetCategoryProviding {
-    func getCategories(userID: UUID, request: Request) async throws -> [FFBudgetCategory]
-    func delete(category: FFBudgetCategory, request: Request) async throws
-    func save(category: FFBudgetCategory, request: Request) async throws
-    func save(categories: [FFBudgetCategory], request: Request) async throws
+    func getCategories(userID: UUID, database: Database) async throws -> [FFBudgetCategory]
+    func delete(category: FFBudgetCategory, database: Database) async throws
+    func save(category: FFBudgetCategory, database: Database) async throws
+    func save(categories: [FFBudgetCategory], database: Database) async throws
 }
 
 final class BudgetCategoryProvider: BudgetCategoryProviding {
@@ -25,24 +25,24 @@ final class BudgetCategoryProvider: BudgetCategoryProviding {
     init() {}
     
     // MARK: - Interface
-    func getCategories(userID: UUID, request: Request) async throws -> [FFBudgetCategory] {
-        return try await store.getCategories(userID: userID, on: request.db)
+    func getCategories(userID: UUID, database: Database) async throws -> [FFBudgetCategory] {
+        return try await store.getCategories(userID: userID, on: database)
             .map { FFBudgetCategory(from: $0) }
     }
     
-    func delete(category: FFBudgetCategory, request: Request) async throws {
+    func delete(category: FFBudgetCategory, database: Database) async throws {
         let category = BudgetCategory(from: category)
-        try await store.delete(category, on: request.db)
+        try await store.delete(category, on: database)
     }
     
-    func save(category: FFBudgetCategory, request: Request) async throws {
+    func save(category: FFBudgetCategory, database: Database) async throws {
         let category = BudgetCategory(from: category)
-        try await store.save(category, on: request.db)
+        try await store.save(category, on: database)
     }
     
-    func save(categories: [FFBudgetCategory], request: Request) async throws {
+    func save(categories: [FFBudgetCategory], database: Database) async throws {
         for category in categories {
-            try await save(category: category, request: request)
+            try await save(category: category, database: database)
         }
     }
 }

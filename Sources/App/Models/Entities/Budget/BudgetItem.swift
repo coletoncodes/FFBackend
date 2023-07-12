@@ -5,6 +5,7 @@
 //  Created by Coleton Gorecke on 7/11/23.
 //
 
+import FFAPI
 import Fluent
 import Foundation
 
@@ -48,6 +49,17 @@ final class BudgetItem: Model {
         self.planned = planned
         self.note = note
         self.dueDate = dueDate
+    }
+    
+    convenience init(from item: FFBudgetItem) {
+        self.init(
+            id: item.id,
+            name: item.name,
+            budgetCategoryID: item.budgetCategoryID,
+            planned: item.planned,
+            note: item.note,
+            dueDate: item.dueDate
+        )
     }
 }
 
