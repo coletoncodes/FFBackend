@@ -56,6 +56,21 @@ extension Container {
             .graph
     }
     
+    var budgetCategoryStore: Factory<BudgetCategoryStore> {
+        self { BudgetCategoryRepository() }
+            .graph
+    }
+    
+    var budgetItemStore: Factory<BudgetItemStore> {
+        self { BudgetItemRepository() }
+            .graph
+    }
+    
+    var transactionStore: Factory<TransactionStore> {
+        self { TransactionRepository() }
+            .graph
+    }
+    
     // MARK: - Utilities
     // TODO: Inject from environment
     var jwtSigner: Factory<JWTSigner> {
