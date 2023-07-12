@@ -153,20 +153,20 @@ private extension AuthenticationController {
         do {
             ffRefreshToken = try await refreshTokenProvider.validateRefreshToken(refreshToken, on: req)
         } catch {
-            throw Abort(.unauthorized, reason: "Refresh token is invalid. Please login again.")
+            throw Abort(.unauthorized, reason: "Refresh token is expired. Please login again.")
         }
         
         guard let jwtPayload = jwtPayload else {
-            throw Abort(.internalServerError, reason: "Unable to process JWT payload.")
+            throw Abort(.internalServerError, reason: "Access token is expired. Please login again.")
         }
         
         guard let ffRefreshToken = ffRefreshToken else {
-            throw Abort(.internalServerError, reason: "Refresh token is invalid. Please login again.")
+            throw Abort(.internalServerError, reason: "Refresh token is expired. Please login again.")
         }
 
         // Check if the refresh token corresponds to the same user as the access token
         guard let ffUser = try await userProvider.findBy(id: jwtPayload.userID, from: req) else {
-            throw Abort(.unauthorized, reason: "No user exists for this id.")
+            throw Abort(.internalServerError, reason: "No user exists for this id.")
         }
         
         let ffAccessToken = try accessTokenProvider.signAccessToken(for: jwtPayload)
