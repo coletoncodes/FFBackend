@@ -22,11 +22,11 @@ struct FFAPIHeader: Codable, Hashable {
         ]
     }
     
-    static func auth(refreshToken: String) -> FFAPIHeader {
+    static private func auth(refreshToken: String) -> FFAPIHeader {
         self.init(key: "x-refresh-token", value: refreshToken)
     }
     
-    static func apiAuth(accessToken: String) -> FFAPIHeader {
+    static private func apiAuth(accessToken: String) -> FFAPIHeader {
         self.init(key: "Authorization", value: "Bearer \(accessToken)")
     }
 }

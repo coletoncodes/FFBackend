@@ -26,12 +26,12 @@ final class BudgetingController: RouteCollection {
 extension BudgetingController {
     
     func getBudgetCategories(req: Request) async throws -> [FFBudgetCategory] {
-        let request = try req.content.decode(FFGetBudgetCategoriesRequest.self)
-        return try await budgetCategoryProvider.getCategories(userID: request.userID, database: req.db)
+        let body = try req.content.decode(FFGetBudgetCategoriesRequestBody.self)
+        return try await budgetCategoryProvider.getCategories(userID: body.userID, database: req.db)
     }
     
     func getBudgetItems(req: Request) async throws -> [FFBudgetItem] {
-        let request = try req.content.decode(FFGetBudgetItemsRequest.self)
-        return try await budgetItemProvider.getItems(categoryID: request.categoryID, database: req.db)
+        let body = try req.content.decode(FFGetBudgetItemsRequestBody.self)
+        return try await budgetItemProvider.getItems(categoryID: body.categoryID, database: req.db)
     }
 }

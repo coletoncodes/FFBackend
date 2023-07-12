@@ -62,8 +62,8 @@ extension FFLoginRequest: Validatable, Content {
 
 extension FFCreateLinkTokenRequestBody: Content {}
 extension FFCreateLinkTokenResponse: Content {}
-extension FFGetBudgetCategoriesRequest: Content {}
-extension FFGetBudgetItemsRequest: Content {}
+extension FFGetBudgetCategoriesRequestBody: Content {}
+extension FFGetBudgetItemsRequestBody: Content {}
 
 extension FFInstitution: Content {
     init(from institution: Institution) {

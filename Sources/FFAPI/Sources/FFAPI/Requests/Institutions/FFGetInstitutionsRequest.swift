@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct FFGetInstitutionsRequest: FFAPIRequest {
+struct FFGetInstitutionsRequest: FFAPIRequest {
     typealias Response = [FFInstitution]
     
     var body: Encodable? = nil
@@ -19,18 +19,17 @@ public struct FFGetInstitutionsRequest: FFAPIRequest {
     }
     
     var headers: [FFAPIHeader] {
-        [
-            FFAPIHeader.contentType,
-            FFAPIHeader.auth(refreshToken: refreshToken.token),
-            FFAPIHeader.apiAuth(accessToken: accessToken.token)
-        ]
+        var authHeaders = FFAPIHeader.auth(refreshToken: refreshToken.token, accessToken: accessToken.token)
+        authHeaders.append(FFAPIHeader.contentType
+        )
+        return authHeaders
     }
     
-    public let refreshToken: FFRefreshToken
-    public let accessToken: FFAccessToken
-    public let userID: UUID
+    let refreshToken: FFRefreshToken
+    let accessToken: FFAccessToken
+    let userID: UUID
     
-    public init(
+    init(
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken,
         userID: UUID
@@ -39,5 +38,4 @@ public struct FFGetInstitutionsRequest: FFAPIRequest {
         self.accessToken = accessToken
         self.userID = userID
     }
-    
 }

@@ -7,28 +7,26 @@
 
 import Foundation
 
-public struct FFGetBudgetCategoriesRequest: FFAPIRequest {
+struct FFGetBudgetCategoriesRequest: FFAPIRequest {
     
-    // MARK: - Public Properties
-    public let userID: UUID
-    public let refreshToken: FFRefreshToken
-    public let accessToken: FFAccessToken
+    let refreshToken: FFRefreshToken
+    let accessToken: FFAccessToken
     
     // MARK: - Initializer
-    public init(
-        userID: UUID,
+    init(
+        body: FFGetBudgetCategoriesRequestBody,
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken
     ) {
-        self.userID = userID
+        self.body = body
         self.refreshToken = refreshToken
         self.accessToken = accessToken
     }
     
     // MARK: - FFAPIRequest Conformance
-    typealias Response = FFSessionResponse
+    typealias Response = [FFBudgetCategory]
     
-    var body: Encodable? = nil
+    var body: Encodable?
     
     var path: String {
         FFAPIPath.getBudgetCategories
@@ -39,11 +37,17 @@ public struct FFGetBudgetCategoriesRequest: FFAPIRequest {
     }
     
     var headers: [FFAPIHeader] {
-        [
-            FFAPIHeader.contentType,
-            FFAPIHeader.auth(refreshToken: refreshToken.token),
-            FFAPIHeader.apiAuth(accessToken: accessToken.token)
-        ]
+        var authHeaders = FFAPIHeader.auth(refreshToken: refreshToken.token, accessToken: accessToken.token)
+        authHeaders.append(FFAPIHeader.contentType
+        )
+        return authHeaders
     }
+}
+
+public struct FFGetBudgetCategoriesRequestBody: Codable {
+    public let userID: UUID
     
+    public init(userID: UUID) {
+        self.userID = userID
+    }
 }

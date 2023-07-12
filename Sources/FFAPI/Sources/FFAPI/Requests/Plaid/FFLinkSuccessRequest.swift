@@ -7,10 +7,10 @@
 
 import Foundation
 
-public struct FFLinkSuccessRequest: FFAPIRequest {
-    public typealias Response = FFCreateLinkTokenResponse
+struct FFLinkSuccessRequest: FFAPIRequest {
+    typealias Response = FFCreateLinkTokenResponse
     
-    public var body: Encodable?
+    var body: Encodable?
     
     var method: HTTPMethod { .POST }
     
@@ -19,17 +19,16 @@ public struct FFLinkSuccessRequest: FFAPIRequest {
     }
     
     var headers: [FFAPIHeader] {
-        [
-            FFAPIHeader.contentType,
-            FFAPIHeader.auth(refreshToken: refreshToken.token),
-            FFAPIHeader.apiAuth(accessToken: accessToken.token)
-        ]
+        var authHeaders = FFAPIHeader.auth(refreshToken: refreshToken.token, accessToken: accessToken.token)
+        authHeaders.append(FFAPIHeader.contentType
+        )
+        return authHeaders
     }
     
-    public let refreshToken: FFRefreshToken
-    public let accessToken: FFAccessToken
+    let refreshToken: FFRefreshToken
+    let accessToken: FFAccessToken
     
-    public init(
+    init(
         body: FFLinkSuccessRequestBody,
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken
