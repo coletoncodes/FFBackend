@@ -88,3 +88,42 @@ extension FFBankAccount: Content {
         )
     }
 }
+
+extension FFBudgetItem: Content {
+    init(from budgetItem: BudgetItem) {
+        self.init(
+            id: budgetItem.id,
+            name: budgetItem.name,
+            planned: budgetItem.planned,
+            transactions: budgetItem
+                .transactions
+                .map { FFTransaction(from: $0) }
+            ,
+            note: budgetItem.note,
+            dueDate: budgetItem.dueDate
+        )
+    }
+}
+
+extension FFTransaction: Content {
+    init(from transaction: Transaction) {
+        self.init(
+            id: transaction.id,
+            name: transaction.name,
+            amount: transaction.amount,
+            date: transaction.date,
+            transactionType: FFTransactionType(from: transaction.transactionType)
+        )
+    }
+}
+
+extension FFTransactionType: Content {
+    init(from type: TransactionType) {
+        switch type {
+        case .income:
+            self = .income
+        case .expense:
+            self = .expense
+        }
+    }
+}

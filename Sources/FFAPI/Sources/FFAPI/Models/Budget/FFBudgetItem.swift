@@ -8,7 +8,7 @@
 import Foundation
 
 public struct FFBudgetItem: Codable, Hashable, Equatable, Identifiable {
-    public let id: UUID
+    public let id: UUID?
     public let name: String
     public let planned: Double
     public let transactions: [FFTransaction]
@@ -16,7 +16,7 @@ public struct FFBudgetItem: Codable, Hashable, Equatable, Identifiable {
     public let dueDate: Date?
     
     public init(
-        id: UUID,
+        id: UUID?,
         name: String,
         planned: Double,
         transactions: [FFTransaction],

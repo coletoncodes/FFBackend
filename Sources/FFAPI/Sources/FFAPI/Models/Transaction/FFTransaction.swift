@@ -8,14 +8,14 @@
 import Foundation
 
 public struct FFTransaction: Codable, Hashable, Equatable, Identifiable {
-    public let id: UUID
+    public let id: UUID?
     public let name: String
     public let amount: Double
     public let date: Date
     public let transactionType: FFTransactionType
     
     public init(
-        id: UUID,
+        id: UUID?,
         name: String,
         amount: Double,
         date: Date,
