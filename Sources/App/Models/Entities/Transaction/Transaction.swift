@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FFAPI
 import Fluent
 
 final class Transaction: Model {
@@ -44,5 +45,16 @@ final class Transaction: Model {
         self.$budgetItem.id = budgetItemID
         self.date = date
         self.transactionType = transactionType
+    }
+    
+    convenience init(from transaction: FFTransaction) {
+        self.init(
+            id: transaction.id,
+            name: transaction.name,
+            budgetItemID: transaction.budgetItemID,
+            amount: transaction.amount,
+            date: transaction.date,
+            transactionType: TransactionType(from: transaction.transactionType)
+        )
     }
 }

@@ -9,7 +9,7 @@ import Foundation
 import Fluent
 
 protocol TransactionStore {
-    func getTransactions(for budgetItemID: UUID, on db: Database) async throws -> [Transaction]
+    func getTransactions(budgetItemID: UUID, on db: Database) async throws -> [Transaction]
     func save(_ transaction: Transaction, on db: Database) async throws
     func save(_ transactions: [Transaction], on db: Database) async throws
     func delete(_ transaction: Transaction, on db: Database) async throws
@@ -20,7 +20,7 @@ final class TransactionRepository: TransactionStore {
     init() {}
     
     // MARK: - Interface
-    func getTransactions(for budgetItemID: UUID, on db: Database) async throws -> [Transaction] {
+    func getTransactions(budgetItemID: UUID, on db: Database) async throws -> [Transaction] {
         try await Transaction
             .query(on: db)
             .filter(\.$budgetItem.$id == budgetItemID)

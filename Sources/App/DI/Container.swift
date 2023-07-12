@@ -41,6 +41,11 @@ extension Container {
             .graph
     }
     
+    var transactionProvider: Factory<TransactionProviding> {
+        self { TransactionProvider() }
+            .graph
+    }
+    
     // MARK: - Stores
     var refreshTokenStore: Factory<RefreshTokenStore> {
         self { RefreshTokenRepository() }

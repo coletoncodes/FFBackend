@@ -136,6 +136,7 @@ extension FFTransaction: Content {
         self.init(
             id: transaction.id,
             name: transaction.name,
+            budgetItemID: transaction.$budgetItem.id,
             amount: transaction.amount,
             date: transaction.date,
             transactionType: FFTransactionType(from: transaction.transactionType)
