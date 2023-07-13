@@ -8,8 +8,29 @@
 import Foundation
 
 public protocol FFBudgetNetworkService {
-    func getBudgetCategories(body: FFGetBudgetCategoriesRequestBody, accessToken: FFAccessToken, refreshToken: FFRefreshToken) async throws -> [FFBudgetCategory]
-    func getBudgetItems(body: FFGetBudgetItemsRequestBody, accessToken: FFAccessToken, refreshToken: FFRefreshToken) async throws -> [FFBudgetItem]
+    func getBudgetCategories(
+        body: FFGetBudgetCategoriesRequestBody,
+        accessToken: FFAccessToken,
+        refreshToken: FFRefreshToken
+    ) async throws -> [FFBudgetCategory]
+    
+    func postBudgetCategories(
+        body: FFPostBudgetCategoriesRequestBody,
+        accessToken: FFAccessToken,
+        refreshToken: FFRefreshToken
+    ) async throws -> [FFBudgetCategory]
+    
+    func getBudgetItems(
+        body: FFGetBudgetItemsRequestBody,
+        accessToken: FFAccessToken,
+        refreshToken: FFRefreshToken
+    ) async throws -> [FFBudgetItem]
+    
+    func postBudgetItems(
+        body: FFPostBudgetItemsRequestBody,
+        accessToken: FFAccessToken,
+        refreshToken: FFRefreshToken
+    ) async throws -> [FFBudgetItem]
 }
 
 public final class FFBudgetNetworkingService: FFBudgetNetworkService, FFNetworkService {
@@ -32,6 +53,20 @@ public final class FFBudgetNetworkingService: FFBudgetNetworkService, FFNetworkS
         )
     }
     
+    public func postBudgetCategories(
+        body: FFPostBudgetCategoriesRequestBody,
+        accessToken: FFAccessToken,
+        refreshToken: FFRefreshToken
+    ) async throws -> [FFBudgetCategory] {
+        return try await performRequest(
+            FFPostBudgetCategoriesRequest(
+                body: body,
+                refreshToken: refreshToken,
+                accessToken: accessToken
+            )
+        )
+    }
+    
     public func getBudgetItems(
         body: FFGetBudgetItemsRequestBody,
         accessToken: FFAccessToken,
@@ -39,6 +74,20 @@ public final class FFBudgetNetworkingService: FFBudgetNetworkService, FFNetworkS
     ) async throws -> [FFBudgetItem] {
         return try await performRequest(
             FFGetBudgetItemsRequest(
+                body: body,
+                refreshToken: refreshToken,
+                accessToken: accessToken
+            )
+        )
+    }
+    
+    public func postBudgetItems(
+        body: FFPostBudgetItemsRequestBody,
+        accessToken: FFAccessToken,
+        refreshToken: FFRefreshToken
+    ) async throws -> [FFBudgetItem] {
+        return try await performRequest(
+            FFPostBudgetItemsRequest(
                 body: body,
                 refreshToken: refreshToken,
                 accessToken: accessToken
