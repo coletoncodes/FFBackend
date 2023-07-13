@@ -64,6 +64,10 @@ extension FFCreateLinkTokenRequestBody: Content {}
 extension FFCreateLinkTokenResponse: Content {}
 extension FFGetBudgetCategoriesRequestBody: Content {}
 extension FFGetBudgetItemsRequestBody: Content {}
+extension FFPostBudgetCategoriesRequestBody: Content {}
+extension FFBudgetCategoriesResponse: Content {}
+extension FFBudgetItemsResponse: Content {}
+extension FFPostBudgetItemsRequestBody: Content {}
 
 extension FFInstitution: Content {
     init(from institution: Institution) {

@@ -8,7 +8,7 @@
 import Foundation
 
 struct FFPostBudgetCategoriesRequest: FFAPIRequest {
-    typealias Response = [FFBudgetCategory]
+    typealias Response = FFBudgetCategoriesResponse
     
     var body: Encodable?
     

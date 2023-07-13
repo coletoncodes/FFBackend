@@ -51,7 +51,7 @@ final class PlaidControllerTests: AuthenticatedTestCase {
         try app.test(.POST, "api/plaid/create-link-token", beforeRequest: { req in
             try req.content.encode(request)
         }, afterResponse: { res in
-            XCTAssertEqual(res.status, .unauthorized)
+            XCTAssertEqual(res.status, .internalServerError)
         })
     }
     

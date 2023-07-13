@@ -24,7 +24,7 @@ struct FFGetBudgetCategoriesRequest: FFAPIRequest {
     }
     
     // MARK: - FFAPIRequest Conformance
-    typealias Response = [FFBudgetCategory]
+    typealias Response = FFBudgetCategoriesResponse
     
     var body: Encodable?
     

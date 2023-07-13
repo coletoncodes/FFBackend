@@ -26,25 +26,29 @@ final class BudgetingController: RouteCollection {
 
 // MARK: - Public Requests
 extension BudgetingController {
-    func getBudgetCategories(req: Request) async throws -> [FFBudgetCategory] {
+    func getBudgetCategories(req: Request) async throws -> FFBudgetCategoriesResponse {
         let body = try req.content.decode(FFGetBudgetCategoriesRequestBody.self)
-        return try await budgetCategoryProvider.getCategories(userID: body.userID, database: req.db)
+        let budgetCategories =  try await budgetCategoryProvider.getCategories(userID: body.userID, database: req.db)
+        return FFBudgetCategoriesResponse(budgetCategories: budgetCategories)
     }
     
-    func getBudgetItems(req: Request) async throws -> [FFBudgetItem] {
+    func getBudgetItems(req: Request) async throws -> FFBudgetItemsResponse {
         let body = try req.content.decode(FFGetBudgetItemsRequestBody.self)
-        return try await budgetItemProvider.getItems(categoryID: body.categoryID, database: req.db)
+        let budgetItems = try await budgetItemProvider.getItems(categoryID: body.categoryID, database: req.db)
+        return FFBudgetItemsResponse(budgetItems: budgetItems)
     }
     
-    func postBudgetItems(req: Request) async throws -> [FFBudgetItem] {
+    func postBudgetItems(req: Request) async throws -> FFBudgetItemsResponse {
         let body = try req.content.decode(FFPostBudgetItemsRequestBody.self)
         try await budgetItemProvider.save(budgetItems: body.budgetItems, database: req.db)
-        return try await budgetItemProvider.getItems(categoryID: body.categoryID, database: req.db)
+        let budgetItems = try await budgetItemProvider.getItems(categoryID: body.categoryID, database: req.db)
+        return FFBudgetItemsResponse(budgetItems: budgetItems)
     }
     
-    func postBudgetCategories(req: Request) async throws -> [FFBudgetCategory] {
+    func postBudgetCategories(req: Request) async throws -> FFBudgetCategoriesResponse {
         let body = try req.content.decode(FFPostBudgetCategoriesRequestBody.self)
         try await budgetCategoryProvider.save(categories: body.budgetCategories, database: req.db)
-        return try await budgetCategoryProvider.getCategories(userID: body.userID, database: req.db)
+        let budgetCategories = try await budgetCategoryProvider.getCategories(userID: body.userID, database: req.db)
+        return FFBudgetCategoriesResponse(budgetCategories: budgetCategories)
     }
 }
