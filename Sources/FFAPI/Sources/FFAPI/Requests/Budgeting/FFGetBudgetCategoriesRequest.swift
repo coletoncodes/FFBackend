@@ -29,7 +29,7 @@ struct FFGetBudgetCategoriesRequest: FFAPIRequest {
     var body: Encodable?
     
     var path: String {
-        FFAPIPath.getBudgetCategories
+        FFAPIPath.budgetCategories
     }
     
     var method: HTTPMethod {
@@ -37,10 +37,7 @@ struct FFGetBudgetCategoriesRequest: FFAPIRequest {
     }
     
     var headers: [FFAPIHeader] {
-        var authHeaders = FFAPIHeader.auth(refreshToken: refreshToken.token, accessToken: accessToken.token)
-        authHeaders.append(FFAPIHeader.contentType
-        )
-        return authHeaders
+        FFAPIHeader.apiHeaders(refreshToken: refreshToken, accessToken: accessToken)
     }
 }
 

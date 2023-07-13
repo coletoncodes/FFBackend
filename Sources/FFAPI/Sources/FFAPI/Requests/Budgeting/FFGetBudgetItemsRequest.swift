@@ -30,14 +30,11 @@ struct FFGetBudgetItemsRequest: FFAPIRequest {
     
     var method: HTTPMethod { .GET }
     
-    var path: String { FFAPIPath.getBudgetItems
+    var path: String { FFAPIPath.budgetItems
     }
     
     var headers: [FFAPIHeader] {
-        var authHeaders = FFAPIHeader.auth(refreshToken: refreshToken.token, accessToken: accessToken.token)
-        authHeaders.append(FFAPIHeader.contentType
-        )
-        return authHeaders
+        FFAPIHeader.apiHeaders(refreshToken: refreshToken, accessToken: accessToken)
     }
 }
 
