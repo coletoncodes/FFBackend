@@ -36,7 +36,9 @@ final class BudgetItemProvider: BudgetItemProviding {
     }
     
     func save(budgetItem: FFBudgetItem, database: Database) async throws {
+        // Create a budgetItem from a shared FFBudgetItem DTO object.
         let budgetItem = BudgetItem(from: budgetItem)
+        // Save into the store.
         try await store.save(budgetItem, on: database)
     }
     

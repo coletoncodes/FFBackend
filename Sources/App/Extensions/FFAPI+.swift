@@ -68,6 +68,8 @@ extension FFPostBudgetCategoriesRequestBody: Content {}
 extension FFBudgetCategoriesResponse: Content {}
 extension FFBudgetItemsResponse: Content {}
 extension FFPostBudgetItemsRequestBody: Content {}
+extension FFDeleteBudgetItemRequestBody: Content {}
+extension FFDeleteBudgetCategoryRequestBody: Content {}
 
 extension FFInstitution: Content {
     init(from institution: Institution) {
@@ -129,8 +131,7 @@ extension FFBudgetItem: Content {
             planned: budgetItem.planned,
             transactions: budgetItem
                 .transactions
-                .map { FFTransaction(from: $0) }
-            ,
+                .map { FFTransaction(from: $0) },
             note: budgetItem.note,
             dueDate: budgetItem.dueDate
         )

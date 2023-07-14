@@ -90,12 +90,48 @@ final class BudgetingControllerTests: AuthenticatedTestCase {
             })
     }
     
+    // MARK: - func deleteBudgetCategory()
+    func test_DeleteBudgetCategory_Success() throws {
+        /** Given */
+        let budgetCategory1 = FFBudgetCategory(id: UUID(), userID: user.id!, name: "Test Category 1", budgetItems: [], categoryType: .expense)
+        let budgetCategory2 = FFBudgetCategory(id: UUID(), userID: user.id!, name: "Test Category 2", budgetItems: [], categoryType: .expense)
+        let budgetCategories = [budgetCategory1, budgetCategory2]
+        let body = FFPostBudgetCategoriesRequestBody(budgetCategories: budgetCategories, userID: user.id!)
+        
+        /** When */
+        // We post the categories first.
+        try app.test(
+            .POST, budgetingCategoryPath, headers: authHeaders,
+            beforeRequest: { req in
+                try req.content.encode(body)
+            }, afterResponse: { res in
+                /** Then */
+                XCTAssertEqual(res.status, .ok)
+            })
+        
+        /** Given */
+        let deleteCategoryBody = FFDeleteBudgetCategoryRequestBody(budgetCategory: budgetCategory1)
+        
+        /** When */
+        // We delete the category
+        try app.test(
+            .DELETE, budgetingCategoryPath, headers: authHeaders,
+            beforeRequest: { req in
+                try req.content.encode(deleteCategoryBody)
+            }, afterResponse: { res in
+                /** Then */
+                XCTAssertEqual(res.status, .ok)
+            })
+    }
+    
     // MARK: - func postBudgetItems()
-    // TODO: This doesn't pass. No idea why
     func test_PostBudgetItems_Success() throws {
         /** Given */
         let budgetCategory1 = FFBudgetCategory(id: UUID(), userID: user.id!, name: "Test Category 1", budgetItems: [], categoryType: .expense)
         let body = FFPostBudgetCategoriesRequestBody(budgetCategories: [budgetCategory1], userID: user.id!)
+        let budgetItem1 = FFBudgetItem(id: UUID(), name: "Test Budget Item 1", budgetCategoryID: budgetCategory1.id!, planned: 100.00, transactions: [], note: "With Note", dueDate: nil)
+        let budgetItem2 = FFBudgetItem(id: UUID(), name: "Test Budget Item 2", budgetCategoryID: budgetCategory1.id!, planned: 100.00, transactions: [], note: "With Note", dueDate: nil)
+        let budgetItems = [budgetItem1, budgetItem2]
         
         /** When */
         // We post the budgetCategories
@@ -109,9 +145,6 @@ final class BudgetingControllerTests: AuthenticatedTestCase {
                 XCTAssertEqual(res.status, .ok)
             })
         
-        let budgetItem1 = FFBudgetItem(id: UUID(), name: "Test Budget Item 1", budgetCategoryID: budgetCategory1.id!, planned: 100.00, transactions: [], note: "With Note", dueDate: nil)
-        let budgetItem2 = FFBudgetItem(id: UUID(), name: "Test Budget Item 2", budgetCategoryID: budgetCategory1.id!, planned: 100.00, transactions: [], note: "With Note", dueDate: nil)
-        let budgetItems = [budgetItem1, budgetItem2]
         let postBudgetItemsBody = FFPostBudgetItemsRequestBody(budgetItems: budgetItems, categoryID: budgetCategory1.id!)
         
         /** When */
@@ -124,24 +157,46 @@ final class BudgetingControllerTests: AuthenticatedTestCase {
                 /** Then */
                 XCTAssertEqual(res.status, .ok)
                 
-                let responseBody = try res.content.decode(FFBudgetItemsResponse.self)
-                // Verify response body is not empty
-                XCTAssertFalse(responseBody.budgetItems.isEmpty)
+                do {
+                    let responseBody = try res.content.decode(FFBudgetItemsResponse.self)
+                    // Verify response body is not empty
+                    XCTAssertFalse(responseBody.budgetItems.isEmpty)
+                    // Verify matches expected
+                    XCTAssertEqual(responseBody.budgetItems, budgetItems)
+                    
+                    // Verify transactions populate
+                    XCTAssertTrue(responseBody.budgetItems[0].transactions.isEmpty)
+                } catch {
+                    XCTFail("Error: \(error)")
+                }
                 
-                // Verify matches expected
-                XCTAssertEqual(responseBody.budgetItems, budgetItems)
             })
     }
     
+    // MARK: - funcGetBudgetItems()
     func test_GetBudgetItems_Success() throws {
         /** Given */
-        let budgetCategoryID = UUID()
+        let budgetCategory = FFBudgetCategory(id: UUID(), userID: user.id!, name: "Test Category", budgetItems: [], categoryType: .expense)
+        let budgetCategoryID = budgetCategory.id!
         let budgetItem1 = FFBudgetItem(id: UUID(), name: "Test Budget Item 1", budgetCategoryID: budgetCategoryID, planned: 100.00, transactions: [], note: "With Note", dueDate: nil)
         let budgetItem2 = FFBudgetItem(id: UUID(), name: "Test Budget Item 2", budgetCategoryID: budgetCategoryID, planned: 100.00, transactions: [], note: "With Note", dueDate: nil)
         let budgetItems = [budgetItem1, budgetItem2]
         let postBudgetItemsBody = FFPostBudgetItemsRequestBody(budgetItems: budgetItems, categoryID: budgetCategoryID)
         
+        let body = FFPostBudgetCategoriesRequestBody(budgetCategories: [budgetCategory], userID: user.id!)
+        
         /** When */
+        // We save the category
+        try app.test(
+            .POST, budgetingCategoryPath, headers: authHeaders,
+            beforeRequest: { req in
+                try req.content.encode(body)
+            }, afterResponse: { res in
+                
+                /** Then */
+                XCTAssertEqual(res.status, .ok)
+            })
+        
         // We post the items first
         try app.test(
             .POST, budgetingItemsPath, headers: authHeaders,
@@ -180,8 +235,63 @@ final class BudgetingControllerTests: AuthenticatedTestCase {
                 // Verify matches expected
                 XCTAssertEqual(responseBody.budgetItems, budgetItems)
             })
+    }
+    
+    // MARK: - deleteBudgetItem()
+    func test_DeleteBudgetItem_Success() throws {
+        /** Given */
+        let budgetCategory = FFBudgetCategory(id: UUID(), userID: user.id!, name: "Test Category", budgetItems: [], categoryType: .expense)
+        let budgetCategoryID = budgetCategory.id!
+        let budgetItem1 = FFBudgetItem(id: UUID(), name: "Test Budget Item 1", budgetCategoryID: budgetCategoryID, planned: 100.00, transactions: [], note: "With Note", dueDate: nil)
+        let budgetItem2 = FFBudgetItem(id: UUID(), name: "Test Budget Item 2", budgetCategoryID: budgetCategoryID, planned: 100.00, transactions: [], note: "With Note", dueDate: nil)
+        let budgetItems = [budgetItem1, budgetItem2]
+        let postBudgetItemsBody = FFPostBudgetItemsRequestBody(budgetItems: budgetItems, categoryID: budgetCategoryID)
         
-        /** Then */
+        let body = FFPostBudgetCategoriesRequestBody(budgetCategories: [budgetCategory], userID: user.id!)
+        
+        /** When */
+        // We save the category
+        try app.test(
+            .POST, budgetingCategoryPath, headers: authHeaders,
+            beforeRequest: { req in
+                try req.content.encode(body)
+            }, afterResponse: { res in
+                /** Then */
+                XCTAssertEqual(res.status, .ok)
+            })
+        
+        // We post the items
+        try app.test(
+            .POST, budgetingItemsPath, headers: authHeaders,
+            beforeRequest: { req in
+                try req.content.encode(postBudgetItemsBody)
+            }, afterResponse: { res in
+                
+                /** Then */
+                XCTAssertEqual(res.status, .ok)
+                
+                let responseBody = try res.content.decode(FFBudgetItemsResponse.self)
+                // Verify response body is not empty
+                XCTAssertFalse(responseBody.budgetItems.isEmpty)
+                
+                // Verify matches expected
+                XCTAssertEqual(responseBody.budgetItems, budgetItems)
+            })
+        
+        /** Given */
+        let deleteBudgetItemBody = FFDeleteBudgetItemRequestBody(budgetItem: budgetItem1)
+        
+        /** When */
+        // we call delete
+        try app.test(
+            .DELETE, budgetingItemsPath, headers: authHeaders,
+            beforeRequest: { req in
+                try req.content.encode(deleteBudgetItemBody)
+            }, afterResponse: { res in
+                /** Then */
+                XCTAssertEqual(res.status, .ok)
+                
+            })
     }
 }
 

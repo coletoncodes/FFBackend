@@ -41,8 +41,7 @@ final class BudgetCategoryProvider: BudgetCategoryProviding {
     }
     
     func save(categories: [FFBudgetCategory], database: Database) async throws {
-        for category in categories {
-            try await save(category: category, database: database)
-        }
+        let categories = categories.map { BudgetCategory(from: $0) }
+        try await store.save(categories, on: database)
     }
 }

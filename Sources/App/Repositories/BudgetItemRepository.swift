@@ -24,6 +24,7 @@ final class BudgetItemRepository: BudgetItemStore {
         try await BudgetItem
             .query(on: db)
             .filter(\.$budgetCategory.$id == categoryID)
+        // This line fails
             .with(\.$transactions)
             .all()
     }
