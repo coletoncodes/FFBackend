@@ -9,7 +9,11 @@ import FFAPI
 import Fluent
 import Foundation
 
-final class BudgetCategory: Model {
+final class BudgetCategory: Model, Equatable {
+    static func == (lhs: BudgetCategory, rhs: BudgetCategory) -> Bool {
+        lhs.id == rhs.id
+    }
+    
     static let schema = "budget_categories"
 
     @ID(key: .id)
