@@ -70,6 +70,9 @@ extension FFBudgetItemsResponse: Content {}
 extension FFPostBudgetItemsRequestBody: Content {}
 extension FFDeleteBudgetItemRequestBody: Content {}
 extension FFDeleteBudgetCategoryRequestBody: Content {}
+extension FFGetTransactionsResponse: Content {}
+extension FFPostTransactionsResponse: Content {}
+extension FFDeleteTransactionRequestBody: Content {}
 
 extension FFInstitution: Content {
     init(from institution: Institution) {

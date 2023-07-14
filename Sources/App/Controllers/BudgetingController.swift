@@ -61,24 +61,7 @@ extension BudgetingController {
         }
         return .ok
     }
-    
-    // TODO: move to new file
-    public struct FFDeleteBudgetCategoryRequestBody: Codable {
-        public let budgetCategory: FFBudgetCategory
         
-        public init(budgetCategory: FFBudgetCategory) {
-            self.budgetCategory = budgetCategory
-        }
-    }
-    
-    public struct FFDeleteBudgetItemRequestBody: Codable {
-        public let budgetItem: FFBudgetItem
-        
-        public init(budgetItem: FFBudgetItem) {
-            self.budgetItem = budgetItem
-        }
-    }
-    
     // MARK: - Budget Items
     func getBudgetItems(req: Request) async throws -> FFBudgetItemsResponse {
         do {
