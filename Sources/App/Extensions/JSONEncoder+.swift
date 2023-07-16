@@ -10,25 +10,18 @@ import PostgresNIO
 
 extension JSONEncoder.DateEncodingStrategy {
     static let customISO8601 = custom {
-        let formatter = ISO8601DateFormatter()
-        formatter.timeZone = RoundedDateFormatter.utcTimeZone
-        formatter.formatOptions = [.withFullDate]
         var container = $1.singleValueContainer()
-        try container.encode(formatter.string(from: $0))
+        try container.encode(CustomDateFormatter.iso8601.string(from: $0))
     }
 }
 
 extension JSONDecoder.DateDecodingStrategy {
     static let customISO8601 = custom {
-        let formatter = ISO8601DateFormatter()
-        formatter.timeZone = RoundedDateFormatter.utcTimeZone
-        formatter.formatOptions = [.withFullDate]
         let container = try $0.singleValueContainer()
-        let string = try container.decode(String.self)
-        guard let utcDate = formatter.date(from: string) else {
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid date: \(string)")
+        let dateString = try container.decode(String.self)
+        guard let date = CustomDateFormatter.iso8601.date(from: dateString) else {
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid date: \(dateString)")
         }
-        return utcDate
+        return date
     }
 }
-

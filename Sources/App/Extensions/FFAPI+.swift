@@ -150,7 +150,7 @@ extension FFTransaction: Content {
             name: transaction.name,
             budgetItemID: transaction.$budgetItem.id,
             amount: transaction.amount,
-            roundedDate: try RoundedDateFormatter.toRoundedDate(from: transaction.dateString),
+            date: try CustomDateFormatter.toRoundedDate(from: transaction.dateString),
             transactionType: FFTransactionType(from: transaction.transactionType)
         )
     }

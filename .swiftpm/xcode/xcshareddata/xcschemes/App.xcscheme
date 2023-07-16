@@ -54,28 +54,10 @@
             </BuildableReference>
             <SkippedTests>
                <Test
-                  Identifier = "AccessTokenProviderTests">
-               </Test>
-               <Test
                   Identifier = "AuthenticatedTestCase">
                </Test>
                <Test
-                  Identifier = "AuthenticationControllerTests">
-               </Test>
-               <Test
-                  Identifier = "BudgetingControllerTests">
-               </Test>
-               <Test
                   Identifier = "DatabaseInteracting">
-               </Test>
-               <Test
-                  Identifier = "EndToEndTests">
-               </Test>
-               <Test
-                  Identifier = "InstitutionsControllerTests">
-               </Test>
-               <Test
-                  Identifier = "PlaidControllerTests">
                </Test>
             </SkippedTests>
          </TestableReference>

@@ -54,47 +54,8 @@ final class Transaction: Model {
             name: transaction.name,
             budgetItemID: transaction.budgetItemID,
             amount: transaction.amount,
-            dateString: RoundedDateFormatter.toRoundedDateString(from: transaction.roundedDate.date),
+            dateString: CustomDateFormatter.toRoundedString(from: transaction.date),
             transactionType: TransactionType(from: transaction.transactionType)
         )
-    }
-}
-
-// TODO: move to new file
-struct RoundedDateFormatter {
-    static let utcTimeZone = TimeZone(abbreviation: "UTC")!
-    
-    private static let databaseDateFormatter: ISO8601DateFormatter = {
-        let formatter = ISO8601DateFormatter()
-        formatter.timeZone = utcTimeZone
-        formatter.formatOptions = [.withFullDate]
-        return formatter
-    }()
-    
-    static func toRoundedDate(from dateString: String) throws -> RoundedDate {
-        guard let utcDate = databaseDateFormatter.date(from: dateString) else {
-            throw DateConversionError.failedToDetermineDate("Could not create date from string: \(dateString)")
-        }
-        return RoundedDate(utcDate)
-    }
-    
-    static func toRoundedDateString(from date: Date) -> String {
-        let utcDate = date.convertToUTC()
-        let roundedDateString = databaseDateFormatter.string(from: utcDate)
-        return roundedDateString
-    }
-    
-    private enum DateConversionError: Error {
-        case failedToDetermineDate(String)
-    }
-}
-
-extension Date {
-    func convertToUTC() -> Date {
-        let calendar = Calendar(identifier: .gregorian)
-        let timeZone = TimeZone(abbreviation: "UTC")!
-        let utcOffset = timeZone.secondsFromGMT(for: self)
-        let utcDate = calendar.date(byAdding: .second, value: -utcOffset, to: self)
-        return utcDate ?? self
     }
 }

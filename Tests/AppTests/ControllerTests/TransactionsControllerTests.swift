@@ -18,9 +18,13 @@ final class TransactionsControllerTests: AuthenticatedTestCase {
     private var budgetItemID: UUID?
     
     private var transactions: [FFTransaction] {
-        let currentDate = RoundedDate(Date(timeIntervalSince1970: 1689473118))
-        let transaction1 = FFTransaction(id: UUID(), name: "Test Transaction 1", budgetItemID: budgetItemID!, amount: 10.00, roundedDate: currentDate, transactionType: .expense)
-        let transaction2 = FFTransaction(id: UUID(), name: "Test Transaction 2", budgetItemID: budgetItemID!, amount: 100.00, roundedDate: currentDate, transactionType: .expense)
+        let dateString = "2023-07-16"
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        dateFormatter.timeZone = TimeZone(identifier: "UTC")!
+        let date = dateFormatter.date(from: dateString)!
+        let transaction1 = FFTransaction(id: nil, name: "Test Transaction 1", budgetItemID: budgetItemID!, amount: 10.00, date: date, transactionType: .expense)
+        let transaction2 = FFTransaction(id: nil, name: "Test Transaction 2", budgetItemID: budgetItemID!, amount: 100.00, date: date, transactionType: .expense)
         return [transaction1, transaction2]
     }
     
@@ -38,7 +42,7 @@ final class TransactionsControllerTests: AuthenticatedTestCase {
         /** Given */
         let budgetCategory1 = FFBudgetCategory(id: UUID(), userID: user.id!, name: "Test Category 1", budgetItems: [], categoryType: .expense)
         let body = FFPostBudgetCategoriesRequestBody(budgetCategories: [budgetCategory1], userID: user.id!)
-        let budgetItem1 = FFBudgetItem(id:budgetItemID, name: "Test Budget Item 1", budgetCategoryID: budgetCategory1.id!, planned: 100.00, transactions: [], note: "With Note", dueDate: nil)
+        let budgetItem1 = FFBudgetItem(id: budgetItemID, name: "Test Budget Item 1", budgetCategoryID: budgetCategory1.id!, planned: 100.00, transactions: [], note: "With Note", dueDate: nil)
         
         /** When */
         // We post the budgetCategories
@@ -91,7 +95,7 @@ final class TransactionsControllerTests: AuthenticatedTestCase {
             XCTAssertEqual(response.transactions, transactions)
         })
     }
-    
+
     
     // MARK: - postTransactions()
     func test_PostTransactions_Success() async throws {
@@ -112,11 +116,9 @@ final class TransactionsControllerTests: AuthenticatedTestCase {
             /** Then */
             XCTAssertEqual(res.status, .ok)
             
-            let responseBody = try res.content.decode(FFGetTransactionsResponse.self)
+            let response = try res.content.decode(FFGetTransactionsResponse.self)
             // Verify matches expected
-            XCTAssertEqual(responseBody.transactions, transactions)
+            XCTAssertEqual(response.transactions, transactions)
         })
     }
-    
-    // MARK: - deleteTransaction()
 }
