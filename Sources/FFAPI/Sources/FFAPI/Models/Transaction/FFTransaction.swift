@@ -12,7 +12,7 @@ public struct FFTransaction: Codable, Hashable, Equatable, Identifiable {
     public let name: String
     public let budgetItemID: UUID
     public let amount: Double
-    public let date: Date
+    public let roundedDate: RoundedDate
     public let transactionType: FFTransactionType
     
     public init(
@@ -20,14 +20,29 @@ public struct FFTransaction: Codable, Hashable, Equatable, Identifiable {
         name: String,
         budgetItemID: UUID,
         amount: Double,
-        date: Date,
+        roundedDate: RoundedDate,
         transactionType: FFTransactionType
     ) {
         self.id = id
         self.name = name
         self.budgetItemID = budgetItemID
         self.amount = amount
-        self.date = date
+        self.roundedDate = roundedDate
         self.transactionType = transactionType
+    }
+}
+
+// TODO: move to new file
+public struct RoundedDate: Codable, Hashable, Equatable {
+    public let date: Date
+    
+    public init(_ date: Date) {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year, .month, .day], from: date)
+        self.date = calendar.date(from: components) ?? date
+    }
+    
+    public static func ==(lhs: RoundedDate, rhs: RoundedDate) -> Bool {
+        return lhs.date == rhs.date
     }
 }

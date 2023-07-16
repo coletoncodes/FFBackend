@@ -26,4 +26,15 @@ public func configure(_ app: Application) async throws {
     
     // register routes
     try routes(app)
+    
+    // create a new JSON encoder that uses unix-timestamp dates
+    let encoder = JSONEncoder()
+    let decoder = JSONDecoder()
+    
+    encoder.dateEncodingStrategy = .customISO8601
+    decoder.dateDecodingStrategy = .customISO8601
+
+    // override the global encoder used for the `.json` media type
+    ContentConfiguration.global.use(encoder: encoder, for: .json)
+    ContentConfiguration.global.use(decoder: decoder, for: .json)
 }

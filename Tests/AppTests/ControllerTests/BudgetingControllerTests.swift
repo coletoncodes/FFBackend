@@ -290,7 +290,6 @@ final class BudgetingControllerTests: AuthenticatedTestCase {
             }, afterResponse: { res in
                 /** Then */
                 XCTAssertEqual(res.status, .ok)
-                
             })
     }
 }

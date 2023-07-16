@@ -70,8 +70,10 @@ extension FFBudgetItemsResponse: Content {}
 extension FFPostBudgetItemsRequestBody: Content {}
 extension FFDeleteBudgetItemRequestBody: Content {}
 extension FFDeleteBudgetCategoryRequestBody: Content {}
+extension FFGetTransactionsRequestBody: Content {}
 extension FFGetTransactionsResponse: Content {}
 extension FFPostTransactionsResponse: Content {}
+extension FFPostTransactionsRequestBody: Content {}
 extension FFDeleteTransactionRequestBody: Content {}
 
 extension FFInstitution: Content {
@@ -101,12 +103,12 @@ extension FFBankAccount: Content {
 }
 
 extension FFBudgetCategory: Content {
-    init(from category: BudgetCategory) {
+    init(from category: BudgetCategory) throws {
         self.init(
             id: category.id,
             userID: category.$user.id,
             name: category.name,
-            budgetItems: category.budgetItems.map { FFBudgetItem(from: $0) },
+            budgetItems: try category.budgetItems.map { try FFBudgetItem(from: $0) },
             categoryType: FFBudgetCategoryType(from: category.categoryType)
         )
     }
@@ -126,15 +128,15 @@ extension FFBudgetCategoryType {
 }
 
 extension FFBudgetItem: Content {
-    init(from budgetItem: BudgetItem) {
+    init(from budgetItem: BudgetItem) throws {
         self.init(
             id: budgetItem.id,
             name: budgetItem.name,
             budgetCategoryID: budgetItem.$budgetCategory.id,
             planned: budgetItem.planned,
-            transactions: budgetItem
+            transactions: try budgetItem
                 .transactions
-                .map { FFTransaction(from: $0) },
+                .map { try FFTransaction(from: $0) },
             note: budgetItem.note,
             dueDate: budgetItem.dueDate
         )
@@ -142,13 +144,13 @@ extension FFBudgetItem: Content {
 }
 
 extension FFTransaction: Content {
-    init(from transaction: Transaction) {
+    init(from transaction: Transaction) throws {
         self.init(
             id: transaction.id,
             name: transaction.name,
             budgetItemID: transaction.$budgetItem.id,
             amount: transaction.amount,
-            date: transaction.date,
+            roundedDate: try RoundedDateFormatter.toRoundedDate(from: transaction.dateString),
             transactionType: FFTransactionType(from: transaction.transactionType)
         )
     }

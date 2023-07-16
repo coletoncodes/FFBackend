@@ -44,7 +44,7 @@ extension TransactionsController {
             let transactions = try await provider.getTransactions(budgetItemID: body.budgetItemID, database: req.db)
             return FFPostTransactionsResponse(transactions: transactions)
         } catch {
-            throw Abort(.badGateway, reason: "Failed to post transactions. Error: \(error)")
+            throw Abort(.badGateway, reason: "Failed to post transactions. Error: \(String(reflecting: error))")
         }
     }
     

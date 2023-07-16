@@ -27,7 +27,7 @@ final class BudgetCategoryProvider: BudgetCategoryProviding {
     // MARK: - Interface
     func getCategories(userID: UUID, database: Database) async throws -> [FFBudgetCategory] {
         return try await store.getCategories(userID: userID, on: database)
-            .map { FFBudgetCategory(from: $0) }
+            .map { try FFBudgetCategory(from: $0) }
     }
     
     func delete(category: FFBudgetCategory, database: Database) async throws {
