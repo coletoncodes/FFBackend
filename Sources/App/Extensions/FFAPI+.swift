@@ -62,6 +62,14 @@ extension FFLoginRequest: Validatable, Content {
 
 extension FFCreateLinkTokenRequestBody: Content {}
 extension FFCreateLinkTokenResponse: Content {}
+extension FFGetBudgetCategoriesRequestBody: Content {}
+extension FFGetBudgetItemsRequestBody: Content {}
+extension FFPostBudgetCategoriesRequestBody: Content {}
+extension FFBudgetCategoriesResponse: Content {}
+extension FFBudgetItemsResponse: Content {}
+extension FFPostBudgetItemsRequestBody: Content {}
+extension FFDeleteBudgetItemRequestBody: Content {}
+extension FFDeleteBudgetCategoryRequestBody: Content {}
 
 extension FFInstitution: Content {
     init(from institution: Institution) {
@@ -86,5 +94,70 @@ extension FFBankAccount: Content {
             userID: bankAccount.$institution.id,
             isSyncingTransactions: bankAccount.isSyncingTransactions
         )
+    }
+}
+
+extension FFBudgetCategory: Content {
+    init(from category: BudgetCategory) {
+        self.init(
+            id: category.id,
+            userID: category.$user.id,
+            name: category.name,
+            budgetItems: category.budgetItems.map { FFBudgetItem(from: $0) },
+            categoryType: FFBudgetCategoryType(from: category.categoryType)
+        )
+    }
+}
+
+extension FFBudgetCategoryType {
+    init(from type: BudgetCategoryType) {
+        switch type {
+        case .savings:
+            self = .savings
+        case .income:
+            self = .income
+        case .expense:
+            self = .expense
+        }
+    }
+}
+
+extension FFBudgetItem: Content {
+    init(from budgetItem: BudgetItem) {
+        self.init(
+            id: budgetItem.id,
+            name: budgetItem.name,
+            budgetCategoryID: budgetItem.$budgetCategory.id,
+            planned: budgetItem.planned,
+            transactions: budgetItem
+                .transactions
+                .map { FFTransaction(from: $0) },
+            note: budgetItem.note,
+            dueDate: budgetItem.dueDate
+        )
+    }
+}
+
+extension FFTransaction: Content {
+    init(from transaction: Transaction) {
+        self.init(
+            id: transaction.id,
+            name: transaction.name,
+            budgetItemID: transaction.$budgetItem.id,
+            amount: transaction.amount,
+            date: transaction.date,
+            transactionType: FFTransactionType(from: transaction.transactionType)
+        )
+    }
+}
+
+extension FFTransactionType: Content {
+    init(from type: TransactionType) {
+        switch type {
+        case .income:
+            self = .income
+        case .expense:
+            self = .expense
+        }
     }
 }

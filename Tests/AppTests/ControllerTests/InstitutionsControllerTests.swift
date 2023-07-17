@@ -21,7 +21,7 @@ final class InstitutionsControllerTests: AuthenticatedTestCase {
     }
     
     // MARK: - func getInstitutions()
-    func testGetInstitutionsSuccess() throws {
+    func test_GetInstitutions_Success() throws {
         let userID = user.id!
         try app.test(.GET, "api/institutions/\(userID)", beforeRequest: { req in
             req.headers.add(contentsOf: authHeaders)

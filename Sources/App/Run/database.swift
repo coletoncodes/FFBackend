@@ -28,7 +28,7 @@ func configureDatabase(for app: Application) throws {
         postgresConfig.coreConfiguration.tls = .require(nioSSLContext)
         configuration = postgresConfig
     default:
-        throw Abort(.internalServerError)
+        throw Abort(.internalServerError, reason: "Unknown error")
     }
     app.databases.use(.postgres(configuration: configuration), as: .psql)
 }

@@ -17,11 +17,7 @@ struct FFLoadSessionRequest: FFAPIRequest {
     }
     
     var headers: [FFAPIHeader] {
-        [
-            FFAPIHeader.contentType,
-            FFAPIHeader.auth(refreshToken: refreshToken.token),
-            FFAPIHeader.apiAuth(accessToken: accessToken.token)
-        ]
+        FFAPIHeader.apiHeaders(refreshToken: refreshToken, accessToken: accessToken)
     }
     
     var body: Encodable? = nil

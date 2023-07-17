@@ -8,13 +8,15 @@
 import Foundation
 
 public protocol FFInstitutionsNetworkService {
-    func getInstitutions(refreshToken: FFRefreshToken,
-                         accessToken: FFAccessToken,
-                         userID: UUID) async throws -> [FFInstitution]
+    func getInstitutions(
+        refreshToken: FFRefreshToken,
+        accessToken: FFAccessToken,
+        userID: UUID
+    ) async throws -> [FFInstitution]
 }
 
 public final class FFInstitutionsNetworkingService: FFInstitutionsNetworkService, FFNetworkService {
-
+    
     // MARK: - Initializer
     public init() { }
     

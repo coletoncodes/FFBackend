@@ -7,29 +7,25 @@
 
 import Foundation
 
-public struct FFCreateLinkTokenRequest: FFAPIRequest {
-    public typealias Response = FFCreateLinkTokenResponse
+struct FFCreateLinkTokenRequest: FFAPIRequest {
+    typealias Response = FFCreateLinkTokenResponse
     
-    public var body: Encodable?
+    var body: Encodable?
     
     var method: HTTPMethod { .POST }
     
-    public var path: String {
+    var path: String {
         FFAPIPath.createLinkToken
     }
     
     var headers: [FFAPIHeader] {
-        [
-            FFAPIHeader.contentType,
-            FFAPIHeader.auth(refreshToken: refreshToken.token),
-            FFAPIHeader.apiAuth(accessToken: accessToken.token)
-        ]
+        FFAPIHeader.apiHeaders(refreshToken: refreshToken, accessToken: accessToken)
     }
     
-    public let refreshToken: FFRefreshToken
-    public let accessToken: FFAccessToken
+    let refreshToken: FFRefreshToken
+    let accessToken: FFAccessToken
     
-    public init(
+    init(
         body: FFCreateLinkTokenRequestBody,
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken

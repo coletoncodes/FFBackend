@@ -75,7 +75,7 @@ extension PlaidController {
         let requestBody = try req.content.decode(FFLinkSuccessRequestBody.self)
         
         // Create the exchange public token request
-        let exchangePublicTokenRequest = FFExchangePublicTokenRequest(userID: requestBody.userID, publicToken: requestBody.publicToken)
+        let exchangePublicTokenRequest = FFExchangePublicTokenRequestBody(userID: requestBody.userID, publicToken: requestBody.publicToken)
         
         let exchangePublicTokenResponse = try await exchangePublicToken(req: req, publicTokenRequest: exchangePublicTokenRequest, metadata: requestBody.metadata)
         
@@ -94,7 +94,7 @@ extension PlaidController {
     /// Must provide a `ExchangeLinkTokenRequest` as the body.
     func exchangePublicToken(
         req: Request,
-        publicTokenRequest: FFExchangePublicTokenRequest,
+        publicTokenRequest: FFExchangePublicTokenRequestBody,
         metadata: FFPlaidSuccessMetadata
     ) async throws -> HTTPStatus {
         // Check if the user exists in the database

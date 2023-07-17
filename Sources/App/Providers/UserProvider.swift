@@ -10,6 +10,7 @@ import Factory
 import Vapor
 
 protocol UserProviding {
+    // TODO: Replace req with database
     func save(ffUser: FFUser, from req: Request) async throws
     func findBy(email: String, from req: Request) async throws -> FFUser?
     func findBy(id: UUID, from req: Request) async throws -> FFUser?

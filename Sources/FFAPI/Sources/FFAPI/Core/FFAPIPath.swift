@@ -8,8 +8,13 @@
 import Foundation
 
 enum FFAPIPath {
-    /// Root Paths
+    // MARK: - Root Paths
     private static let auth = "auth"
+    
+    /// api
+    static let api = "api"
+    
+    // MARK: - Authentication
     
     /// auth/register
     static let registerUser = "\(auth)/register"
@@ -28,8 +33,8 @@ enum FFAPIPath {
     /// auth/load-session
     static let loadSession = "\(auth)/load-session"
     
-    /// api
-    static let api = "api"
+    
+    // MARK: - Plaid
     
     /// api/plaid
     static let plaid = "\(api)/plaid"
@@ -40,8 +45,17 @@ enum FFAPIPath {
     /// api/plaid/link-success
     static let linkSuccess = "\(plaid)/link-success"
     
+    // MARK: - Institutions
+    
     /// api/institutions/:userID
     static func getInstitutions(_ userID: UUID) -> String {
         return "\(api)/institutions/\(userID)"
     }
+    
+    // MARK: - Budgeting
+    /// api/budgeting/categories
+    static let budgetCategories = "\(api)/budgeting/categories"
+    
+    /// api/budgeting/items
+    static let budgetItems = "\(api)/budgeting/items"
 }

@@ -27,7 +27,7 @@ final class AuthenticationControllerTests: DatabaseInteracting {
     
     // MARK: - func register(_ req: Request)
     /// Test valid registration succeeds
-    func testRegisterSuccess() throws {
+    func test_Register_Success() throws {
         let registerRequest = FFRegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
         
         try app.test(.POST, "auth/register", beforeRequest: { req in
@@ -47,7 +47,7 @@ final class AuthenticationControllerTests: DatabaseInteracting {
     }
     
     /// Verify that a badRequest is thrown when the request doesn't provide a proper email.
-    func testRegisterWithInvalidEmail() throws {
+    func test_RegisterWithInvalidEmail_Throws_BadRequest() throws {
         let registerRequest = FFRegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: "not_an_email", password: testUserPassword, confirmPassword: testUserPassword)
         
         try app.test(.POST, "auth/register", beforeRequest: { req in
@@ -58,7 +58,7 @@ final class AuthenticationControllerTests: DatabaseInteracting {
     }
     
     /// Verify a .badRequest is thrown when the first name is empty.
-    func testRegisterWithEmptyFirstName() throws {
+    func test_RegisterWithEmptyFirstName_Throws400() throws {
         let registerRequest = FFRegisterRequest(firstName: "", lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
         
         try app.test(.POST, "auth/register", beforeRequest: { req in
@@ -69,7 +69,7 @@ final class AuthenticationControllerTests: DatabaseInteracting {
     }
     
     /// Verify a .badRequest is thrown when the last name is empty.
-    func testRegisterWithEmptyLastName() throws {
+    func test_RegisterWithEmptyLastName_Throws_BadRequest() throws {
         let registerRequest = FFRegisterRequest(firstName: testUserFirstName, lastName: "", email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
         
         try app.test(.POST, "auth/register", beforeRequest: { req in
@@ -80,7 +80,7 @@ final class AuthenticationControllerTests: DatabaseInteracting {
     }
     
     /// Verify a .badRequest is thrown when the password is less than 8 characters.
-    func testRegisterWithInvalidPassword() throws {
+    func test_RegisterWithInvalidPassword_Throws_BadRequest() throws {
         let registerRequest = FFRegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: "1234567", confirmPassword: "1234567")
         
         try app.test(.POST, "auth/register", beforeRequest: { req in
@@ -91,7 +91,7 @@ final class AuthenticationControllerTests: DatabaseInteracting {
     }
     
     /// Verify that a badRequest is thrown when the request contains miss matched passwords.
-    func testRegisterWithMismatchedPasswords() throws {
+    func test_RegisterWithMismatchedPasswords_Throws_BadRequest() throws {
         let registerRequest = FFRegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: "wrong_password")
         
         try app.test(.POST, "auth/register", beforeRequest: { req in
@@ -103,7 +103,7 @@ final class AuthenticationControllerTests: DatabaseInteracting {
     
     // MARK: - func login(_ req: Request)
     /// Test for a successful login.
-    func testLoginSuccess() throws {
+    func test_Login_Success() throws {
         // Register the user first
         let registerRequest = FFRegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
         
@@ -143,7 +143,7 @@ final class AuthenticationControllerTests: DatabaseInteracting {
     }
     
     /// Test for a Bad Request error due to an invalid email.
-    func testLoginInvalidEmail() throws {
+    func test_LoginInvalidEmail_Throws_BadRequest() throws {
         // Register the user first
         let registerRequest = FFRegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
         var refreshTokenDTO: FFRefreshToken?
@@ -178,7 +178,7 @@ final class AuthenticationControllerTests: DatabaseInteracting {
     }
     
     // Test for an Unauthorized error due to non-existent email.
-    func testLoginNonExistentEmail() throws {
+    func test_LoginNonExistentEmail_Throws_Unauthorized() throws {
         // Register the user first
         let registerRequest = FFRegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
         var refreshTokenDTO: FFRefreshToken?
@@ -212,7 +212,7 @@ final class AuthenticationControllerTests: DatabaseInteracting {
     }
     
     // Test for an Unauthorized error due to incorrect password.
-    func testLoginErrorIncorrectPassword() throws {
+    func test_LoginErrorIncorrectPassword_Throws_Unauthorized() throws {
         // Register the user first
         let registerRequest = FFRegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
         var refreshTokenDTO: FFRefreshToken?
@@ -247,7 +247,7 @@ final class AuthenticationControllerTests: DatabaseInteracting {
     }
         
     // MARK: - func logout(_ req: Request)
-    func testLogoutSuccess() async throws {
+    func test_Logout_Success() async throws {
         // Register the user first
         let registerRequest = FFRegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
         var refreshTokenDTO: FFRefreshToken?
@@ -285,7 +285,7 @@ final class AuthenticationControllerTests: DatabaseInteracting {
     
     // MARK: - func loadSession(_ req: Request)
     /// Verify the session is refreshed when it's valid.
-    func testLoadSessionWithValidToken() async throws {
+    func test_LoadSessionWithValidToken_Success() async throws {
         // Register the user first
         let registerRequest = FFRegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
         var refreshTokenDTO: FFRefreshToken?
@@ -343,7 +343,7 @@ final class AuthenticationControllerTests: DatabaseInteracting {
     }
     
     /// Verify that an invalidToken throws 401
-    func testLoadSessionInvalidToken() async throws {
+    func test_LoadSessionInvalidToken_Throws_Unauthorized() async throws {
         let invalidToken = "invalidToken"
         
         try app.test(.POST, "auth/load-session", headers: ["Authorization": "Bearer \(invalidToken)"], afterResponse: { res in
@@ -352,7 +352,7 @@ final class AuthenticationControllerTests: DatabaseInteracting {
     }
     
     /// Verify that no token in request throws 401
-    func testLoadSessionWithNoToken() async throws {
+    func test_LoadSessionWithNoToken_Throws_Unauthorized() async throws {
         try app.test(.POST, "auth/load-session", afterResponse: { res in
             XCTAssertEqual(res.status, .unauthorized)
         })

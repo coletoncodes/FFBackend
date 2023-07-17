@@ -27,7 +27,7 @@ final class EndToEndTests: DatabaseInteracting {
     // MARK: - Tests
     /// Verify the JSON data from the apple-app-site-association file is returned,
     /// and that it matches what we expect.
-    func testAppleAppSiteAssociation_Success() throws {
+    func test_AppleAppSiteAssociation_Success() throws {
         try app.test(.GET, ".well-known/apple-app-site-association") { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.headers.contentType, .json)
@@ -46,7 +46,7 @@ final class EndToEndTests: DatabaseInteracting {
     /// 1. User creates account.
     /// 2. User Log's Out.
     /// 3. User Log's In
-    func testFullAuthCycle() throws {
+    func test_FullAuthCycle_Success() throws {
         // 1. Create an account
         let registerRequest = FFRegisterRequest(firstName: testUserFirstName, lastName: testUserLastName, email: testUserEmail, password: testUserPassword, confirmPassword: testUserPassword)
         var sessionResponse: FFSessionResponse?
