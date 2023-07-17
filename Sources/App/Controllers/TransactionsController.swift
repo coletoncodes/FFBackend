@@ -27,7 +27,6 @@ final class TransactionsController: RouteCollection {
 extension TransactionsController {
     
     func getTransactions(req: Request) async throws -> FFGetTransactionsResponse {
-        // Decode the body
         do {
             let body = try req.content.decode(FFGetTransactionsRequestBody.self)
             let transactions = try await provider.getTransactions(budgetItemID: body.budgetItemID, database: req.db)

@@ -11,6 +11,7 @@ func routes(_ app: Application) throws {
     try protectedRoutes.routes()
     
     for route in app.routes.all {
-        print(route)
+        let logger = Logger(label: "Route Logger")
+        logger.log(level: .info, "\(route)")
     }
 }
