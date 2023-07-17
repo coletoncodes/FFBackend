@@ -124,4 +124,19 @@ final class TransactionsControllerTests: AuthenticatedTestCase {
             XCTAssertEqual(response.transactions, transactions)
         })
     }
+    
+    // MARK: - deleteTransactions()
+    func test_DeleteTransactions_Success() async throws {
+        /** Given */
+        let transactions = try await postTransactions()
+        let deleteTransactionsBody = FFDeleteTransactionRequestBody(budgetItemID: budgetItemID!, transaction: transactions[0])
+        
+        /** When */
+        try app.test(.DELETE, transactionsPath, headers: authHeaders, beforeRequest: { req in
+            try req.content.encode(deleteTransactionsBody)
+        }, afterResponse: { res in
+            /** Then */
+            XCTAssertEqual(res.status, .ok)
+        })
+    }
 }
