@@ -27,7 +27,7 @@ final class BudgetItemProvider: BudgetItemProviding {
     // MARK: - Interface
     func getItems(categoryID: UUID, database: Database) async throws -> [FFBudgetItem] {
         try await store.getItems(categoryID: categoryID, on: database)
-            .map { FFBudgetItem(from: $0) }
+            .map { try FFBudgetItem(from: $0) }
     }
     
     func delete(budgetItem: FFBudgetItem, database: Database) async throws {

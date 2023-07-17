@@ -24,26 +24,27 @@ final class Transaction: Model {
     @Field(key: "amount")
     var amount: Double
     
-    @Field(key: "date")
-    var date: Date
+    @Field(key: "date_string")
+    var dateString: String
     
     @Enum(key: "transaction_type")
     var transactionType: TransactionType
-        
+    
     init() { }
-
+    
     init(
         id: UUID? = nil,
         name: String,
         budgetItemID: UUID,
         amount: Double,
-        date: Date,
+        dateString: String,
         transactionType: TransactionType
     ) {
         self.id = id
         self.name = name
         self.$budgetItem.id = budgetItemID
-        self.date = date
+        self.amount = amount
+        self.dateString = dateString
         self.transactionType = transactionType
     }
     
@@ -53,10 +54,8 @@ final class Transaction: Model {
             name: transaction.name,
             budgetItemID: transaction.budgetItemID,
             amount: transaction.amount,
-            date: transaction.date,
+            dateString: CustomDateFormatter.toRoundedString(from: transaction.date),
             transactionType: TransactionType(from: transaction.transactionType)
         )
     }
 }
-
-

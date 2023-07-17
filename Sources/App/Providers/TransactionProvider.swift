@@ -30,7 +30,7 @@ final class TransactionProvider: TransactionProviding {
         database: Database
     ) async throws -> [FFTransaction] {
         return try await store.getTransactions(budgetItemID: budgetItemID, on: database)
-            .map { FFTransaction(from: $0) }
+            .map { try FFTransaction(from: $0) }
     }
     
     func delete(transaction: FFTransaction, database: Database) async throws {

@@ -48,11 +48,13 @@ struct DatabaseErrorMiddleware: AsyncMiddleware {
         do {
             return try await next.respond(to: request)
         } catch let psqlError as PSQLError {
-            print("PSQLError: \(String(reflecting: psqlError))")
-            print("PSQLError Code: \(psqlError.code)")
-            print("PSQLError Underlying: \(String(describing: psqlError.underlying))")
-            print("PSQLError localized description: \(psqlError.localizedDescription)")
-            print("PSQLError failing query: \(String(describing: psqlError.query))")
+            let logger = Logger(label: "error-logger")
+            logger.log(level: .error, "PSQLError: \(String(reflecting: psqlError))")
+            logger.log(level: .error, "PSQLError: \(String(reflecting: psqlError))")
+            logger.log(level: .error,"PSQLError Code: \(psqlError.code)")
+            logger.log(level: .error,"PSQLError Underlying: \(String(describing: psqlError.underlying))")
+            logger.log(level: .error,"PSQLError localized description: \(psqlError.localizedDescription)")
+            logger.log(level: .error,"PSQLError failing query: \(String(describing: psqlError.query))")
             
             // Create and throw an appropriate Abort error for PSQLError
             throw Abort(.conflict, reason: "A PSQLError occurred.")

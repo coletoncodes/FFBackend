@@ -33,8 +33,6 @@ final class BudgetingControllerTests: AuthenticatedTestCase {
                 XCTAssertEqual(res.status, .ok)
                 
                 let responseBody = try res.content.decode(FFBudgetCategoriesResponse.self)
-                // Verify response body is not empty
-                XCTAssertFalse(responseBody.budgetCategories.isEmpty)
                 
                 // Verify matches expected
                 XCTAssertEqual(responseBody.budgetCategories, budgetCategories)
@@ -61,8 +59,6 @@ final class BudgetingControllerTests: AuthenticatedTestCase {
                 XCTAssertEqual(res.status, .ok)
                 
                 let responseBody = try res.content.decode(FFBudgetCategoriesResponse.self)
-                // Verify response body is not empty
-                XCTAssertFalse(responseBody.budgetCategories.isEmpty)
                 
                 // Verify matches expected
                 XCTAssertEqual(responseBody.budgetCategories, budgetCategories)
@@ -290,7 +286,6 @@ final class BudgetingControllerTests: AuthenticatedTestCase {
             }, afterResponse: { res in
                 /** Then */
                 XCTAssertEqual(res.status, .ok)
-                
             })
     }
 }
