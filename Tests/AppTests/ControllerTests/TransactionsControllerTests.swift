@@ -17,17 +17,6 @@ final class TransactionsControllerTests: AuthenticatedTestCase {
     private let budgetingItemsPath = "/api/budgeting/items"
     private var budgetItemID: UUID?
     
-    private var transactions: [FFTransaction] {
-        let dateString = "2023-07-16"
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        dateFormatter.timeZone = TimeZone(identifier: "UTC")!
-        let date = dateFormatter.date(from: dateString)!
-        let transaction1 = FFTransaction(id: nil, name: "Test Transaction 1", budgetItemID: budgetItemID!, amount: 10.00, date: date, transactionType: .expense)
-        let transaction2 = FFTransaction(id: nil, name: "Test Transaction 2", budgetItemID: budgetItemID!, amount: 100.00, date: date, transactionType: .expense)
-        return [transaction1, transaction2]
-    }
-    
     // MARK: - LifeCycle
     override func setUp() async throws {
         try await super.setUp()
@@ -80,10 +69,19 @@ final class TransactionsControllerTests: AuthenticatedTestCase {
             })
     }
     
-    private func postTransactions() async throws {
-        // Create test transactions with date having only day, month, and year components
-        let postTransactionsBody = FFPostTransactionsRequestBody(budgetItemID: budgetItemID!, transactions: transactions)
+    private func postTransactions() async throws -> [FFTransaction] {
+        let dateString = "2023-07-16"
+        let date = try CustomDateFormatter.toRoundedDate(from: dateString)
         
+        let id1 = UUID()
+        let id2 = UUID()
+        
+        let transaction1 = FFTransaction(id: id1, name: "Transaction 1", budgetItemID: budgetItemID!, amount: 10.00, date: date, transactionType: .expense)
+        let transaction2 = FFTransaction(id: id2, name: "Transaction 2", budgetItemID: budgetItemID!, amount: 100.00, date: date, transactionType: .expense)
+        let transactions = [transaction1, transaction2]
+        let postTransactionsBody = FFPostTransactionsRequestBody(budgetItemID: budgetItemID!, transactions: transactions)
+                
+        var returnedTransactions: [FFTransaction] = []
         /** When */
         // we post the transactions first
         try app.test(.POST, transactionsPath, headers: authHeaders, beforeRequest: { req in
@@ -91,20 +89,25 @@ final class TransactionsControllerTests: AuthenticatedTestCase {
         }, afterResponse: { res in
             /** Then */
             XCTAssertEqual(res.status, .ok)
+            
             let response = try res.content.decode(FFGetTransactionsResponse.self)
             XCTAssertEqual(response.transactions, transactions)
+            
+            returnedTransactions = response.transactions
         })
+        
+        return returnedTransactions
     }
 
-    
     // MARK: - postTransactions()
     func test_PostTransactions_Success() async throws {
-        try await postTransactions()
+        let transactions = try await postTransactions()
+        XCTAssertFalse(transactions.isEmpty)
     }
     
     // MARK: - getTransactions()
     func test_GetTransactions_Success() async throws {
-        try await postTransactions()
+        let transactions = try await postTransactions()
         
         let getTransactionsBody = FFGetTransactionsRequestBody(budgetItemID: budgetItemID!)
         
