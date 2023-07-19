@@ -11,8 +11,8 @@ import Vapor
 protocol InstitutionStore {
     func getInstitutions(userID: UUID, from db: Database) async throws -> [Institution]
     func save(_ institution: Institution, on db: Database) async throws
-    func findInstitution(by institutionID: UUID, on db: Database) async throws -> Institution?
-    func delete(by institutionID: UUID, on db: Database) async throws
+    func findInstitutionBy(_ plaidItemID: String, on db: Database) async throws -> Institution?
+    func deleteInstitution(_ plaidItemID: String, on db: Database) async throws
 }
 
 final class InstitutionRepository: InstitutionStore {
@@ -27,15 +27,15 @@ final class InstitutionRepository: InstitutionStore {
         try await institution.save(on: db)
     }
     
-    func findInstitution(by institutionID: UUID, on db: Database) async throws -> Institution? {
+    func findInstitutionBy(_ plaidItemID: String, on db: Database) async throws -> Institution? {
         try await Institution.query(on: db)
-            .filter(\.$id == institutionID)
+            .filter(\.$plaidItemID == plaidItemID)
             .with(\.$accounts)
             .first()
     }
     
-    func delete(by institutionID: UUID, on db: Database) async throws {
-        if let foundInstitution = try await findInstitution(by: institutionID, on: db) {
+    func deleteInstitution(_ plaidItemID: String, on db: Database) async throws {
+        if let foundInstitution = try await findInstitutionBy(plaidItemID, on: db) {
             try await foundInstitution.delete(on: db)
         }
     }

@@ -12,6 +12,8 @@ import Fluent
 
 protocol InstitutionsProviding {
     func institutions(userID: UUID, database: Database) async throws -> [FFInstitution]
+    func save(_ ffInstitution: FFInstitution, database: Database) async throws
+    func save(_ ffInstitutions: [FFInstitution], database: Database) async throws
 }
 
 final class InstitutionsProvider: InstitutionsProviding {
@@ -22,5 +24,28 @@ final class InstitutionsProvider: InstitutionsProviding {
     func institutions(userID: UUID, database: Database) async throws -> [FFInstitution] {
         try await institutionStore.getInstitutions(userID: userID, from: database)
             .map { FFInstitution(from: $0) }
+    }
+    
+    func save(_ ffInstitution: FFInstitution, database: Database) async throws {
+        let institution = Institution(from: ffInstitution)
+        try await institutionStore.save(institution, on: database)
+    }
+    
+    func save(_ ffInstitutions: [FFInstitution], database: Database) async throws {
+        for institution in ffInstitutions {
+            try await save(institution, database: database)
+        }
+    }
+}
+
+extension Institution {
+    convenience init(from ffInstitution: FFInstitution) {
+        self.init(
+            id: ffInstitution.id,
+            name: ffInstitution.name,
+            accessTokenID: ffInstitution.plaidAccessTokenID,
+            plaidItemID: ffInstitution.plaidItemID,
+            userID: ffInstitution.userID
+        )
     }
 }

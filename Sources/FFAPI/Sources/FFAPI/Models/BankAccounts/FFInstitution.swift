@@ -8,21 +8,26 @@
 import Foundation
 
 public struct FFInstitution: Codable, Equatable, Hashable, Identifiable {
-    public var id: String {
-        name + (institutionID?.uuidString ?? "")
-    }
-    
+    public let id: UUID?
     public let name: String
-    public let institutionID: UUID?
+    public let userID: UUID
+    public let plaidItemID: String
+    public let plaidAccessTokenID: UUID
     public var accounts: [FFBankAccount]
     
     public init(
+        id: UUID? = nil,
         name: String,
-        institutionID: UUID?,
+        userID: UUID,
+        plaidItemID: String,
+        plaidAccessTokenID: UUID,
         accounts: [FFBankAccount]
     ) {
+        self.id = id
         self.name = name
-        self.institutionID = institutionID
+        self.userID = userID
+        self.plaidItemID = plaidItemID
+        self.plaidAccessTokenID = plaidAccessTokenID
         self.accounts = accounts
     }
 }

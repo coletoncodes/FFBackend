@@ -47,10 +47,8 @@ enum FFAPIPath {
     
     // MARK: - Institutions
     
-    /// api/institutions/:userID
-    static func getInstitutions(_ userID: UUID) -> String {
-        return "\(api)/institutions/\(userID)"
-    }
+    /// api/institutions/
+    static var getInstitutions = "\(api)/institutions/"
     
     // MARK: - Budgeting
     /// api/budgeting/categories
