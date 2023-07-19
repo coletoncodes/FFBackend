@@ -29,6 +29,7 @@ extension InstitutionsController {
             let institutions = try await provider.institutions(userID: body.userID, database: req.db)
             return FFGetInstitutionsResponse(institutions: institutions)
         } catch {
+            req.logger.error("\(String(reflecting: error))")
             throw Abort(.internalServerError, reason: "Failed to get Institutions. Error: \(error)")
         }
     }
@@ -40,6 +41,7 @@ extension InstitutionsController {
             let institutions = try await provider.institutions(userID: body.userID, database: req.db)
             return FFPostInstitutionsResponse(institutions: institutions)
         } catch {
+            req.logger.report(error: String(reflecting: error))
             throw Abort(.internalServerError, reason: "Failed to post Institutions. Error: \(error)")
         }
     }

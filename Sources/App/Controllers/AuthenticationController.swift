@@ -45,22 +45,22 @@ private extension AuthenticationController {
     func register(_ req: Request) async throws -> FFSessionResponse {
         do {
             try FFRegisterRequest.validate(content: req)
+            let registerRequest = try req.content.decode(FFRegisterRequest.self)
+            
+            guard registerRequest.password == registerRequest.confirmPassword else {
+                throw Abort(.badRequest, reason: "Provided passwords do not match.")
+            }
+            
+            let user = try User(from: registerRequest)
+            let ffUser = FFUser(from: user)
+            try await userProvider.save(ffUser: ffUser, from: req)
+            
+            // Return the session for the user
+            return try await createSession(for: ffUser, on: req)
         } catch {
+            req.logger.report(error: String(reflecting: error))
             throw Abort(.badRequest, reason: "Invalid request data: \(error)")
         }
-        
-        let registerRequest = try req.content.decode(FFRegisterRequest.self)
-        
-        guard registerRequest.password == registerRequest.confirmPassword else {
-            throw Abort(.badRequest, reason: "Provided passwords do not match.")
-        }
-        
-        let user = try User(from: registerRequest)
-        let ffUser = FFUser(from: user)
-        try await userProvider.save(ffUser: ffUser, from: req)
-        
-        // Return the session for the user
-        return try await createSession(for: ffUser, on: req)
     }
     
     /// Authenticates an existing user, generates new JWT and refresh tokens, and returns them in the response.
@@ -133,11 +133,11 @@ private extension AuthenticationController {
         guard let accessToken = req.headers.bearerAuthorization?.token else {
             throw Abort(.unauthorized, reason: "Missing access token in header")
         }
-
+        
         guard let refreshToken = req.headers["x-refresh-token"].first else {
             throw Abort(.unauthorized, reason: "Missing refresh token in header")
         }
-
+        
         // Attempt to validate the access token and get its payload
         var jwtPayload: JWTTokenPayload?
         do {
@@ -147,7 +147,7 @@ private extension AuthenticationController {
             // This is okay as long as refresh token is valid.
             req.logger.debug("Access Token is invalid or expired, checking if refresh token is Valid.")
         }
-
+        
         // Validate the refresh token
         var ffRefreshToken: FFRefreshToken?
         do {
@@ -163,7 +163,7 @@ private extension AuthenticationController {
         guard let ffRefreshToken = ffRefreshToken else {
             throw Abort(.internalServerError, reason: "Refresh token is expired. Please login again.")
         }
-
+        
         // Check if the refresh token corresponds to the same user as the access token
         guard let ffUser = try await userProvider.findBy(id: jwtPayload.userID, from: req) else {
             throw Abort(.internalServerError, reason: "No user exists for this id.")
