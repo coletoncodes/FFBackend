@@ -62,25 +62,36 @@ extension FFLoginRequest: Validatable, Content {
 
 extension FFCreateLinkTokenRequestBody: Content {}
 extension FFCreateLinkTokenResponse: Content {}
+
 extension FFGetBudgetCategoriesRequestBody: Content {}
 extension FFGetBudgetItemsRequestBody: Content {}
 extension FFPostBudgetCategoriesRequestBody: Content {}
 extension FFBudgetCategoriesResponse: Content {}
+
 extension FFBudgetItemsResponse: Content {}
 extension FFPostBudgetItemsRequestBody: Content {}
 extension FFDeleteBudgetItemRequestBody: Content {}
 extension FFDeleteBudgetCategoryRequestBody: Content {}
+
 extension FFGetTransactionsRequestBody: Content {}
 extension FFGetTransactionsResponse: Content {}
 extension FFPostTransactionsResponse: Content {}
 extension FFPostTransactionsRequestBody: Content {}
 extension FFDeleteTransactionRequestBody: Content {}
 
+extension FFGetInstitutionsRequestBody: Content {}
+extension FFGetInstitutionsResponse: Content {}
+extension FFPostInstitutionsRequestBody: Content {}
+extension FFPostInstitutionsResponse: Content {}
+
 extension FFInstitution: Content {
     init(from institution: Institution) {
         self.init(
+            id: institution.id,
             name: institution.name,
-            institutionID: institution.id,
+            userID: institution.$user.id,
+            plaidItemID: institution.plaidItemID,
+            plaidAccessTokenID: institution.$accessToken.id,
             accounts: institution
                 .accounts
                 .map { FFBankAccount(from: $0) }

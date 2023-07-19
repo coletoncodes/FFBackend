@@ -1,14 +1,14 @@
 //
-//  FFGetInstitutionsRequest.swift
+//  FFPostInstitutionsRequest.swift
 //  
 //
-//  Created by Coleton Gorecke on 7/4/23.
+//  Created by Coleton Gorecke on 7/18/23.
 //
 
 import Foundation
 
-struct FFGetInstitutionsRequest: FFAPIRequest {
-    typealias Response = FFGetInstitutionsResponse
+struct FFPostInstitutionsRequest: FFAPIRequest {
+    typealias Response = FFPostInstitutionsResponse
     
     var body: Encodable? = nil
     
@@ -26,7 +26,7 @@ struct FFGetInstitutionsRequest: FFAPIRequest {
     let accessToken: FFAccessToken
     
     init(
-        body: FFGetInstitutionsRequestBody,
+        body: FFPostInstitutionsRequestBody,
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken
     ) {
@@ -36,15 +36,17 @@ struct FFGetInstitutionsRequest: FFAPIRequest {
     }
 }
 
-public struct FFGetInstitutionsRequestBody: Codable {
+public struct FFPostInstitutionsRequestBody: Codable {
     public let userID: UUID
+    public let institutions: [FFInstitution]
     
-    public init(userID: UUID) {
+    public init(userID: UUID, institutions: [FFInstitution]) {
         self.userID = userID
+        self.institutions = institutions
     }
 }
 
-public struct FFGetInstitutionsResponse: Codable {
+public struct FFPostInstitutionsResponse: Codable {
     public let institutions: [FFInstitution]
     
     public init(institutions: [FFInstitution]) {

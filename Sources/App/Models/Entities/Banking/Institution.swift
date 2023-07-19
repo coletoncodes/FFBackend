@@ -26,8 +26,8 @@ final class Institution: Model {
     @Children(for: \.$institution)
     var accounts: [BankAccount]
     
-    @Field(key: "item_id")
-    var itemID: String
+    @Field(key: "plaid_item_id")
+    var plaidItemID: String
 
     init() { }
 
@@ -35,13 +35,13 @@ final class Institution: Model {
         id: UUID? = nil,
         name: String,
         accessTokenID: UUID,
-        itemID: String,
+        plaidItemID: String,
         userID: UUID
     ) {
         self.id = id
         self.name = name
         self.$accessToken.id = accessTokenID
-        self.itemID = itemID
+        self.plaidItemID = plaidItemID
         self.$user.id = userID
     }
 }

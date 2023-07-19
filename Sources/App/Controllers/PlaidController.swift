@@ -135,7 +135,7 @@ extension PlaidController {
         let institution = Institution(
             name: metadata.institution.name,
             accessTokenID: accessTokenID,
-            itemID: publicTokenResponse.item_id,
+            plaidItemID: publicTokenResponse.item_id,
             userID: userID
         )
         
@@ -161,36 +161,5 @@ extension PlaidController {
         try await bankAccountStore.save(accounts, on: req.db)
         
         return .ok
-    }
-}
-
-
-struct PlaidGetTransactionsRequest: Content {
-    let client_id: String
-    let secret: String
-    let access_token: String
-    let start_date: Date
-    let end_date: Date
-    let options: PlaidTransactionOptions
-    
-    init(
-        access_token: String,
-        start_date: Date,
-        end_date: Date
-    ) {
-        self.client_id = Constants.plaidClientId.rawValue
-        self.secret = Constants.plaidSecretKey.rawValue
-        self.access_token = access_token
-        self.start_date = start_date
-        self.end_date = end_date
-        self.options = PlaidTransactionOptions()
-    }
-}
-
-struct PlaidTransactionOptions: Content {
-    let include_personal_finance_category: Bool
-    
-    init() {
-        self.include_personal_finance_category = true
     }
 }

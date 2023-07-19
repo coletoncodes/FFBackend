@@ -10,6 +10,8 @@ import XCTVapor
 import XCTest
 
 final class InstitutionsControllerTests: AuthenticatedTestCase {
+    // MARK: - Properties
+    private var institutionsPath: String { "api/institutions/\(user.id!)" }
     
     // MARK: - Lifecycle
     override func setUp() async throws {
@@ -20,10 +22,13 @@ final class InstitutionsControllerTests: AuthenticatedTestCase {
         try super.tearDownWithError()
     }
     
+//    private func postInstitutions() -> [FFInstitution] {
+//
+//    }
+    
     // MARK: - func getInstitutions()
     func test_GetInstitutions_Success() throws {
-        let userID = user.id!
-        try app.test(.GET, "api/institutions/\(userID)", beforeRequest: { req in
+        try app.test(.GET, institutionsPath, beforeRequest: { req in
             req.headers.add(contentsOf: authHeaders)
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
