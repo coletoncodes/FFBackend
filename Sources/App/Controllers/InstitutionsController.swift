@@ -16,7 +16,7 @@ final class InstitutionsController: RouteCollection {
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
         let institutionRoutes = routes.grouped("institutions")
-        institutionRoutes.get("", use: getInstitutions)
+        institutionRoutes.get(":userID", use: getInstitutions)
         institutionRoutes.post("", use: postInstitutions)
     }
 }
@@ -25,8 +25,10 @@ final class InstitutionsController: RouteCollection {
 extension InstitutionsController {
     func getInstitutions(req: Request) async throws -> FFGetInstitutionsResponse {
         do {
-            let body = try req.content.decode(FFGetInstitutionsRequestBody.self)
-            let institutions = try await provider.institutions(userID: body.userID, database: req.db)
+            guard let userID = req.parameters.get("userID", as: UUID.self) else {
+                throw Abort(.badRequest, reason: "No USERID in URL.")
+            }
+            let institutions = try await provider.institutions(userID: userID, database: req.db)
             return FFGetInstitutionsResponse(institutions: institutions)
         } catch {
             req.logger.error("\(String(reflecting: error))")

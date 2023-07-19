@@ -17,7 +17,7 @@ final class TransactionsController: RouteCollection {
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
         let transactionRoutes = routes.grouped("transactions")
-        transactionRoutes.get("", use: getTransactions)
+        transactionRoutes.get(":budgetItemID", use: getTransactions)
         transactionRoutes.post("", use: postTransactions)
         transactionRoutes.delete("", use: deleteTransaction)
     }
@@ -28,8 +28,10 @@ extension TransactionsController {
     
     func getTransactions(req: Request) async throws -> FFGetTransactionsResponse {
         do {
-            let body = try req.content.decode(FFGetTransactionsRequestBody.self)
-            let transactions = try await provider.getTransactions(budgetItemID: body.budgetItemID, database: req.db)
+            guard let budgetItemID = req.parameters.get("budgetItemID", as: UUID.self) else {
+                throw Abort(.badRequest, reason: "No budgetItemID in URL.")
+            }
+            let transactions = try await provider.getTransactions(budgetItemID: budgetItemID, database: req.db)
             return FFGetTransactionsResponse(transactions: transactions)
         } catch {
             throw Abort(.badGateway, reason: "Failed to get transactions. Error: \(error)")

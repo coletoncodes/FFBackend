@@ -15,7 +15,7 @@ struct FFGetInstitutionsRequest: FFAPIRequest {
     var method: HTTPMethod { .GET }
     
     var path: String {
-        return FFAPIPath.getInstitutions
+        "\(FFAPIPath.institutions)" + "/" + "\(userID)"
     }
     
     var headers: [FFAPIHeader] {
@@ -24,23 +24,16 @@ struct FFGetInstitutionsRequest: FFAPIRequest {
     
     let refreshToken: FFRefreshToken
     let accessToken: FFAccessToken
+    let userID: UUID
     
     init(
-        body: FFGetInstitutionsRequestBody,
+        userID: UUID,
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken
     ) {
-        self.body = body
+        self.userID = userID
         self.refreshToken = refreshToken
         self.accessToken = accessToken
-    }
-}
-
-public struct FFGetInstitutionsRequestBody: Codable {
-    public let userID: UUID
-    
-    public init(userID: UUID) {
-        self.userID = userID
     }
 }
 

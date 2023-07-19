@@ -74,10 +74,8 @@ final class InstitutionsControllerTests: AuthenticatedTestCase {
         let institutions = try postInstitutions()
         
         /** When */
-        let requestBody = FFGetInstitutionsRequestBody(userID: user.id!)
-        try app.test(.GET, institutionsPath, headers: authHeaders, beforeRequest: { req in
-            try req.content.encode(requestBody)
-        }, afterResponse: { res in
+        let getPath = institutionsPath + "\(user.id!)"
+        try app.test(.GET, getPath, headers: authHeaders, afterResponse: { res in
             /** Then */
             XCTAssertEqual(res.status, .ok)
             

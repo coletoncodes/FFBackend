@@ -18,11 +18,11 @@ final class BudgetingController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         let budgetingRoutes = routes.grouped("budgeting")
         // categories
-        budgetingRoutes.get("categories", use: getBudgetCategories)
+        budgetingRoutes.get("categories", ":userID", use: getBudgetCategories)
         budgetingRoutes.post("categories", use: postBudgetCategories)
         budgetingRoutes.delete("categories", use: deleteBudgetCategory)
         // items
-        budgetingRoutes.get("items", use: getBudgetItems)
+        budgetingRoutes.get("items", ":categoryID", use: getBudgetItems)
         budgetingRoutes.post("items", use: postBudgetItems)
         budgetingRoutes.delete("items", use: deleteBudgetItem)
     }
@@ -33,8 +33,10 @@ extension BudgetingController {
     // MARK: - BudgetCategories
     func getBudgetCategories(req: Request) async throws -> FFBudgetCategoriesResponse {
         do {
-            let body = try req.content.decode(FFGetBudgetCategoriesRequestBody.self)
-            let budgetCategories =  try await budgetCategoryProvider.getCategories(userID: body.userID, database: req.db)
+            guard let userID = req.parameters.get("userID", as: UUID.self) else {
+                throw Abort(.badRequest, reason: "No USERID in URL.")
+            }
+            let budgetCategories =  try await budgetCategoryProvider.getCategories(userID: userID, database: req.db)
             return FFBudgetCategoriesResponse(budgetCategories: budgetCategories)
         } catch {
             throw Abort(.internalServerError, reason: "Failed to get BudgetCategories. Error: \(error)")
@@ -65,8 +67,10 @@ extension BudgetingController {
     // MARK: - Budget Items
     func getBudgetItems(req: Request) async throws -> FFBudgetItemsResponse {
         do {
-            let body = try req.content.decode(FFGetBudgetItemsRequestBody.self)
-            let budgetItems = try await budgetItemProvider.getItems(categoryID: body.categoryID, database: req.db)
+            guard let categoryID = req.parameters.get("categoryID", as: UUID.self) else {
+                throw Abort(.badRequest, reason: "No categoryID in URL.")
+            }
+            let budgetItems = try await budgetItemProvider.getItems(categoryID: categoryID, database: req.db)
             return FFBudgetItemsResponse(budgetItems: budgetItems)
         } catch {
             throw Abort(.internalServerError, reason: "Failed to get BudgetItems. Error: \(error)")

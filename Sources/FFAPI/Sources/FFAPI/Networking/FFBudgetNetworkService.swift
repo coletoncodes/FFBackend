@@ -9,7 +9,7 @@ import Foundation
 
 public protocol FFBudgetNetworkService {
     func getBudgetCategories(
-        body: FFGetBudgetCategoriesRequestBody,
+        userID: UUID,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
     ) async throws -> [FFBudgetCategory]
@@ -27,7 +27,7 @@ public protocol FFBudgetNetworkService {
     ) async throws
     
     func getBudgetItems(
-        body: FFGetBudgetItemsRequestBody,
+        categoryID: UUID,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
     ) async throws -> [FFBudgetItem]
@@ -51,13 +51,13 @@ public final class FFBudgetNetworkingService: FFBudgetNetworkService, FFNetworkS
     
     // MARK: - BudgetCategories
     public func getBudgetCategories(
-        body: FFGetBudgetCategoriesRequestBody,
+        userID: UUID,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
     ) async throws -> [FFBudgetCategory] {
         return try await performRequest(
             FFGetBudgetCategoriesRequest(
-                body: body,
+                userID: userID,
                 refreshToken: refreshToken,
                 accessToken: accessToken
             )
@@ -94,13 +94,13 @@ public final class FFBudgetNetworkingService: FFBudgetNetworkService, FFNetworkS
     
     // MARK: - BudgetItems
     public func getBudgetItems(
-        body: FFGetBudgetItemsRequestBody,
+        categoryID: UUID,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
     ) async throws -> [FFBudgetItem] {
         return try await performRequest(
             FFGetBudgetItemsRequest(
-                body: body,
+                categoryID: categoryID,
                 refreshToken: refreshToken,
                 accessToken: accessToken
             )

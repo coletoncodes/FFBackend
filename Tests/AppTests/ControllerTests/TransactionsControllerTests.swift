@@ -12,7 +12,7 @@ import XCTest
 
 final class TransactionsControllerTests: AuthenticatedTestCase {
     // MARK: - Properties
-    private let transactionsPath = "/api/transactions"
+    private let transactionsPath = "/api/transactions/"
     private let budgetingCategoryPath = "/api/budgeting/categories"
     private let budgetingItemsPath = "/api/budgeting/items"
     private var budgetItemID: UUID?
@@ -83,7 +83,7 @@ final class TransactionsControllerTests: AuthenticatedTestCase {
                 
         var returnedTransactions: [FFTransaction] = []
         /** When */
-        // we post the transactions first
+        // we post the transactions
         try app.test(.POST, transactionsPath, headers: authHeaders, beforeRequest: { req in
             try req.content.encode(postTransactionsBody)
         }, afterResponse: { res in
@@ -108,14 +108,15 @@ final class TransactionsControllerTests: AuthenticatedTestCase {
     // MARK: - getTransactions()
     func test_GetTransactions_Success() async throws {
         let transactions = try await postTransactions()
-        
-        let getTransactionsBody = FFGetTransactionsRequestBody(budgetItemID: budgetItemID!)
-        
+        let budgetItemID = transactions[0].budgetItemID
         /** When */
         // we fetch the new transactions
-        try app.test(.GET, transactionsPath, headers: authHeaders, beforeRequest: { req in
-            try req.content.encode(getTransactionsBody)
-        }, afterResponse: { res in
+        let getPath = transactionsPath + "\(budgetItemID)"
+        try app.test(
+            .GET,
+            getPath,
+            headers: authHeaders,
+            afterResponse: { res in
             /** Then */
             XCTAssertEqual(res.status, .ok)
             

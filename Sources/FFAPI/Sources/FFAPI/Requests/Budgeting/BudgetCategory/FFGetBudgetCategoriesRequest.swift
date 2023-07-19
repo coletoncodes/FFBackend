@@ -11,14 +11,15 @@ struct FFGetBudgetCategoriesRequest: FFAPIRequest {
     
     let refreshToken: FFRefreshToken
     let accessToken: FFAccessToken
+    let userID: UUID
     
     // MARK: - Initializer
     init(
-        body: FFGetBudgetCategoriesRequestBody,
+        userID: UUID,
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken
     ) {
-        self.body = body
+        self.userID = userID
         self.refreshToken = refreshToken
         self.accessToken = accessToken
     }
@@ -29,7 +30,7 @@ struct FFGetBudgetCategoriesRequest: FFAPIRequest {
     var body: Encodable?
     
     var path: String {
-        FFAPIPath.budgetCategories
+        "\(FFAPIPath.budgetCategories)" + "/" + "\(userID)"
     }
     
     var method: HTTPMethod {
@@ -38,13 +39,5 @@ struct FFGetBudgetCategoriesRequest: FFAPIRequest {
     
     var headers: [FFAPIHeader] {
         FFAPIHeader.apiHeaders(refreshToken: refreshToken, accessToken: accessToken)
-    }
-}
-
-public struct FFGetBudgetCategoriesRequestBody: Codable {
-    public let userID: UUID
-    
-    public init(userID: UUID) {
-        self.userID = userID
     }
 }

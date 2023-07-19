@@ -63,8 +63,6 @@ extension FFLoginRequest: Validatable, Content {
 extension FFCreateLinkTokenRequestBody: Content {}
 extension FFCreateLinkTokenResponse: Content {}
 
-extension FFGetBudgetCategoriesRequestBody: Content {}
-extension FFGetBudgetItemsRequestBody: Content {}
 extension FFPostBudgetCategoriesRequestBody: Content {}
 extension FFBudgetCategoriesResponse: Content {}
 
@@ -73,13 +71,11 @@ extension FFPostBudgetItemsRequestBody: Content {}
 extension FFDeleteBudgetItemRequestBody: Content {}
 extension FFDeleteBudgetCategoryRequestBody: Content {}
 
-extension FFGetTransactionsRequestBody: Content {}
 extension FFGetTransactionsResponse: Content {}
 extension FFPostTransactionsResponse: Content {}
 extension FFPostTransactionsRequestBody: Content {}
 extension FFDeleteTransactionRequestBody: Content {}
 
-extension FFGetInstitutionsRequestBody: Content {}
 extension FFGetInstitutionsResponse: Content {}
 extension FFPostInstitutionsRequestBody: Content {}
 extension FFPostInstitutionsResponse: Content {}

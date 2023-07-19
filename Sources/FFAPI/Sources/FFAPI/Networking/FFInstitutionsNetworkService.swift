@@ -9,7 +9,7 @@ import Foundation
 
 public protocol FFInstitutionsNetworkService {
     func getInstitutions(
-        body: FFGetInstitutionsRequestBody,
+        userID: UUID,
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken
     ) async throws -> [FFInstitution]
@@ -28,13 +28,13 @@ public final class FFInstitutionsNetworkingService: FFInstitutionsNetworkService
     
     // MARK: - Interace
     public func getInstitutions(
-        body: FFGetInstitutionsRequestBody,
+        userID: UUID,
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken
     ) async throws -> [FFInstitution] {
         return try await performRequest(
             FFGetInstitutionsRequest(
-                body: body,
+                userID: userID,
                 refreshToken: refreshToken,
                 accessToken: accessToken
             )
