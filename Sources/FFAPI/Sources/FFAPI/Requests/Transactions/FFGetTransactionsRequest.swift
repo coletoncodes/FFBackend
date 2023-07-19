@@ -17,7 +17,7 @@ public struct FFGetTransactionsRequest: FFAPIRequest {
     }
     
     var path: String {
-        FFAPIPath.transactions
+        "\(FFAPIPath.transactions)" + "/" + "\(budgetItemID)"
     }
     
     var headers: [FFAPIHeader] {
@@ -26,23 +26,16 @@ public struct FFGetTransactionsRequest: FFAPIRequest {
     
     let accessToken: FFAccessToken
     let refreshToken: FFRefreshToken
+    let budgetItemID: UUID
     
     init(
-        body: FFGetTransactionsRequestBody,
+        budgetItemID: UUID,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
     ) {
-        self.body = body
+        self.budgetItemID = budgetItemID
         self.accessToken = accessToken
         self.refreshToken = refreshToken
-    }
-}
-
-public struct FFGetTransactionsRequestBody: Codable {
-    public let budgetItemID: UUID
-    
-    public init(budgetItemID: UUID) {
-        self.budgetItemID = budgetItemID
     }
 }
 

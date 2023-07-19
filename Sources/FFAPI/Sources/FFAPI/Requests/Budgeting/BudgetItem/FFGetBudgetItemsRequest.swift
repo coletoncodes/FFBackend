@@ -11,14 +11,15 @@ struct FFGetBudgetItemsRequest: FFAPIRequest {
     
     let refreshToken: FFRefreshToken
     let accessToken: FFAccessToken
+    let categoryID: UUID
     
     // MARK: - Initializer
     init(
-        body: FFGetBudgetItemsRequestBody,
+        categoryID: UUID,
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken
     ) {
-        self.body = body
+        self.categoryID = categoryID
         self.refreshToken = refreshToken
         self.accessToken = accessToken
     }
@@ -30,18 +31,11 @@ struct FFGetBudgetItemsRequest: FFAPIRequest {
     
     var method: HTTPMethod { .GET }
     
-    var path: String { FFAPIPath.budgetItems
+    var path: String {
+        "\(FFAPIPath.budgetItems)" + "/" + "\(categoryID)"
     }
     
     var headers: [FFAPIHeader] {
         FFAPIHeader.apiHeaders(refreshToken: refreshToken, accessToken: accessToken)
-    }
-}
-
-public struct FFGetBudgetItemsRequestBody: Codable {
-    public let categoryID: UUID
-    
-    public init(categoryID: UUID) {
-        self.categoryID = categoryID
     }
 }

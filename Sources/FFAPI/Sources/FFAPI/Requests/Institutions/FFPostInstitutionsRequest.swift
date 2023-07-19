@@ -15,7 +15,7 @@ struct FFPostInstitutionsRequest: FFAPIRequest {
     var method: HTTPMethod { .GET }
     
     var path: String {
-        return FFAPIPath.getInstitutions
+        return FFAPIPath.institutions
     }
     
     var headers: [FFAPIHeader] {

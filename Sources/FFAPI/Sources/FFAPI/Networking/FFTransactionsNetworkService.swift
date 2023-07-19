@@ -9,7 +9,7 @@ import Foundation
 
 public protocol FFTransactionsNetworkService {
     func getTransactions(
-        body: FFGetTransactionsRequestBody,
+        budgetItemID: UUID,
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken
     ) async throws -> FFGetTransactionsResponse
@@ -33,11 +33,17 @@ public final class FFTransactionsNetworkingService: FFTransactionsNetworkService
     
     // MARK: - Interace
     public func getTransactions(
-        body: FFGetTransactionsRequestBody,
+        budgetItemID: UUID,
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken
     ) async throws -> FFGetTransactionsResponse {
-        return try await performRequest(FFGetTransactionsRequest(body: body, accessToken: accessToken, refreshToken: refreshToken))
+        return try await performRequest(
+            FFGetTransactionsRequest(
+                budgetItemID: budgetItemID,
+                accessToken: accessToken,
+                refreshToken: refreshToken
+            )
+        )
     }
     
     public func postTransactions(
@@ -45,7 +51,13 @@ public final class FFTransactionsNetworkingService: FFTransactionsNetworkService
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken
     ) async throws -> FFPostTransactionsResponse {
-        return try await performRequest(FFPostTransactionsRequest(body: body, accessToken: accessToken, refreshToken: refreshToken))
+        return try await performRequest(
+            FFPostTransactionsRequest(
+                body: body,
+                accessToken: accessToken,
+                refreshToken: refreshToken
+            )
+        )
     }
     
     public func deleteTransaction(
@@ -53,6 +65,12 @@ public final class FFTransactionsNetworkingService: FFTransactionsNetworkService
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken
     ) async throws -> FFDeleteTransactionResponse {
-        return try await performRequest(FFDeleteTransactionRequest(body: body, accessToken: accessToken, refreshToken: refreshToken))
+        return try await performRequest(
+            FFDeleteTransactionRequest(
+                body: body,
+                accessToken: accessToken,
+                refreshToken: refreshToken
+            )
+        )
     }
 }

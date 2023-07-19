@@ -48,7 +48,7 @@ enum FFAPIPath {
     // MARK: - Institutions
     
     /// api/institutions/
-    static var getInstitutions = "\(api)/institutions/"
+    static var institutions = "\(api)/institutions/"
     
     // MARK: - Budgeting
     /// api/budgeting/categories
