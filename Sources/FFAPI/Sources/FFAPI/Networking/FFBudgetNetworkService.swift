@@ -12,13 +12,13 @@ public protocol FFBudgetNetworkService {
         userID: UUID,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
-    ) async throws -> [FFBudgetCategory]
+    ) async throws -> FFBudgetCategoriesResponse
     
     func postBudgetCategories(
         body: FFPostBudgetCategoriesRequestBody,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
-    ) async throws -> [FFBudgetCategory]
+    ) async throws -> FFBudgetCategoriesResponse
     
     func deleteBudgetCategory(
         body: FFDeleteBudgetCategoryRequestBody,
@@ -30,13 +30,13 @@ public protocol FFBudgetNetworkService {
         categoryID: UUID,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
-    ) async throws -> [FFBudgetItem]
+    ) async throws -> FFBudgetItemsResponse
     
     func postBudgetItem(
         body: FFPostBudgetItemsRequestBody,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
-    ) async throws -> [FFBudgetItem]
+    ) async throws -> FFBudgetItemsResponse
     
     func deleteBudgetItem(
         body: FFDeleteBudgetItemRequestBody,
@@ -54,7 +54,7 @@ public final class FFBudgetNetworkingService: FFBudgetNetworkService, FFNetworkS
         userID: UUID,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
-    ) async throws -> [FFBudgetCategory] {
+    ) async throws -> FFBudgetCategoriesResponse {
         return try await performRequest(
             FFGetBudgetCategoriesRequest(
                 userID: userID,
@@ -68,7 +68,7 @@ public final class FFBudgetNetworkingService: FFBudgetNetworkService, FFNetworkS
         body: FFPostBudgetCategoriesRequestBody,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
-    ) async throws -> [FFBudgetCategory] {
+    ) async throws -> FFBudgetCategoriesResponse {
         return try await performRequest(
             FFPostBudgetCategoriesRequest(
                 body: body,
@@ -97,7 +97,7 @@ public final class FFBudgetNetworkingService: FFBudgetNetworkService, FFNetworkS
         categoryID: UUID,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
-    ) async throws -> [FFBudgetItem] {
+    ) async throws -> FFBudgetItemsResponse {
         return try await performRequest(
             FFGetBudgetItemsRequest(
                 categoryID: categoryID,
@@ -111,7 +111,7 @@ public final class FFBudgetNetworkingService: FFBudgetNetworkService, FFNetworkS
         body: FFPostBudgetItemsRequestBody,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
-    ) async throws -> [FFBudgetItem] {
+    ) async throws -> FFBudgetItemsResponse {
         return try await performRequest(
             FFPostBudgetItemsRequest(
                 body: body,

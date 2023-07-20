@@ -11,6 +11,7 @@ public enum FFAPIError: Error {
     case invalidURL(details: String)
     case httpError(details: FFErrorResponse)
     case decodingError(details: String)
+    case encodingError(details: String)
     case unknown(details: String)
     case nilValue(details: String)
     
@@ -20,6 +21,7 @@ public enum FFAPIError: Error {
             return errorResponse.reason
         case .invalidURL(let details),
                 .decodingError(let details),
+                .encodingError(let details),
                 .unknown(let details),
                 .nilValue(let details):
             return details

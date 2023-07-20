@@ -45,7 +45,7 @@ extension TransactionsController {
             let transactions = try await provider.getTransactions(budgetItemID: body.budgetItemID, database: req.db)
             return FFPostTransactionsResponse(transactions: transactions)
         } catch {
-            throw Abort(.badGateway, reason: "Failed to post transactions. Error: \(String(reflecting: error))")
+            throw Abort(.badGateway, reason: "Failed to post Transactions", error: error)
         }
     }
     
@@ -55,7 +55,7 @@ extension TransactionsController {
             try await provider.delete(transaction: body.transaction, database: req.db)
             return .ok
         } catch {
-            throw Abort(.badGateway, reason: "Failed to delete transactions. Error: \(error)")
+            throw Abort(.badGateway, reason: "Failed to delete transaction.", error: error)
         }
     }
 }

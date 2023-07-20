@@ -32,6 +32,11 @@ extension FFNetworkService {
         var data: Data? = nil
         if let body = request.body {
             data = try encodeBody(body)
+            guard let encodedData = data, let jsonString = String(data: encodedData, encoding: .utf8) else {
+                throw FFAPIError.encodingError(details: "Failed to encode body Data")
+            }
+            
+            print("JSON: \(jsonString)")
         }
         
         let (responseData, response) = try await URLSession.shared.data(for: request.urlRequest(with: data))
@@ -42,12 +47,18 @@ extension FFNetworkService {
         var data: Data? = nil
         if let body = request.body {
             data = try encodeBody(body)
+            guard let encodedData = data, let jsonString = String(data: encodedData, encoding: .utf8) else {
+                throw FFAPIError.encodingError(details: "Failed to encode body Data")
+            }
+            
+            print("JSON: \(jsonString)")
         }
         
         let (responseData, response) = try await URLSession.shared.data(for: request.urlRequest(with: data))
         try handle(response, data: responseData)
         
         let decodedResponse = try decoder.decode(T.self, from: responseData)
+        
         return decodedResponse
     }
     

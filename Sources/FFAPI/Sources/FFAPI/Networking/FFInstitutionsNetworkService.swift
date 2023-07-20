@@ -12,13 +12,14 @@ public protocol FFInstitutionsNetworkService {
         userID: UUID,
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken
-    ) async throws -> [FFInstitution]
+    ) async throws -> FFGetInstitutionsResponse
     
-    func postInstitutions(
-        body: FFPostInstitutionsRequestBody,
-        refreshToken: FFRefreshToken,
-        accessToken: FFAccessToken
-    ) async throws -> [FFInstitution]
+    // TODO: This may need to be removed in the future.
+//    func postInstitutions(
+//        body: FFPostInstitutionsRequestBody,
+//        refreshToken: FFRefreshToken,
+//        accessToken: FFAccessToken
+//    ) async throws -> [FFInstitution]
 }
 
 public final class FFInstitutionsNetworkingService: FFInstitutionsNetworkService, FFNetworkService {
@@ -31,7 +32,7 @@ public final class FFInstitutionsNetworkingService: FFInstitutionsNetworkService
         userID: UUID,
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken
-    ) async throws -> [FFInstitution] {
+    ) async throws -> FFGetInstitutionsResponse {
         return try await performRequest(
             FFGetInstitutionsRequest(
                 userID: userID,
@@ -41,17 +42,18 @@ public final class FFInstitutionsNetworkingService: FFInstitutionsNetworkService
         )
     }
     
-    public func postInstitutions(
-        body: FFPostInstitutionsRequestBody,
-        refreshToken: FFRefreshToken,
-        accessToken: FFAccessToken
-    ) async throws -> [FFInstitution] {
-        return try await performRequest(
-            FFPostInstitutionsRequest(
-                body: body,
-                refreshToken: refreshToken,
-                accessToken: accessToken
-            )
-        )
-    }
+    // TODO: This may need to be removed in the future.
+//    public func postInstitutions(
+//        body: FFPostInstitutionsRequestBody,
+//        refreshToken: FFRefreshToken,
+//        accessToken: FFAccessToken
+//    ) async throws -> [FFInstitution] {
+//        return try await performRequest(
+//            FFPostInstitutionsRequest(
+//                body: body,
+//                refreshToken: refreshToken,
+//                accessToken: accessToken
+//            )
+//        )
+//    }
 }
