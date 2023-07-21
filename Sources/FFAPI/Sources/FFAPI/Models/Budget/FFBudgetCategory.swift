@@ -11,7 +11,7 @@ public struct FFBudgetCategory: Codable, Hashable, Equatable, Identifiable {
     public let id: UUID?
     public let userID: UUID
     public let name: String
-    public let budgetItems: [FFBudgetItem]
+    public var budgetItems: [FFBudgetItem]
     public let categoryType: FFBudgetCategoryType
     
     public init(

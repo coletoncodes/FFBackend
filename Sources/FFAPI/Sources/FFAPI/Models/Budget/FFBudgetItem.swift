@@ -12,7 +12,7 @@ public struct FFBudgetItem: Codable, Hashable, Equatable, Identifiable {
     public let name: String
     public let budgetCategoryID: UUID
     public let planned: Double
-    public let transactions: [FFTransaction]
+    public var transactions: [FFTransaction]
     public let note: String
     public let dueDate: Date?
     
