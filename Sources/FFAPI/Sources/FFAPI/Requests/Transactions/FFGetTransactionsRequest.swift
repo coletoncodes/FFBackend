@@ -10,7 +10,7 @@ import Foundation
 public struct FFGetTransactionsRequest: FFAPIRequest {
     typealias Response = FFGetTransactionsResponse
     
-    var body: Encodable?
+    var body: Encodable? = nil
     
     var method: HTTPMethod {
         .GET

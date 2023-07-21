@@ -39,7 +39,7 @@ extension BudgetingController {
             let budgetCategories =  try await budgetCategoryProvider.getCategories(userID: userID, database: req.db)
             return FFBudgetCategoriesResponse(budgetCategories: budgetCategories)
         } catch {
-            throw Abort(.internalServerError, reason: "Failed to get BudgetCategories. Error: \(error)")
+            throw Abort(.internalServerError, reason: "Failed to get BudgetCategories.", error: error)
         }
     }
     
@@ -50,7 +50,7 @@ extension BudgetingController {
             let budgetCategories = try await budgetCategoryProvider.getCategories(userID: body.userID, database: req.db)
             return FFBudgetCategoriesResponse(budgetCategories: budgetCategories)
         } catch {
-            throw Abort(.internalServerError, reason: "Failed to save BudgetCategories. Error: \(error)")
+            throw Abort(.internalServerError, reason: "Failed to save BudgetCategories.", error: error)
         }
     }
     
@@ -59,7 +59,7 @@ extension BudgetingController {
             let body = try req.content.decode(FFDeleteBudgetCategoryRequestBody.self)
             try await budgetCategoryProvider.delete(category: body.budgetCategory, database: req.db)
         } catch {
-            throw Abort(.internalServerError, reason: "Failed to delete BudgetCategory. Error: \(error)")
+            throw Abort(.internalServerError, reason: "Failed to delete BudgetCategory.", error: error)
         }
         return .ok
     }
@@ -73,7 +73,7 @@ extension BudgetingController {
             let budgetItems = try await budgetItemProvider.getItems(categoryID: categoryID, database: req.db)
             return FFBudgetItemsResponse(budgetItems: budgetItems)
         } catch {
-            throw Abort(.internalServerError, reason: "Failed to get BudgetItems. Error: \(error)")
+            throw Abort(.internalServerError, reason: "Failed to get BudgetItems.", error: error)
         }
     }
     
@@ -84,7 +84,7 @@ extension BudgetingController {
             let budgetItems = try await budgetItemProvider.getItems(categoryID: body.categoryID, database: req.db)
             return FFBudgetItemsResponse(budgetItems: budgetItems)
         } catch {
-            throw Abort(.internalServerError, reason: "Failed to post BudgetItems. Error: \(error)")
+            throw Abort(.internalServerError, reason: "Failed to post BudgetItems.", error: error)
         }
     }
     
@@ -93,7 +93,7 @@ extension BudgetingController {
             let body = try req.content.decode(FFDeleteBudgetItemRequestBody.self)
             try await budgetItemProvider.delete(budgetItem: body.budgetItem, database: req.db)
         } catch {
-            throw Abort(.internalServerError, reason: "Failed to delete BudgetItem. Error: \(error)")
+            throw Abort(.internalServerError, reason: "Failed to delete BudgetItem.", error: error)
         }
         return .ok
     }

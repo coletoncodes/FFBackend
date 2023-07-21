@@ -59,7 +59,7 @@ private extension AuthenticationController {
             return try await createSession(for: ffUser, on: req)
         } catch {
             req.logger.report(error: String(reflecting: error))
-            throw Abort(.badRequest, reason: "Invalid request data: \(error)")
+            throw Abort(.badRequest, reason: "Invalid request data", error: error)
         }
     }
     
@@ -76,8 +76,7 @@ private extension AuthenticationController {
         do {
             try FFLoginRequest.validate(content: req)
         } catch {
-            let logStr = "Invalid request data: \(error)"
-            throw Abort(.badRequest, reason: logStr)
+            throw Abort(.badRequest, reason: "Invalid request data", error: error)
         }
         
         let loginRequest = try req.content.decode(FFLoginRequest.self)
