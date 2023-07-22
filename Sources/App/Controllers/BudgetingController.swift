@@ -11,7 +11,7 @@ import Vapor
 
 final class BudgetingController: RouteCollection {
     // MARK: - Dependencies
-    @Injected(\.budgetCategoryProvider) private var budgetCategoryProvider
+    @Injected(\.budgetProvider) private var budgetProvider
     
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
@@ -29,7 +29,7 @@ extension BudgetingController {
             guard let userID = req.parameters.get("userID", as: UUID.self) else {
                 throw Abort(.badRequest, reason: "No USERID in URL.")
             }
-            let budgetCategories =  try await budgetCategoryProvider.getCategories(userID: userID, database: req.db)
+            let budgetCategories =  try await budgetProvider.getBudgetFor(userID: userID, database: req.db)
             return FFBudgetResponse(budgetCategories: budgetCategories)
         } catch {
             throw Abort(.internalServerError, reason: "Failed to get BudgetCategories.", error: error)
@@ -39,8 +39,8 @@ extension BudgetingController {
     func postBudget(req: Request) async throws -> FFBudgetResponse {
         do {
             let body = try req.content.decode(FFPostBudgetRequestBody.self)
-            try await budgetCategoryProvider.save(categories: body.budgetCategories, database: req.db)
-            let budgetCategories = try await budgetCategoryProvider.getCategories(userID: body.userID, database: req.db)
+            try await budgetProvider.save(categories: body.budgetCategories, database: req.db)
+            let budgetCategories = try await budgetProvider.getBudgetFor(userID: body.userID, database: req.db)
             return FFBudgetResponse(budgetCategories: budgetCategories)
         } catch {
             throw Abort(.internalServerError, reason: "Failed to save BudgetCategories.", error: error)
@@ -50,7 +50,7 @@ extension BudgetingController {
     func deleteBudgetCategory(req: Request) async throws -> HTTPStatus {
         do {
             let body = try req.content.decode(FFDeleteBudgetCategoryRequestBody.self)
-            try await budgetCategoryProvider.delete(category: body.budgetCategory, database: req.db)
+            try await budgetProvider.delete(category: body.budgetCategory, database: req.db)
         } catch {
             throw Abort(.internalServerError, reason: "Failed to delete BudgetCategory.", error: error)
         }

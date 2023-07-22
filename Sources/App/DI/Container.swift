@@ -31,8 +31,8 @@ extension Container {
             .graph
     }
     
-    var budgetCategoryProvider: Factory<BudgetCategoryProviding> {
-        self { BudgetCategoryProvider() }
+    var budgetProvider: Factory<BudgetProviding> {
+        self { BudgetProvider() }
             .graph
     }
     

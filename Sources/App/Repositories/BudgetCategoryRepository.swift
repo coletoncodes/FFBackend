@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  BudgetCategoryRepository.swift
 //  
 //
 //  Created by Coleton Gorecke on 7/11/23.
@@ -47,5 +47,4 @@ final class BudgetCategoryRepository: BudgetCategoryStore {
 
         try await fetchedCategory.delete(on: database)
     }
-
 }
