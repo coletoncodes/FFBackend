@@ -23,7 +23,15 @@ final class InstitutionRepository: InstitutionStore {
     }
     
     func save(_ institution: Institution, on db: Database) async throws {
-        try await institution.save(on: db)
+        if let existing = try await Institution
+            .query(on: db)
+            .filter(\.$name == institution.name)
+            .filter(\.$plaidItemID == institution.plaidItemID)
+            .first() {
+            let _ = Institution.update(existing)
+        } else {
+            try await institution.save(on: db)
+        }
     }
     
     func findInstitutionBy(_ plaidItemID: String, on db: Database) async throws -> Institution? {

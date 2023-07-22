@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import FFAPI
 import Fluent
 
 struct CreateBudgetCategory: AsyncMigration {
@@ -17,7 +16,7 @@ struct CreateBudgetCategory: AsyncMigration {
             .field("user_id", .uuid, .required,
                    .references(User.schema, .id, onDelete: .cascade))
             .field("budget_items", .array(of: .json))
-            .unique(on: .id)
+            .unique(on: "name", "user_id")
             .create()
     }
     

@@ -27,7 +27,15 @@ final class BudgetCategoryRepository: BudgetCategoryStore {
     }
     
     func save(_ category: BudgetCategory, on db: Database) async throws {
-        try await category.save(on: db)
+        if let existing = try await BudgetCategory
+            .query(on: db)
+            .filter(\.$name == category.name)
+            .filter(\.$user.$id == category.$user.id)
+            .first() {
+            let _ = BudgetCategory.update(existing)
+        } else {
+            try await category.save(on: db)
+        }
     }
     
     func save(_ categories: [BudgetCategory], on db: Database) async throws {
@@ -44,7 +52,7 @@ final class BudgetCategoryRepository: BudgetCategoryStore {
             .first() else {
             throw Abort(.internalServerError, reason: "No matching category found.")
         }
-
+        
         try await fetchedCategory.delete(on: database)
     }
 }
