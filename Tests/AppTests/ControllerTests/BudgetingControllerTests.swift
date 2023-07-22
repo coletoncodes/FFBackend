@@ -17,8 +17,19 @@ final class BudgetingControllerTests: AuthenticatedTestCase {
     
     // MARK: - Helpers
     private func postBudgetCategories() throws -> [FFBudgetCategory] {
-        let budgetCategory1 = FFBudgetCategory(userID: user.id!, name: "Test Category 1")
-        let budgetCategory2 = FFBudgetCategory(userID: user.id!, name: "Test Category 2")
+        let budgetItem1 = FFBudgetItem(name: "Budget Item 1", planned: 10.00, transactions: [], note: "A note", dueDate: nil)
+        let budgetItem2 = FFBudgetItem(
+            name: "Budget Item 2",
+            planned: 1000.00,
+            transactions: [
+                FFTransaction(name: "Transaction 1", amount: 10.00, date: try CustomDateFormatter.toRoundedDate(from: "2023-09-13"), transactionType: .expense),
+                FFTransaction(name: "Transaction 2", amount: 10.00, date: try CustomDateFormatter.toRoundedDate(from: "2023-09-15"), transactionType: .expense)
+            ],
+            note: "A note",
+            dueDate: nil
+        )
+        let budgetCategory1 = FFBudgetCategory(userID: user.id!, name: "Test Category 1", budgetItems: [budgetItem1])
+        let budgetCategory2 = FFBudgetCategory(userID: user.id!, name: "Test Category 2", budgetItems: [budgetItem1, budgetItem2])
         let budgetCategories = [budgetCategory1, budgetCategory2]
         let body = FFPostBudgetRequestBody(budgetCategories: budgetCategories, userID: user.id!)
         
@@ -88,6 +99,6 @@ final class BudgetingControllerTests: AuthenticatedTestCase {
                 /** Then */
                 XCTAssertEqual(res.status, .ok)
             })
-    }    
+    }
 }
 
