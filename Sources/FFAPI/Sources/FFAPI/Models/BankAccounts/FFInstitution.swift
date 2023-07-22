@@ -7,8 +7,7 @@
 
 import Foundation
 
-public struct FFInstitution: Codable, Equatable, Hashable, Identifiable {
-    public let id: UUID?
+public struct FFInstitution: Codable, Equatable, Hashable {
     public let name: String
     public let userID: UUID
     public let plaidItemID: String
@@ -16,14 +15,12 @@ public struct FFInstitution: Codable, Equatable, Hashable, Identifiable {
     public var accounts: [FFBankAccount]
     
     public init(
-        id: UUID? = nil,
         name: String,
         userID: UUID,
         plaidItemID: String,
         plaidAccessTokenID: UUID,
         accounts: [FFBankAccount]
     ) {
-        self.id = id
         self.name = name
         self.userID = userID
         self.plaidItemID = plaidItemID

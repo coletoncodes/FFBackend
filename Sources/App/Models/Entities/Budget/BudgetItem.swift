@@ -53,7 +53,6 @@ final class BudgetItem: Model {
     
     convenience init(from item: FFBudgetItem) {
         self.init(
-            id: item.id,
             name: item.name,
             budgetCategoryID: item.budgetCategoryID,
             planned: item.planned,

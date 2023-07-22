@@ -6,6 +6,7 @@
 //
 
 import Fluent
+import FFAPI
 import Vapor
 
 final class Institution: Model {
@@ -14,17 +15,17 @@ final class Institution: Model {
     @ID(key: .id)
     var id: UUID?
 
-    @Field(key: "name")
-    var name: String
-    
     @Parent(key: "access_token_id")
     var accessToken: PlaidAccessToken
     
     @Parent(key: "user_id")
     var user: User
     
-    @Children(for: \.$institution)
-    var accounts: [BankAccount]
+    @Field(key: "name")
+    var name: String
+    
+    @Field(key: "bank_accounts")
+    var accounts: [FFBankAccount]
     
     @Field(key: "plaid_item_id")
     var plaidItemID: String
@@ -33,13 +34,15 @@ final class Institution: Model {
 
     init(
         id: UUID? = nil,
-        name: String,
         accessTokenID: UUID,
+        userID: UUID,
         plaidItemID: String,
-        userID: UUID
+        name: String,
+        accounts: [FFBankAccount]
     ) {
         self.id = id
         self.name = name
+        self.accounts = accounts
         self.$accessToken.id = accessTokenID
         self.plaidItemID = plaidItemID
         self.$user.id = userID

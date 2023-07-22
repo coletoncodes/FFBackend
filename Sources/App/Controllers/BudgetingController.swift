@@ -11,20 +11,14 @@ import Vapor
 
 final class BudgetingController: RouteCollection {
     // MARK: - Dependencies
-    @Injected(\.budgetItemProvider) private var budgetItemProvider
     @Injected(\.budgetCategoryProvider) private var budgetCategoryProvider
     
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
         let budgetingRoutes = routes.grouped("budgeting")
-        // categories
         budgetingRoutes.get("categories", ":userID", use: getBudgetCategories)
         budgetingRoutes.post("categories", use: postBudgetCategories)
         budgetingRoutes.delete("categories", use: deleteBudgetCategory)
-        // items
-        budgetingRoutes.get("items", ":categoryID", use: getBudgetItems)
-        budgetingRoutes.post("items", use: postBudgetItems)
-        budgetingRoutes.delete("items", use: deleteBudgetItem)
     }
 }
 
@@ -60,40 +54,6 @@ extension BudgetingController {
             try await budgetCategoryProvider.delete(category: body.budgetCategory, database: req.db)
         } catch {
             throw Abort(.internalServerError, reason: "Failed to delete BudgetCategory.", error: error)
-        }
-        return .ok
-    }
-        
-    // MARK: - Budget Items
-    func getBudgetItems(req: Request) async throws -> FFBudgetItemsResponse {
-        do {
-            guard let categoryID = req.parameters.get("categoryID", as: UUID.self) else {
-                throw Abort(.badRequest, reason: "No categoryID in URL.")
-            }
-            let budgetItems = try await budgetItemProvider.getItems(categoryID: categoryID, database: req.db)
-            return FFBudgetItemsResponse(budgetItems: budgetItems)
-        } catch {
-            throw Abort(.internalServerError, reason: "Failed to get BudgetItems.", error: error)
-        }
-    }
-    
-    func postBudgetItems(req: Request) async throws -> FFBudgetItemsResponse {
-        do {
-            let body = try req.content.decode(FFPostBudgetItemsRequestBody.self)
-            try await budgetItemProvider.save(budgetItems: body.budgetItems, database: req.db)
-            let budgetItems = try await budgetItemProvider.getItems(categoryID: body.categoryID, database: req.db)
-            return FFBudgetItemsResponse(budgetItems: budgetItems)
-        } catch {
-            throw Abort(.internalServerError, reason: "Failed to post BudgetItems.", error: error)
-        }
-    }
-    
-    func deleteBudgetItem(req: Request) async throws -> HTTPStatus {
-        do {
-            let body = try req.content.decode(FFDeleteBudgetItemRequestBody.self)
-            try await budgetItemProvider.delete(budgetItem: body.budgetItem, database: req.db)
-        } catch {
-            throw Abort(.internalServerError, reason: "Failed to delete BudgetItem.", error: error)
         }
         return .ok
     }

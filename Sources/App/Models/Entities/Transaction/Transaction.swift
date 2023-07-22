@@ -26,10 +26,7 @@ final class Transaction: Model {
     
     @Field(key: "date_string")
     var dateString: String
-    
-    @Enum(key: "transaction_type")
-    var transactionType: TransactionType
-    
+        
     init() { }
     
     init(
@@ -37,25 +34,21 @@ final class Transaction: Model {
         name: String,
         budgetItemID: UUID,
         amount: Double,
-        dateString: String,
-        transactionType: TransactionType
+        dateString: String
     ) {
         self.id = id
         self.name = name
         self.$budgetItem.id = budgetItemID
         self.amount = amount
         self.dateString = dateString
-        self.transactionType = transactionType
     }
     
     convenience init(from transaction: FFTransaction) {
         self.init(
-            id: transaction.id,
             name: transaction.name,
             budgetItemID: transaction.budgetItemID,
             amount: transaction.amount,
-            dateString: CustomDateFormatter.toRoundedString(from: transaction.date),
-            transactionType: TransactionType(from: transaction.transactionType)
+            dateString: CustomDateFormatter.toRoundedString(from: transaction.date)
         )
     }
 }

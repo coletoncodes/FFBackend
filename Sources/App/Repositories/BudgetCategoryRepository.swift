@@ -20,10 +20,9 @@ final class BudgetCategoryRepository: BudgetCategoryStore {
     init() {}
     
     func getCategories(userID: UUID, on db: Database) async throws -> [BudgetCategory] {
-        try await BudgetCategory
+        return try await BudgetCategory
             .query(on: db)
             .filter(\.$user.$id == userID)
-            .with(\.$budgetItems)
             .all()
     }
     

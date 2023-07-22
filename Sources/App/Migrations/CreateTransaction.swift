@@ -17,7 +17,6 @@ struct CreateTransaction: AsyncMigration {
                    .references(BudgetItem.schema, .id, onDelete: .cascade))
             .field("amount", .double, .required)
             .field("date_string", .string, .required)
-            .field("transaction_type", .string, .required)
             .unique(on: .id)
             .create()
     }

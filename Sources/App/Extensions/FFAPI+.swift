@@ -83,28 +83,11 @@ extension FFPostInstitutionsResponse: Content {}
 extension FFInstitution: Content {
     init(from institution: Institution) {
         self.init(
-            id: institution.id,
             name: institution.name,
             userID: institution.$user.id,
             plaidItemID: institution.plaidItemID,
             plaidAccessTokenID: institution.$accessToken.id,
-            accounts: institution
-                .accounts
-                .map { FFBankAccount(from: $0) }
-        )
-    }
-}
-
-extension FFBankAccount: Content {
-    init(from bankAccount: BankAccount) {
-        self.init(
-            id: bankAccount.id,
-            accountID: bankAccount.accountID,
-            name: bankAccount.name,
-            subtype: bankAccount.subtype,
-            institutionID: bankAccount.$user.id,
-            userID: bankAccount.$institution.id,
-            isSyncingTransactions: bankAccount.isSyncingTransactions
+            accounts: institution.accounts
         )
     }
 }
@@ -112,64 +95,10 @@ extension FFBankAccount: Content {
 extension FFBudgetCategory: Content {
     init(from category: BudgetCategory) throws {
         self.init(
-            id: category.id,
+            categoryID: try category.requireID(),
             userID: category.$user.id,
             name: category.name,
-            budgetItems: try category.budgetItems.map { try FFBudgetItem(from: $0) },
-            categoryType: FFBudgetCategoryType(from: category.categoryType)
+            budgetItems: category.budgetItems
         )
-    }
-}
-
-extension FFBudgetCategoryType {
-    init(from type: BudgetCategoryType) {
-        switch type {
-        case .savings:
-            self = .savings
-        case .income:
-            self = .income
-        case .expense:
-            self = .expense
-        }
-    }
-}
-
-extension FFBudgetItem: Content {
-    init(from budgetItem: BudgetItem) throws {
-        self.init(
-            id: budgetItem.id,
-            name: budgetItem.name,
-            budgetCategoryID: budgetItem.$budgetCategory.id,
-            planned: budgetItem.planned,
-            transactions: try budgetItem
-                .transactions
-                .map { try FFTransaction(from: $0) },
-            note: budgetItem.note,
-            dueDate: budgetItem.dueDate
-        )
-    }
-}
-
-extension FFTransaction: Content {
-    init(from transaction: Transaction) throws {
-        self.init(
-            id: transaction.id,
-            name: transaction.name,
-            budgetItemID: transaction.$budgetItem.id,
-            amount: transaction.amount,
-            date: try CustomDateFormatter.toRoundedDate(from: transaction.dateString),
-            transactionType: FFTransactionType(from: transaction.transactionType)
-        )
-    }
-}
-
-extension FFTransactionType: Content {
-    init(from type: TransactionType) {
-        switch type {
-        case .income:
-            self = .income
-        case .expense:
-            self = .expense
-        }
     }
 }

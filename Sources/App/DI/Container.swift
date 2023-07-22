@@ -36,15 +36,6 @@ extension Container {
             .graph
     }
     
-    var budgetItemProvider: Factory<BudgetItemProviding> {
-        self { BudgetItemProvider() }
-            .graph
-    }
-    
-    var transactionProvider: Factory<TransactionProviding> {
-        self { TransactionProvider() }
-            .graph
-    }
     
     // MARK: - Stores
     var refreshTokenStore: Factory<RefreshTokenStore> {
@@ -67,23 +58,8 @@ extension Container {
             .graph
     }
     
-    var bankAccountStore: Factory<BankAccountStore> {
-        self { BankAccountRepository() }
-            .graph
-    }
-    
     var budgetCategoryStore: Factory<BudgetCategoryStore> {
         self { BudgetCategoryRepository() }
-            .graph
-    }
-    
-    var budgetItemStore: Factory<BudgetItemStore> {
-        self { BudgetItemRepository() }
-            .graph
-    }
-    
-    var transactionStore: Factory<TransactionStore> {
-        self { TransactionRepository() }
             .graph
     }
     
