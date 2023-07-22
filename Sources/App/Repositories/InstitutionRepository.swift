@@ -28,6 +28,8 @@ final class InstitutionRepository: InstitutionStore {
             .filter(\.$name == institution.name)
             .filter(\.$plaidItemID == institution.plaidItemID)
             .first() {
+            existing.name = institution.name
+            existing.accounts = institution.accounts
             try await existing.update(on: db)
         } else {
             try await institution.save(on: db)
