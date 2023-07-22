@@ -33,7 +33,6 @@ enum FFAPIPath {
     /// auth/load-session
     static let loadSession = "\(auth)/load-session"
     
-    
     // MARK: - Plaid
     
     /// api/plaid
@@ -51,12 +50,6 @@ enum FFAPIPath {
     static var institutions = "\(api)/institutions"
     
     // MARK: - Budgeting
-    /// api/budgeting/categories
-    static let budgetCategories = "\(api)/budgeting/categories"
-    
-    /// api/budgeting/items
-    static let budgetItems = "\(api)/budgeting/items"
-    
-    // MARK: - Transactions
-    static let transactions = "\(api)/transactions"
+    /// api/budgeting/
+    static let budgeting = "\(api)/budgeting/"
 }

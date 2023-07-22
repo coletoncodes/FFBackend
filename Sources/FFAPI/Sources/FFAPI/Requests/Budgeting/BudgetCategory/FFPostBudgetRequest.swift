@@ -17,7 +17,7 @@ struct FFPostBudgetRequest: FFAPIRequest {
     }
     
     var path: String {
-        FFAPIPath.budgetCategories
+        FFAPIPath.budgeting
     }
     
     var headers: [FFAPIHeader] {

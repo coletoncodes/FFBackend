@@ -30,7 +30,7 @@ struct FFGetBudgetRequest: FFAPIRequest {
     var body: Encodable?
     
     var path: String {
-        "\(FFAPIPath.budgetCategories)" + "/" + "\(userID)"
+        "\(FFAPIPath.budgeting)" + "\(userID)"
     }
     
     var method: HTTPMethod {
