@@ -32,7 +32,7 @@ final class BudgetCategoryRepository: BudgetCategoryStore {
             .filter(\.$name == category.name)
             .filter(\.$user.$id == category.$user.id)
             .first() {
-            let _ = BudgetCategory.update(existing)
+            try await existing.update(on: db)
         } else {
             try await category.save(on: db)
         }
