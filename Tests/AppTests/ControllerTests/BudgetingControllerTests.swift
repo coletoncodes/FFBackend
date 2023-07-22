@@ -11,25 +11,21 @@ import XCTVapor
 import XCTest
 
 final class BudgetingControllerTests: AuthenticatedTestCase {
-    private var budgetingCategoryPath: String {
-        "/api/budgeting/categories/"
-    }
-    
-    private var budgetingItemsPath: String {
-        "/api/budgeting/items/"
+    private var budgetingPath: String {
+        "/api/budgeting/"
     }
     
     // MARK: - Helpers
     private func postBudgetCategories() throws -> [FFBudgetCategory] {
-        let budgetCategory1 = FFBudgetCategory(categoryID: UUID(), userID: user.id!, name: "Test Category 1")
-        let budgetCategory2 = FFBudgetCategory(categoryID: UUID(), userID: user.id!, name: "Test Category 2")
+        let budgetCategory1 = FFBudgetCategory(userID: user.id!, name: "Test Category 1")
+        let budgetCategory2 = FFBudgetCategory(userID: user.id!, name: "Test Category 2")
         let budgetCategories = [budgetCategory1, budgetCategory2]
-        let body = FFPostBudgetCategoriesRequestBody(budgetCategories: budgetCategories, userID: user.id!)
+        let body = FFPostBudgetRequestBody(budgetCategories: budgetCategories, userID: user.id!)
         
         /** When */
         var postedCategories: [FFBudgetCategory] = []
         try app.test(
-            .POST, budgetingCategoryPath, headers: authHeaders,
+            .POST, budgetingPath, headers: authHeaders,
             beforeRequest: { req in
                 try req.content.encode(body)
             }, afterResponse: { res in
@@ -37,7 +33,7 @@ final class BudgetingControllerTests: AuthenticatedTestCase {
                 /** Then */
                 XCTAssertEqual(res.status, .ok)
                 
-                let response = try res.content.decode(FFBudgetCategoriesResponse.self)
+                let response = try res.content.decode(FFBudgetResponse.self)
                 
                 // Verify matches expected
                 XCTAssertEqual(response.budgetCategories, budgetCategories)
@@ -58,14 +54,14 @@ final class BudgetingControllerTests: AuthenticatedTestCase {
         let categories = try postBudgetCategories()
         
         /** When */
-        let getPath = budgetingCategoryPath + "\(user.id!)"
+        let getPath = budgetingPath + "\(user.id!)"
         try app.test(
             .GET, getPath, headers: authHeaders, afterResponse: { res in
                 
                 /** Then */
                 XCTAssertEqual(res.status, .ok)
                 
-                let responseBody = try res.content.decode(FFBudgetCategoriesResponse.self)
+                let responseBody = try res.content.decode(FFBudgetResponse.self)
                 // Verify response body is not empty
                 XCTAssertFalse(responseBody.budgetCategories.isEmpty)
                 
@@ -85,7 +81,7 @@ final class BudgetingControllerTests: AuthenticatedTestCase {
         /** When */
         // We delete the category
         try app.test(
-            .DELETE, budgetingCategoryPath, headers: authHeaders,
+            .DELETE, budgetingPath, headers: authHeaders,
             beforeRequest: { req in
                 try req.content.encode(deleteCategoryBody)
             }, afterResponse: { res in

@@ -16,33 +16,32 @@ final class BudgetingController: RouteCollection {
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
         let budgetingRoutes = routes.grouped("budgeting")
-        budgetingRoutes.get("categories", ":userID", use: getBudgetCategories)
-        budgetingRoutes.post("categories", use: postBudgetCategories)
-        budgetingRoutes.delete("categories", use: deleteBudgetCategory)
+        budgetingRoutes.get(":userID", use: getBudget)
+        budgetingRoutes.post("", use: postBudget)
+        budgetingRoutes.delete("", use: deleteBudgetCategory)
     }
 }
 
 // MARK: - Public Requests
 extension BudgetingController {
-    // MARK: - BudgetCategories
-    func getBudgetCategories(req: Request) async throws -> FFBudgetCategoriesResponse {
+    func getBudget(req: Request) async throws -> FFBudgetResponse {
         do {
             guard let userID = req.parameters.get("userID", as: UUID.self) else {
                 throw Abort(.badRequest, reason: "No USERID in URL.")
             }
             let budgetCategories =  try await budgetCategoryProvider.getCategories(userID: userID, database: req.db)
-            return FFBudgetCategoriesResponse(budgetCategories: budgetCategories)
+            return FFBudgetResponse(budgetCategories: budgetCategories)
         } catch {
             throw Abort(.internalServerError, reason: "Failed to get BudgetCategories.", error: error)
         }
     }
     
-    func postBudgetCategories(req: Request) async throws -> FFBudgetCategoriesResponse {
+    func postBudget(req: Request) async throws -> FFBudgetResponse {
         do {
-            let body = try req.content.decode(FFPostBudgetCategoriesRequestBody.self)
+            let body = try req.content.decode(FFPostBudgetRequestBody.self)
             try await budgetCategoryProvider.save(categories: body.budgetCategories, database: req.db)
             let budgetCategories = try await budgetCategoryProvider.getCategories(userID: body.userID, database: req.db)
-            return FFBudgetCategoriesResponse(budgetCategories: budgetCategories)
+            return FFBudgetResponse(budgetCategories: budgetCategories)
         } catch {
             throw Abort(.internalServerError, reason: "Failed to save BudgetCategories.", error: error)
         }

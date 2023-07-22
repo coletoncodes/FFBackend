@@ -16,7 +16,7 @@ struct CreateBudgetCategory: AsyncMigration {
             .field("name", .string, .required)
             .field("user_id", .uuid, .required,
                    .references(User.schema, .id, onDelete: .cascade))
-            .field("budget_items", .array(of: .custom(FFBudgetItem.self)))
+            .field("budget_items", .array(of: .json))
             .unique(on: .id)
             .create()
     }

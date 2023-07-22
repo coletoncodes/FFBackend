@@ -36,7 +36,16 @@ final class BudgetCategoryRepository: BudgetCategoryStore {
         }
     }
     
-    func delete(_ category: BudgetCategory, on db: Database) async throws {
-        try await category.delete(on: db)
+    func delete(_ category: BudgetCategory, on database: Database) async throws {
+        guard let fetchedCategory = try await BudgetCategory
+            .query(on: database)
+            .filter(\.$name == category.name)
+            .filter(\.$user.$id == category.$user.id)
+            .first() else {
+            throw Abort(.internalServerError, reason: "No matching category found.")
+        }
+
+        try await fetchedCategory.delete(on: database)
     }
+
 }
