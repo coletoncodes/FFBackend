@@ -9,11 +9,7 @@ import FFAPI
 import Fluent
 import Foundation
 
-final class BudgetCategory: Model, Equatable {
-    static func == (lhs: BudgetCategory, rhs: BudgetCategory) -> Bool {
-        lhs.id == rhs.id
-    }
-    
+final class BudgetCategory: Model {
     static let schema = "budget_categories"
 
     @ID(key: .id)
@@ -22,11 +18,8 @@ final class BudgetCategory: Model, Equatable {
     @Field(key: "name")
     var name: String
     
-    @Enum(key: "category_type")
-    var categoryType: BudgetCategoryType
-
-    @Children(for: \.$budgetCategory)
-    var budgetItems: [BudgetItem]
+    @Field(key: "budget_items")
+    var budgetItems: [FFBudgetItem]
     
     @Parent(key: "user_id")
     var user: User
@@ -36,21 +29,20 @@ final class BudgetCategory: Model, Equatable {
     init(
         id: UUID? = nil,
         name: String,
-        userID: UUID,
-        categoryType: BudgetCategoryType
+        budgetItems: [FFBudgetItem],
+        userID: UUID
     ) {
         self.id = id
         self.name = name
+        self.budgetItems = budgetItems
         self.$user.id = userID
-        self.categoryType = categoryType
     }
     
     convenience init(from category: FFBudgetCategory) {
         self.init(
-            id: category.id,
             name: category.name,
-            userID: category.userID,
-            categoryType: BudgetCategoryType(from: category.categoryType)
+            budgetItems: category.budgetItems,
+            userID: category.userID
         )
     }
 }

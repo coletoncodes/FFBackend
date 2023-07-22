@@ -19,7 +19,6 @@ final class InstitutionRepository: InstitutionStore {
     func getInstitutions(userID: UUID, from db: Database) async throws -> [Institution] {
         try await Institution.query(on: db)
             .filter(\.$user.$id == userID)
-            .with(\.$accounts)
             .all()
     }
     
@@ -30,7 +29,6 @@ final class InstitutionRepository: InstitutionStore {
     func findInstitutionBy(_ plaidItemID: String, on db: Database) async throws -> Institution? {
         try await Institution.query(on: db)
             .filter(\.$plaidItemID == plaidItemID)
-            .with(\.$accounts)
             .first()
     }
     

@@ -6,6 +6,7 @@
 //
 
 import Fluent
+import FFAPI
 import Foundation
 
 struct CreateInstitution: AsyncMigration {
@@ -17,6 +18,7 @@ struct CreateInstitution: AsyncMigration {
                    .references(User.schema, .id, onDelete: .cascade))
             .field("access_token_id", .uuid, .required, .references(PlaidAccessToken.schema, .id, onDelete: .cascade))
             .field("plaid_item_id", .string, .required)
+            .field("bank_accounts", .array(of: .json))
             .unique(on: "plaid_item_id")
             .create()
     }

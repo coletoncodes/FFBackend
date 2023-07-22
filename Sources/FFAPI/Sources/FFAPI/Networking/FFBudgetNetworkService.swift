@@ -8,38 +8,20 @@
 import Foundation
 
 public protocol FFBudgetNetworkService {
-    func getBudgetCategories(
+    func getBudget(
         userID: UUID,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
-    ) async throws -> FFBudgetCategoriesResponse
+    ) async throws -> FFBudgetResponse
     
-    func postBudgetCategories(
-        body: FFPostBudgetCategoriesRequestBody,
+    func postBudget(
+        body: FFPostBudgetRequestBody,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
-    ) async throws -> FFBudgetCategoriesResponse
+    ) async throws -> FFBudgetResponse
     
     func deleteBudgetCategory(
         body: FFDeleteBudgetCategoryRequestBody,
-        accessToken: FFAccessToken,
-        refreshToken: FFRefreshToken
-    ) async throws
-    
-    func getBudgetItems(
-        categoryID: UUID,
-        accessToken: FFAccessToken,
-        refreshToken: FFRefreshToken
-    ) async throws -> FFBudgetItemsResponse
-    
-    func postBudgetItem(
-        body: FFPostBudgetItemsRequestBody,
-        accessToken: FFAccessToken,
-        refreshToken: FFRefreshToken
-    ) async throws -> FFBudgetItemsResponse
-    
-    func deleteBudgetItem(
-        body: FFDeleteBudgetItemRequestBody,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
     ) async throws
@@ -49,14 +31,13 @@ public final class FFBudgetNetworkingService: FFBudgetNetworkService, FFNetworkS
     // MARK: - Initializer
     public init() {}
     
-    // MARK: - BudgetCategories
-    public func getBudgetCategories(
+    public func getBudget(
         userID: UUID,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
-    ) async throws -> FFBudgetCategoriesResponse {
+    ) async throws -> FFBudgetResponse {
         return try await performRequest(
-            FFGetBudgetCategoriesRequest(
+            FFGetBudgetRequest(
                 userID: userID,
                 refreshToken: refreshToken,
                 accessToken: accessToken
@@ -64,13 +45,13 @@ public final class FFBudgetNetworkingService: FFBudgetNetworkService, FFNetworkS
         )
     }
     
-    public func postBudgetCategories(
-        body: FFPostBudgetCategoriesRequestBody,
+    public func postBudget(
+        body: FFPostBudgetRequestBody,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
-    ) async throws -> FFBudgetCategoriesResponse {
+    ) async throws -> FFBudgetResponse {
         return try await performRequest(
-            FFPostBudgetCategoriesRequest(
+            FFPostBudgetRequest(
                 body: body,
                 refreshToken: refreshToken,
                 accessToken: accessToken
@@ -85,49 +66,6 @@ public final class FFBudgetNetworkingService: FFBudgetNetworkService, FFNetworkS
     ) async throws {
         return try await performRequest(
             FFDeleteBudgetCategoryRequest(
-                body: body,
-                accessToken: accessToken,
-                refreshToken: refreshToken
-            )
-        )
-    }
-    
-    // MARK: - BudgetItems
-    public func getBudgetItems(
-        categoryID: UUID,
-        accessToken: FFAccessToken,
-        refreshToken: FFRefreshToken
-    ) async throws -> FFBudgetItemsResponse {
-        return try await performRequest(
-            FFGetBudgetItemsRequest(
-                categoryID: categoryID,
-                refreshToken: refreshToken,
-                accessToken: accessToken
-            )
-        )
-    }
-    
-    public func postBudgetItem(
-        body: FFPostBudgetItemsRequestBody,
-        accessToken: FFAccessToken,
-        refreshToken: FFRefreshToken
-    ) async throws -> FFBudgetItemsResponse {
-        return try await performRequest(
-            FFPostBudgetItemsRequest(
-                body: body,
-                refreshToken: refreshToken,
-                accessToken: accessToken
-            )
-        )
-    }
-    
-    public func deleteBudgetItem(
-        body: FFDeleteBudgetItemRequestBody,
-        accessToken: FFAccessToken,
-        refreshToken: FFRefreshToken
-    ) async throws {
-        return try await performRequest(
-            FFDeleteBudgetItemRequest(
                 body: body,
                 accessToken: accessToken,
                 refreshToken: refreshToken

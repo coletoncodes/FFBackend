@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  BudgetCategoryRepository.swift
 //  
 //
 //  Created by Coleton Gorecke on 7/11/23.
@@ -20,10 +20,9 @@ final class BudgetCategoryRepository: BudgetCategoryStore {
     init() {}
     
     func getCategories(userID: UUID, on db: Database) async throws -> [BudgetCategory] {
-        try await BudgetCategory
+        return try await BudgetCategory
             .query(on: db)
             .filter(\.$user.$id == userID)
-            .with(\.$budgetItems)
             .all()
     }
     
@@ -37,7 +36,15 @@ final class BudgetCategoryRepository: BudgetCategoryStore {
         }
     }
     
-    func delete(_ category: BudgetCategory, on db: Database) async throws {
-        try await category.delete(on: db)
+    func delete(_ category: BudgetCategory, on database: Database) async throws {
+        guard let fetchedCategory = try await BudgetCategory
+            .query(on: database)
+            .filter(\.$name == category.name)
+            .filter(\.$user.$id == category.$user.id)
+            .first() else {
+            throw Abort(.internalServerError, reason: "No matching category found.")
+        }
+
+        try await fetchedCategory.delete(on: database)
     }
 }

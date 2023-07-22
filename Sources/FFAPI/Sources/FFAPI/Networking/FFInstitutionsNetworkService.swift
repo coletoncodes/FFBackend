@@ -14,12 +14,11 @@ public protocol FFInstitutionsNetworkService {
         accessToken: FFAccessToken
     ) async throws -> FFGetInstitutionsResponse
     
-    // TODO: This may need to be removed in the future.
-//    func postInstitutions(
-//        body: FFPostInstitutionsRequestBody,
-//        refreshToken: FFRefreshToken,
-//        accessToken: FFAccessToken
-//    ) async throws -> [FFInstitution]
+    func postInstitutions(
+        body: FFPostInstitutionsRequestBody,
+        refreshToken: FFRefreshToken,
+        accessToken: FFAccessToken
+    ) async throws -> FFPostInstitutionsResponse
 }
 
 public final class FFInstitutionsNetworkingService: FFInstitutionsNetworkService, FFNetworkService {
@@ -42,18 +41,17 @@ public final class FFInstitutionsNetworkingService: FFInstitutionsNetworkService
         )
     }
     
-    // TODO: This may need to be removed in the future.
-//    public func postInstitutions(
-//        body: FFPostInstitutionsRequestBody,
-//        refreshToken: FFRefreshToken,
-//        accessToken: FFAccessToken
-//    ) async throws -> [FFInstitution] {
-//        return try await performRequest(
-//            FFPostInstitutionsRequest(
-//                body: body,
-//                refreshToken: refreshToken,
-//                accessToken: accessToken
-//            )
-//        )
-//    }
+    public func postInstitutions(
+        body: FFPostInstitutionsRequestBody,
+        refreshToken: FFRefreshToken,
+        accessToken: FFAccessToken
+    ) async throws -> FFPostInstitutionsResponse {
+        return try await performRequest(
+            FFPostInstitutionsRequest(
+                body: body,
+                refreshToken: refreshToken,
+                accessToken: accessToken
+            )
+        )
+    }
 }

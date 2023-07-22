@@ -7,27 +7,21 @@
 
 import Foundation
 
-public struct FFBudgetItem: Codable, Hashable, Equatable, Identifiable {
-    public let id: UUID?
+public struct FFBudgetItem: Codable, Hashable, Equatable {
     public let name: String
-    public let budgetCategoryID: UUID
     public let planned: Double
     public var transactions: [FFTransaction]
     public let note: String
     public let dueDate: Date?
     
     public init(
-        id: UUID?,
-        name: String,
-        budgetCategoryID: UUID,
-        planned: Double,
-        transactions: [FFTransaction],
-        note: String,
-        dueDate: Date?
+        name: String = "",
+        planned: Double = 0.0,
+        transactions: [FFTransaction] = [],
+        note: String = "",
+        dueDate: Date? = nil
     ) {
-        self.id = id
         self.name = name
-        self.budgetCategoryID = budgetCategoryID
         self.planned = planned
         self.transactions = transactions
         self.note = note

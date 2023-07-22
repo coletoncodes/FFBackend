@@ -1,5 +1,5 @@
 //
-//  FFGetBudgetItemsRequest.swift
+//  FFGetBudgetRequest.swift
 //  
 //
 //  Created by Coleton Gorecke on 7/11/23.
@@ -7,32 +7,34 @@
 
 import Foundation
 
-struct FFGetBudgetItemsRequest: FFAPIRequest {
+struct FFGetBudgetRequest: FFAPIRequest {
     
     let refreshToken: FFRefreshToken
     let accessToken: FFAccessToken
-    let categoryID: UUID
+    let userID: UUID
     
     // MARK: - Initializer
     init(
-        categoryID: UUID,
+        userID: UUID,
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken
     ) {
-        self.categoryID = categoryID
+        self.userID = userID
         self.refreshToken = refreshToken
         self.accessToken = accessToken
     }
     
     // MARK: - FFAPIRequest Conformance
-    typealias Response = FFBudgetItemsResponse
+    typealias Response = FFBudgetResponse
     
     var body: Encodable?
     
-    var method: HTTPMethod { .GET }
-    
     var path: String {
-        "\(FFAPIPath.budgetItems)" + "/" + "\(categoryID)"
+        "\(FFAPIPath.budgetCategories)" + "/" + "\(userID)"
+    }
+    
+    var method: HTTPMethod {
+        .GET
     }
     
     var headers: [FFAPIHeader] {

@@ -7,25 +7,22 @@
 
 import Foundation
 
-public struct FFBankAccount: Codable, Equatable, Hashable, Identifiable {
-    public let id: UUID?
+public struct FFBankAccount: Codable, Equatable, Hashable {
     public let accountID: String
     public let name: String
     public let subtype: String
-    public let institutionID: UUID?
+    public let institutionID: String
     public let userID: UUID?
     public var isSyncingTransactions: Bool
     
     public init(
-        id: UUID?,
         accountID: String,
         name: String,
         subtype: String,
-        institutionID: UUID,
+        institutionID: String,
         userID: UUID,
         isSyncingTransactions: Bool
     ) {
-        self.id = id
         self.accountID = accountID
         self.name = name
         self.subtype = subtype

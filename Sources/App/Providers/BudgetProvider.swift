@@ -1,5 +1,5 @@
 //
-//  BudgetCategoryProvider.swift
+//  BudgetProvider.swift
 //  
 //
 //  Created by Coleton Gorecke on 7/11/23.
@@ -10,14 +10,14 @@ import Foundation
 import Factory
 import Fluent
 
-protocol BudgetCategoryProviding {
-    func getCategories(userID: UUID, database: Database) async throws -> [FFBudgetCategory]
+protocol BudgetProviding {
+    func getBudgetFor(userID: UUID, database: Database) async throws -> [FFBudgetCategory]
     func delete(category: FFBudgetCategory, database: Database) async throws
     func save(category: FFBudgetCategory, database: Database) async throws
     func save(categories: [FFBudgetCategory], database: Database) async throws
 }
 
-final class BudgetCategoryProvider: BudgetCategoryProviding {
+final class BudgetProvider: BudgetProviding {
     // MARK: - Dependencies
     @Injected(\.budgetCategoryStore) private var store
     
@@ -25,7 +25,7 @@ final class BudgetCategoryProvider: BudgetCategoryProviding {
     init() {}
     
     // MARK: - Interface
-    func getCategories(userID: UUID, database: Database) async throws -> [FFBudgetCategory] {
+    func getBudgetFor(userID: UUID, database: Database) async throws -> [FFBudgetCategory] {
         return try await store.getCategories(userID: userID, on: database)
             .map { try FFBudgetCategory(from: $0) }
     }

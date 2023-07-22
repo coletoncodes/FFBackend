@@ -14,7 +14,6 @@ final class PlaidController: RouteCollection {
     @Injected(\.userStore) private var userStore
     @Injected(\.plaidAccessTokenStore) private var plaidAccessTokenStore
     @Injected(\.institutionStore) private var institutionStore
-    @Injected(\.bankAccountStore) private var bankAccountStore
     
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
@@ -132,34 +131,44 @@ extension PlaidController {
             throw Abort(.internalServerError, reason: "Failed to determine accessToken")
         }
         
+//        let institution = Institution(
+//            id: metadata.institution.name,
+//            accessTokenID: accessTokenID,
+//            userID: publicTokenResponse.item_id,
+//            plaidItemID: userID
+//        )
+        
         let institution = Institution(
-            name: metadata.institution.name,
             accessTokenID: accessTokenID,
-            plaidItemID: publicTokenResponse.item_id,
-            userID: userID
+            userID: userID,
+            plaidItemID: metadata.institution.id,
+            name: metadata.institution.name,
+            accounts: metadata.accounts.map { plaidAccount in
+                FFBankAccount(
+                    from: plaidAccount,
+                    institutionID: metadata.institution.id,
+                    userID: userID
+                )
+            }
         )
         
         // save institution
         try await institutionStore.save(institution, on: req.db)
-        
-        guard let institutionID = institution.id else {
-            throw Abort(.internalServerError, reason: "Failed to determine institutionID")
-        }
-        
-        let accounts = metadata.accounts.map { account in
-            BankAccount(
-                accountID: account.id,
-                name: account.name,
-                subtype: account.subtype,
-                isSyncingTransactions: true,
-                institutionID: institutionID,
-                userID: userID
-            )
-        }
-        
-        // save accounts
-        try await bankAccountStore.save(accounts, on: req.db)
-        
+                
         return .ok
+    }
+}
+
+
+fileprivate extension FFBankAccount {
+    init(from plaidAccount: FFPlaidAccount, institutionID: String, userID: UUID) {
+        self.init(
+            accountID: plaidAccount.id,
+            name: plaidAccount.name,
+            subtype: plaidAccount.subtype,
+            institutionID: institutionID,
+            userID: userID,
+            isSyncingTransactions: true
+        )
     }
 }

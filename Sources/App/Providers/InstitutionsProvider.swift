@@ -41,11 +41,11 @@ final class InstitutionsProvider: InstitutionsProviding {
 extension Institution {
     convenience init(from ffInstitution: FFInstitution) {
         self.init(
-            id: ffInstitution.id,
-            name: ffInstitution.name,
             accessTokenID: ffInstitution.plaidAccessTokenID,
+            userID: ffInstitution.userID,
             plaidItemID: ffInstitution.plaidItemID,
-            userID: ffInstitution.userID
+            name: ffInstitution.name,
+            accounts: ffInstitution.accounts
         )
     }
 }
