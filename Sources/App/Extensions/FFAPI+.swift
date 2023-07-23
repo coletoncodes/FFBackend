@@ -87,6 +87,7 @@ extension FFInstitution: Content {
 extension FFBudgetCategory: Content {
     init(from category: BudgetCategory) throws {
         self.init(
+            id: try category.requireID(),
             userID: category.$user.id,
             name: category.name,
             budgetItems: category.budgetItems
