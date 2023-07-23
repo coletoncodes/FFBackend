@@ -17,8 +17,9 @@ final class BudgetingControllerTests: AuthenticatedTestCase {
     
     // MARK: - Helpers
     private func postBudgetCategories() throws -> [FFBudgetCategory] {
-        let budgetItem1 = FFBudgetItem(name: "Budget Item 1", planned: 10.00, transactions: [], note: "A note", dueDate: nil)
+        let budgetItem1 = FFBudgetItem(id: .init(), name: "Budget Item 1", planned: 10.00, transactions: [], note: "A note", dueDate: nil)
         let budgetItem2 = FFBudgetItem(
+            id: .init(),
             name: "Budget Item 2",
             planned: 1000.00,
             transactions: [
@@ -28,8 +29,8 @@ final class BudgetingControllerTests: AuthenticatedTestCase {
             note: "A note",
             dueDate: nil
         )
-        let budgetCategory1 = FFBudgetCategory(userID: user.id!, name: "Test Category 1", budgetItems: [budgetItem1])
-        let budgetCategory2 = FFBudgetCategory(userID: user.id!, name: "Test Category 2", budgetItems: [budgetItem1, budgetItem2])
+        let budgetCategory1 = FFBudgetCategory(id: .init(), userID: user.id!, name: "Test Category 1", budgetItems: [budgetItem1])
+        let budgetCategory2 = FFBudgetCategory(id: .init(), userID: user.id!, name: "Test Category 2", budgetItems: [budgetItem1, budgetItem2])
         let budgetCategories = [budgetCategory1, budgetCategory2]
         let body = FFPostBudgetRequestBody(budgetCategories: budgetCategories, userID: user.id!)
         

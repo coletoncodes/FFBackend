@@ -40,6 +40,7 @@ final class BudgetCategory: Model {
     
     convenience init(from category: FFBudgetCategory) {
         self.init(
+            id: category.id,
             name: category.name,
             budgetItems: category.budgetItems,
             userID: category.userID
