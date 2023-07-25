@@ -18,8 +18,8 @@ final class BudgetCategory: Model {
     @Field(key: "name")
     var name: String
     
-    @Field(key: "budget_items")
-    var budgetItems: [FFBudgetItem]
+    @Children(for: \.$category)
+    var budgetItems: [BudgetItem]
     
     @Parent(key: "user_id")
     var user: User
@@ -29,12 +29,10 @@ final class BudgetCategory: Model {
     init(
         id: UUID? = nil,
         name: String,
-        budgetItems: [FFBudgetItem],
         userID: UUID
     ) {
         self.id = id
         self.name = name
-        self.budgetItems = budgetItems
         self.$user.id = userID
     }
     
@@ -42,7 +40,6 @@ final class BudgetCategory: Model {
         self.init(
             id: category.id,
             name: category.name,
-            budgetItems: category.budgetItems,
             userID: category.userID
         )
     }

@@ -10,14 +10,14 @@ import Foundation
 struct FFDeleteBudgetCategoryRequest: FFAPIRequest {
     typealias Response = FFDeleteBudgetCategoryResponse
     
-    var body: Encodable?
+    var body: Encodable? = nil
     
     var method: HTTPMethod {
         .DELETE
     }
     
     var path: String {
-        FFAPIPath.budgeting
+        FFAPIPath.budgetCategories + "\(categoryID)"
     }
     
     var headers: [FFAPIHeader] {
@@ -26,24 +26,17 @@ struct FFDeleteBudgetCategoryRequest: FFAPIRequest {
     
     let accessToken: FFAccessToken
     let refreshToken: FFRefreshToken
+    let categoryID: UUID
     
     init(
-        body: FFDeleteBudgetCategoryRequestBody,
+        categoryID: UUID,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
     ) {
-        self.body = body
+        self.categoryID = categoryID
         self.accessToken = accessToken
         self.refreshToken = refreshToken
     }
 }
 
 struct FFDeleteBudgetCategoryResponse: Codable {}
-
-public struct FFDeleteBudgetCategoryRequestBody: Codable {
-    public let budgetCategory: FFBudgetCategory
-    
-    public init(budgetCategory: FFBudgetCategory) {
-        self.budgetCategory = budgetCategory
-    }
-}

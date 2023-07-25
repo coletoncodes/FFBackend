@@ -25,12 +25,12 @@ struct FFGetBudgetRequest: FFAPIRequest {
     }
     
     // MARK: - FFAPIRequest Conformance
-    typealias Response = FFBudgetResponse
+    typealias Response = FFBudgetCategoriesResponse
     
     var body: Encodable?
     
     var path: String {
-        "\(FFAPIPath.budgeting)" + "\(userID)"
+        "\(FFAPIPath.budgetCategories)" + "\(userID)"
     }
     
     var method: HTTPMethod {

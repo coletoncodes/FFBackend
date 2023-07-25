@@ -63,10 +63,8 @@ extension FFLoginRequest: Validatable, Content {
 extension FFCreateLinkTokenRequestBody: Content {}
 extension FFCreateLinkTokenResponse: Content {}
 
-extension FFPostBudgetRequestBody: Content {}
-extension FFBudgetResponse: Content {}
-
-extension FFDeleteBudgetCategoryRequestBody: Content {}
+extension FFPostBudgetCategoriesRequestBody: Content {}
+extension FFBudgetCategoriesResponse: Content {}
 
 extension FFGetInstitutionsResponse: Content {}
 extension FFPostInstitutionsRequestBody: Content {}
@@ -89,8 +87,19 @@ extension FFBudgetCategory: Content {
         self.init(
             id: try category.requireID(),
             userID: category.$user.id,
-            name: category.name,
-            budgetItems: category.budgetItems
+            name: category.name
+        )
+    }
+}
+
+extension FFBudgetItem: Content {
+    init(from item: BudgetItem) throws {
+        self.init(
+            id: try item.requireID(),
+            budgetCategoryID: try item.category.requireID(),
+            name: item.name,
+            planned: item.planned,
+            dueDate: item.dueDate
         )
     }
 }

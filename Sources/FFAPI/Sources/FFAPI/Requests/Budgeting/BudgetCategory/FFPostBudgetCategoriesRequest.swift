@@ -1,5 +1,5 @@
 //
-//  FFPostBudgetRequest.swift
+//  FFPostBudgetCategoriesRequest.swift
 //  
 //
 //  Created by Coleton Gorecke on 7/12/23.
@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct FFPostBudgetRequest: FFAPIRequest {
-    typealias Response = FFBudgetResponse
+struct FFPostBudgetCategoriesRequest: FFAPIRequest {
+    typealias Response = FFBudgetCategoriesResponse
     
     var body: Encodable?
     
@@ -17,7 +17,7 @@ struct FFPostBudgetRequest: FFAPIRequest {
     }
     
     var path: String {
-        FFAPIPath.budgeting
+        FFAPIPath.budgetCategories
     }
     
     var headers: [FFAPIHeader] {
@@ -29,7 +29,7 @@ struct FFPostBudgetRequest: FFAPIRequest {
     
     // MARK: - Initializer
     init(
-        body: FFPostBudgetRequestBody,
+        body: FFPostBudgetCategoriesRequestBody,
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken
     ) {
@@ -39,7 +39,7 @@ struct FFPostBudgetRequest: FFAPIRequest {
     }
 }
 
-public struct FFPostBudgetRequestBody: Codable {
+public struct FFPostBudgetCategoriesRequestBody: Codable {
     public let budgetCategories: [FFBudgetCategory]
     public let userID: UUID
     
