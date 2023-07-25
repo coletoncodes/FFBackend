@@ -13,7 +13,7 @@ public protocol FFBudgetCategoryNetworkService {
     func deleteCategory(categoryID: UUID) async throws
 }
 
-public final class FFBudgetNetworkingService: FFBudgetCategoryNetworkService, FFNetworkService {
+public final class FFBudgetCategoryNetworkingService: FFBudgetCategoryNetworkService, FFNetworkService {
     // MARK: - Properties
     private let accessToken: FFAccessToken
     private let refreshToken: FFRefreshToken
@@ -28,17 +28,20 @@ public final class FFBudgetNetworkingService: FFBudgetCategoryNetworkService, FF
     }
     
     public func getCategories(userID: UUID) async throws -> FFBudgetCategoriesResponse {
-        // TODO: Add perform request
-        fatalError()
+        return try await performRequest(
+            FFGetBudgetCategoriesRequest(userID: userID, refreshToken: refreshToken, accessToken: accessToken)
+        )
     }
     
     public func saveCategories(body: FFPostBudgetCategoriesRequestBody) async throws -> FFBudgetCategoriesResponse {
-        // TODO: Add perform request
-        fatalError()
+        return try await performRequest(
+            FFPostBudgetCategoriesRequest(body: body, refreshToken: refreshToken, accessToken: accessToken)
+        )
     }
     
     public func deleteCategory(categoryID: UUID) async throws {
-        // TODO: Add perform request
-        fatalError()
+        return try await performRequest(
+            FFDeleteBudgetCategoryRequest(categoryID: categoryID, accessToken: accessToken, refreshToken: refreshToken)
+        )
     }
 }
