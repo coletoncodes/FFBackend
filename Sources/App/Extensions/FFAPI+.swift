@@ -90,16 +90,16 @@ extension FFBudgetCategory: Content {
             id: try category.requireID(),
             userID: category.$user.id,
             name: category.name,
-            budgetItems: try category.budgetItems.map { try FFBudgetItem(from: $0) }
+            budgetItems: try category.budgetItems.map { try FFBudgetItem(from: $0, categoryID: category.requireID()) }
         )
     }
 }
 
 extension FFBudgetItem: Content {
-    init(from item: BudgetItem) throws {
+    init(from item: BudgetItem, categoryID: UUID) throws {
         self.init(
             id: try item.requireID(),
-            budgetCategoryID: try item.category.requireID(),
+            budgetCategoryID: categoryID,
             name: item.name,
             planned: item.planned,
             dueDate: item.dueDate
