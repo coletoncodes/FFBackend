@@ -131,13 +131,6 @@ extension PlaidController {
             throw Abort(.internalServerError, reason: "Failed to determine accessToken")
         }
         
-//        let institution = Institution(
-//            id: metadata.institution.name,
-//            accessTokenID: accessTokenID,
-//            userID: publicTokenResponse.item_id,
-//            plaidItemID: userID
-//        )
-        
         let institution = Institution(
             accessTokenID: accessTokenID,
             userID: userID,
@@ -154,11 +147,9 @@ extension PlaidController {
         
         // save institution
         try await institutionStore.save(institution, on: req.db)
-                
         return .ok
     }
 }
-
 
 fileprivate extension FFBankAccount {
     init(from plaidAccount: FFPlaidAccount, institutionID: String, userID: UUID) {

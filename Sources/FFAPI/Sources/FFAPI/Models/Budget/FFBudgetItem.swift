@@ -9,25 +9,22 @@ import Foundation
 
 public struct FFBudgetItem: Codable, Hashable, Equatable {
     public let id: UUID
+    public let budgetCategoryID: UUID
     public let name: String
     public let planned: Double
-    public var transactions: [FFTransaction]
-    public let note: String
     public let dueDate: Date?
     
     public init(
         id: UUID,
+        budgetCategoryID: UUID,
         name: String = "",
         planned: Double = 0.0,
-        transactions: [FFTransaction] = [],
-        note: String = "",
         dueDate: Date? = nil
     ) {
         self.id = id
+        self.budgetCategoryID = budgetCategoryID
         self.name = name
         self.planned = planned
-        self.transactions = transactions
-        self.note = note
         self.dueDate = dueDate
     }
 }

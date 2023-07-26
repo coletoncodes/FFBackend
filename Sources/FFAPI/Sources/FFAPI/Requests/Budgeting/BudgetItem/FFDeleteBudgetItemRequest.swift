@@ -1,23 +1,23 @@
 //
-//  FFDeleteBudgetCategoryRequest.swift
+//  FFDeleteBudgetItemRequest.swift
 //  
 //
-//  Created by Coleton Gorecke on 7/13/23.
+//  Created by Coleton Gorecke on 7/25/23.
 //
 
 import Foundation
 
-struct FFDeleteBudgetCategoryRequest: FFAPIRequest {
-    typealias Response = FFDeleteBudgetCategoryResponse
+struct FFDeleteBudgetItemRequest: FFAPIRequest {
+    typealias Response = FFBudgetItemResponse
     
-    var body: Encodable? = nil
+    var body: Encodable?
     
     var method: HTTPMethod {
         .DELETE
     }
     
     var path: String {
-        FFAPIPath.budgetCategories + "\(categoryID)"
+        FFAPIPath.budgetItems
     }
     
     var headers: [FFAPIHeader] {
@@ -26,17 +26,14 @@ struct FFDeleteBudgetCategoryRequest: FFAPIRequest {
     
     let accessToken: FFAccessToken
     let refreshToken: FFRefreshToken
-    let categoryID: UUID
     
     init(
-        categoryID: UUID,
+        body: FFBudgetItemRequestBody,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
     ) {
-        self.categoryID = categoryID
+        self.body = body
         self.accessToken = accessToken
         self.refreshToken = refreshToken
     }
 }
-
-struct FFDeleteBudgetCategoryResponse: Codable {}

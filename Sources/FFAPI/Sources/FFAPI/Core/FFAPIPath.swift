@@ -50,6 +50,9 @@ enum FFAPIPath {
     static var institutions = "\(api)/institutions"
     
     // MARK: - Budgeting
-    /// api/budgeting/
-    static let budgeting = "\(api)/budgeting/"
+    /// api/categories/
+    static let budgetCategories = "\(api)/categories/"
+    
+    /// api/items
+    static let budgetItems = "\(api)/items"
 }

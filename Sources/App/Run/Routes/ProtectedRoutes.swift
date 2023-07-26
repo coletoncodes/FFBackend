@@ -21,7 +21,8 @@ final class ProtectedRoutes {
             let protectedRoutes = api.grouped(AuthenticationMiddleware())
             try protectedRoutes.register(collection: PlaidController())
             try protectedRoutes.register(collection: InstitutionsController())
-            try protectedRoutes.register(collection: BudgetingController())
+            try protectedRoutes.register(collection: BudgetCategoryController())
+            try protectedRoutes.register(collection: BudgetItemController())
         }
     }
 }

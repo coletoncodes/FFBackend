@@ -8,30 +8,27 @@
 import Foundation
 
 public protocol FFInstitutionsNetworkService {
-    func getInstitutions(
-        userID: UUID,
-        refreshToken: FFRefreshToken,
-        accessToken: FFAccessToken
-    ) async throws -> FFGetInstitutionsResponse
+    func getInstitutions(userID: UUID) async throws -> FFGetInstitutionsResponse
     
-    func postInstitutions(
-        body: FFPostInstitutionsRequestBody,
-        refreshToken: FFRefreshToken,
-        accessToken: FFAccessToken
-    ) async throws -> FFPostInstitutionsResponse
+    func postInstitutions(body: FFPostInstitutionsRequestBody) async throws -> FFPostInstitutionsResponse
 }
 
 public final class FFInstitutionsNetworkingService: FFInstitutionsNetworkService, FFNetworkService {
+    // MARK: - Properties
+    private let accessToken: FFAccessToken
+    private let refreshToken: FFRefreshToken
     
     // MARK: - Initializer
-    public init() { }
+    public init(
+        accessToken: FFAccessToken,
+        refreshToken: FFRefreshToken
+    ) {
+        self.accessToken = accessToken
+        self.refreshToken = refreshToken
+    }
     
     // MARK: - Interace
-    public func getInstitutions(
-        userID: UUID,
-        refreshToken: FFRefreshToken,
-        accessToken: FFAccessToken
-    ) async throws -> FFGetInstitutionsResponse {
+    public func getInstitutions(userID: UUID) async throws -> FFGetInstitutionsResponse {
         return try await performRequest(
             FFGetInstitutionsRequest(
                 userID: userID,
@@ -41,11 +38,7 @@ public final class FFInstitutionsNetworkingService: FFInstitutionsNetworkService
         )
     }
     
-    public func postInstitutions(
-        body: FFPostInstitutionsRequestBody,
-        refreshToken: FFRefreshToken,
-        accessToken: FFAccessToken
-    ) async throws -> FFPostInstitutionsResponse {
+    public func postInstitutions(body: FFPostInstitutionsRequestBody) async throws -> FFPostInstitutionsResponse {
         return try await performRequest(
             FFPostInstitutionsRequest(
                 body: body,

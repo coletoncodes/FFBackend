@@ -13,4 +13,5 @@ func addMigrations(_ app: Application) {
     app.migrations.add(CreatePlaidAccessToken())
     app.migrations.add(CreateInstitution())
     app.migrations.add(CreateBudgetCategory())
+    app.migrations.add(CreateBudgetItem())
 }
