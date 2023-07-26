@@ -36,6 +36,10 @@ extension Container {
             .graph
     }
     
+    var budgetItemProvider: Factory<BudgetItemProviding> {
+        self { BudgetItemProvider() }
+            .graph
+    }
     
     // MARK: - Stores
     var refreshTokenStore: Factory<RefreshTokenStore> {
@@ -60,6 +64,11 @@ extension Container {
     
     var budgetCategoryStore: Factory<BudgetCategoryStore> {
         self { BudgetCategoryRepository() }
+            .graph
+    }
+    
+    var budgetItemStore: Factory<BudgetItemStore> {
+        self { BudgetItemRepository() }
             .graph
     }
     

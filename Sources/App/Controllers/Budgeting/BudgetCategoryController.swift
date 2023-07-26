@@ -62,4 +62,3 @@ extension BudgetCategoryController {
         return .ok
     }
 }
-

@@ -66,6 +66,8 @@ extension FFCreateLinkTokenResponse: Content {}
 extension FFPostBudgetCategoriesRequestBody: Content {}
 extension FFBudgetCategoriesResponse: Content {}
 
+extension FFBudgetItemRequestBody: Content {}
+
 extension FFGetInstitutionsResponse: Content {}
 extension FFPostInstitutionsRequestBody: Content {}
 extension FFPostInstitutionsResponse: Content {}
@@ -87,7 +89,8 @@ extension FFBudgetCategory: Content {
         self.init(
             id: try category.requireID(),
             userID: category.$user.id,
-            name: category.name
+            name: category.name,
+            budgetItems: try category.budgetItems.map { try FFBudgetItem(from: $0) }
         )
     }
 }

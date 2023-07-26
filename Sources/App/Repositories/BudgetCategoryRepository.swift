@@ -23,6 +23,7 @@ final class BudgetCategoryRepository: BudgetCategoryStore {
         return try await BudgetCategory
             .query(on: db)
             .filter(\.$user.$id == userID)
+            .with(\.$budgetItems)
             .all()
     }
     

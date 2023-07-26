@@ -22,6 +22,7 @@ final class ProtectedRoutes {
             try protectedRoutes.register(collection: PlaidController())
             try protectedRoutes.register(collection: InstitutionsController())
             try protectedRoutes.register(collection: BudgetCategoryController())
+            try protectedRoutes.register(collection: BudgetItemController())
         }
     }
 }
