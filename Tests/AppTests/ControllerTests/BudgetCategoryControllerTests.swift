@@ -49,7 +49,7 @@ final class BudgetCategoryControllerTests: AuthenticatedTestCase {
         let categories = try postBudgetCategories()
         XCTAssertFalse(categories.isEmpty)
     }
-    
+        
     // MARK: - func getBudgetCategories()
     func test_GetBudgetCategories_Success() throws {
         /** Given */

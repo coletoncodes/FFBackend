@@ -14,6 +14,7 @@ protocol BudgetCategoryProviding {
     func getCategories(for userID: UUID, database: Database) async throws -> [FFBudgetCategory]
     func deleteCategory(with id: UUID, database: Database) async throws
     func save(categories: [FFBudgetCategory], database: Database) async throws
+    func save(category: FFBudgetCategory, database: Database) async throws
 }
 
 final class BudgetCategoryProvider: BudgetCategoryProviding {
@@ -36,5 +37,10 @@ final class BudgetCategoryProvider: BudgetCategoryProviding {
     func save(categories: [FFBudgetCategory], database: Database) async throws {
         let categories = categories.map { BudgetCategory(from: $0) }
         try await store.save(categories, on: database)
+    }
+    
+    func save(category: FFBudgetCategory, database: Database) async throws {
+        let category = BudgetCategory(from: category)
+        try await store.save(category, on: database)
     }
 }

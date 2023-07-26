@@ -19,7 +19,7 @@ final class BudgetCategoryController: RouteCollection {
         // Get's all categories for a user
         budgetingRoutes.get(":userID", use: getCategories)
         // Post's all categories
-        budgetingRoutes.post("", use: postBudget)
+        budgetingRoutes.post("", use: postCategories)
         // Delete's the category with the given ID.
         budgetingRoutes.delete(":categoryID", use: deleteBudgetCategory)
     }
@@ -39,7 +39,7 @@ extension BudgetCategoryController {
         }
     }
     
-    func postBudget(req: Request) async throws -> FFBudgetCategoriesResponse {
+    func postCategories(req: Request) async throws -> FFBudgetCategoriesResponse {
         do {
             let body = try req.content.decode(FFPostBudgetCategoriesRequestBody.self)
             try await budgetCategoryProvider.save(categories: body.budgetCategories, database: req.db)
