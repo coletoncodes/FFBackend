@@ -26,6 +26,9 @@ final class BudgetItem: Model {
     
     @OptionalField(key: "due_date")
     var dueDate: Date?
+    
+    @Field(key: "category_type")
+    var type: CategoryType
 
     init() {}
 
@@ -34,13 +37,15 @@ final class BudgetItem: Model {
         budgetCategoryID: UUID,
         name: String,
         planned: Double,
-        dueDate: Date? = nil
+        dueDate: Date? = nil,
+        type: CategoryType
     ) {
         self.id = id
         self.$category.id = budgetCategoryID
         self.name = name
         self.planned = planned
         self.dueDate = dueDate
+        self.type = type
     }
 
     convenience init(from item: FFBudgetItem) throws {
@@ -49,7 +54,8 @@ final class BudgetItem: Model {
             budgetCategoryID: item.budgetCategoryID,
             name: item.name,
             planned: item.planned,
-            dueDate: item.dueDate
+            dueDate: item.dueDate,
+            type: CategoryType(from: item.type)
         )
     }
 }

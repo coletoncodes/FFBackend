@@ -17,6 +17,7 @@ struct CreateBudgetItem: AsyncMigration {
             .field("name", .string, .required)
             .field("planned", .double, .required)
             .field("due_date", .date)
+            .field("category_type", .string, .required)
             .unique(on: .id)
             .create()
     }
