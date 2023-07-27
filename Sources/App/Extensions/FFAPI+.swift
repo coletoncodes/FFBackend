@@ -90,7 +90,8 @@ extension FFBudgetCategory: Content {
             id: try category.requireID(),
             userID: category.$user.id,
             name: category.name,
-            budgetItems: try category.budgetItems.map { try FFBudgetItem(from: $0, categoryID: category.requireID()) }
+            budgetItems: try category.budgetItems.map { try FFBudgetItem(from: $0, categoryID: category.requireID()) },
+            type: FFCategoryType(from: category.type)
         )
     }
 }
