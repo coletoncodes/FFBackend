@@ -19,7 +19,14 @@ final class BudgetItemRepository: BudgetItemStore {
     
     // MARK: - Interface
     func save(_ item: BudgetItem, on db: Database) async throws {
-        try await item.save(on: db)
+        if let existingItem = try await BudgetItem
+            .query(on: db)
+            .filter(\.$id == item.requireID())
+            .first() {
+            try await existingItem.update(on: db)
+        } else {
+            try await item.save(on: db)
+        }
     }
     
     func delete(_ item: BudgetItem, on db: Database) async throws {

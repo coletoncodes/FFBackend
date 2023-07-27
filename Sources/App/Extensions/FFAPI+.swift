@@ -100,9 +100,21 @@ extension FFBudgetItem: Content {
         self.init(
             id: try item.requireID(),
             budgetCategoryID: categoryID,
+            type: FFCategoryType(from: item.category.type),
             name: item.name,
             planned: item.planned,
             dueDate: item.dueDate
         )
+    }
+}
+
+extension FFCategoryType {
+    init(from type: CategoryType) {
+        switch type {
+        case .income:
+            self = .income
+        case .expense:
+            self = .expense
+        }
     }
 }

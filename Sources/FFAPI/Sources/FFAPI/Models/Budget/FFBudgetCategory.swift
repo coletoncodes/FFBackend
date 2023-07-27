@@ -12,16 +12,19 @@ public struct FFBudgetCategory: Codable, Hashable, Equatable {
     public let userID: UUID
     public let name: String
     public let budgetItems: [FFBudgetItem]
+    public let type: FFCategoryType
     
     public init(
         id: UUID,
         userID: UUID,
         name: String,
-        budgetItems: [FFBudgetItem] = []
+        budgetItems: [FFBudgetItem] = [],
+        type: FFCategoryType = .expense
     ) {
         self.id = id
         self.userID = userID
         self.name = name
         self.budgetItems = budgetItems
+        self.type = type
     }
 }
