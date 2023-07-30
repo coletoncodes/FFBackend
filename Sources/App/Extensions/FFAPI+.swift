@@ -101,7 +101,7 @@ extension FFBudgetItem: Content {
         self.init(
             id: try item.requireID(),
             budgetCategoryID: categoryID,
-            type: FFCategoryType(from: item.category.type),
+            type: FFCategoryType(from: item.type),
             name: item.name,
             planned: item.planned,
             dueDate: item.dueDate
