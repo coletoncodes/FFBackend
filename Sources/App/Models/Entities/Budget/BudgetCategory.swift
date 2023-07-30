@@ -24,40 +24,23 @@ final class BudgetCategory: Model {
     @Parent(key: "user_id")
     var user: User
     
-    @Field(key: "category_type")
-    var type: CategoryType
-
     init() {}
 
     init(
         id: UUID? = nil,
         name: String,
-        userID: UUID,
-        type: CategoryType
+        userID: UUID
     ) {
         self.id = id
         self.name = name
         self.$user.id = userID
-        self.type = type
     }
     
     convenience init(from category: FFBudgetCategory) {
         self.init(
             id: category.id,
             name: category.name,
-            userID: category.userID,
-            type: CategoryType(from: category.type)
+            userID: category.userID
         )
-    }
-}
-
-extension CategoryType {
-    init(from type: FFCategoryType) {
-        switch type {
-        case .income:
-            self = .income
-        case .expense:
-            self = .expense
-        }
     }
 }

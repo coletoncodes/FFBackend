@@ -59,3 +59,15 @@ final class BudgetItem: Model {
         )
     }
 }
+
+extension CategoryType {
+    init(from type: FFCategoryType) {
+        switch type {
+        case .income:
+            self = .income
+        case .expense:
+            self = .expense
+        }
+    }
+}
+
