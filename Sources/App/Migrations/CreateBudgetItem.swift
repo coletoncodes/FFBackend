@@ -13,10 +13,9 @@ struct CreateBudgetItem: AsyncMigration {
         try await database.schema(BudgetItem.schema)
             .id()
             .field("budget_category_id", .uuid, .required,
-                   .references(BudgetCategory.schema, .id, onDelete: .cascade))
+                   .references(BudgetCategory.schema, .id, onDelete: .cascade, onUpdate: .cascade))
             .field("name", .string, .required)
             .field("planned", .double, .required)
-            .field("due_date", .date)
             .field("category_type", .string, .required)
             .unique(on: .id)
             .create()
