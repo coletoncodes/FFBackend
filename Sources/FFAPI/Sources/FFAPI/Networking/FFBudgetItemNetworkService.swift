@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol FFBudgetItemNetworkService {
-    func saveItem(body: FFBudgetItemRequestBody) async throws
+    func saveItem(body: FFBudgetItemRequestBody) async throws -> FFBudgetItemResponse
     func deleteItem(body: FFBudgetItemRequestBody) async throws
 }
 
@@ -26,8 +26,8 @@ public final class FFBudgetItemNetworkingService: FFBudgetItemNetworkService, FF
         self.refreshToken = refreshToken
     }
     
-    public func saveItem(body: FFBudgetItemRequestBody) async throws {
-        try await performRequest(FFPostBudgetItemRequest(body: body, accessToken: accessToken, refreshToken: refreshToken))
+    public func saveItem(body: FFBudgetItemRequestBody) async throws -> FFBudgetItemResponse {
+        return try await performRequest(FFPostBudgetItemRequest(body: body, accessToken: accessToken, refreshToken: refreshToken))
     }
     
     public func deleteItem(body: FFBudgetItemRequestBody) async throws {

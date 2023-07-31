@@ -25,11 +25,12 @@ final class BudgetItemController: RouteCollection {
 
 // MARK: - Public Requests
 extension BudgetItemController {
-    func postItem(req: Request) async throws -> HTTPStatus {
+    func postItem(req: Request) async throws -> FFBudgetItemResponse {
         do {
             let body = try req.content.decode(FFBudgetItemRequestBody.self)
             try await budgetItemProvider.save(body.budgetItem, on: req.db)
-            return .ok
+            let budgetItem = try await budgetItemProvider.getItem(with: body.budgetItem.id, on: req.db)
+            return FFBudgetItemResponse(budgetItem: budgetItem)
         } catch {
             throw Abort(.internalServerError, reason: "Failed to post BudgetItem.", error: error)
         }

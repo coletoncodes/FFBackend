@@ -24,9 +24,6 @@ final class BudgetItem: Model {
     @Field(key: "planned")
     var planned: Double
     
-    @OptionalField(key: "due_date")
-    var dueDate: Date?
-    
     @Field(key: "category_type")
     var type: CategoryType
 
@@ -37,14 +34,12 @@ final class BudgetItem: Model {
         budgetCategoryID: UUID,
         name: String,
         planned: Double,
-        dueDate: Date? = nil,
         type: CategoryType
     ) {
         self.id = id
         self.$category.id = budgetCategoryID
         self.name = name
         self.planned = planned
-        self.dueDate = dueDate
         self.type = type
     }
 
@@ -54,7 +49,6 @@ final class BudgetItem: Model {
             budgetCategoryID: item.budgetCategoryID,
             name: item.name,
             planned: item.planned,
-            dueDate: item.dueDate,
             type: CategoryType(from: item.type)
         )
     }

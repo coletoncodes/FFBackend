@@ -38,7 +38,13 @@ struct FFPostBudgetItemRequest: FFAPIRequest {
     }
 }
 
-struct FFBudgetItemResponse: Codable {}
+public struct FFBudgetItemResponse: Codable {
+    public let budgetItem: FFBudgetItem
+    
+    public init(budgetItem: FFBudgetItem) {
+        self.budgetItem = budgetItem
+    }
+}
 
 public struct FFBudgetItemRequestBody: Codable {
     public let budgetItem: FFBudgetItem

@@ -67,6 +67,7 @@ extension FFPostBudgetCategoriesRequestBody: Content {}
 extension FFBudgetCategoriesResponse: Content {}
 
 extension FFBudgetItemRequestBody: Content {}
+extension FFBudgetItemResponse: Content {}
 
 extension FFGetInstitutionsResponse: Content {}
 extension FFPostInstitutionsRequestBody: Content {}
@@ -102,8 +103,7 @@ extension FFBudgetItem: Content {
             budgetCategoryID: categoryID,
             type: FFCategoryType(from: item.type),
             name: item.name,
-            planned: item.planned,
-            dueDate: item.dueDate
+            planned: item.planned
         )
     }
 }
