@@ -28,7 +28,8 @@ extension PlaidController {
     /// api/plaid/create-link-token
     ///
     /// Creates a link_token using the Plaid API.
-    /// Must provide a `CreateLinkTokenRequest` as the body.
+    ///
+    /// Must provide a `PlaidCreateLinkTokenRequest` as the body.
     func createLinkToken(req: Request) async throws -> FFCreateLinkTokenResponse {
         // Decode the request body to get the userID
         let requestBody = try req.content.decode(FFCreateLinkTokenRequestBody.self)
@@ -131,12 +132,17 @@ extension PlaidController {
             throw Abort(.internalServerError, reason: "Failed to determine accessToken")
         }
         
+        let accountIDs = metadata.accounts.map { $0.id }
+        
+        let institutionDetailsRequest = PlaidItemDetailsRequest(accessToken: accessTokenID.uuidString, plaidInstitutionAccountIds: accountIDs)
+        let detailsResponse = try await itemDetails(req: req, itemDetailsRequest: institutionDetailsRequest)
+        
         let institution = Institution(
             accessTokenID: accessTokenID,
             userID: userID,
             plaidItemID: metadata.institution.id,
             name: metadata.institution.name,
-            accounts: metadata.accounts.map { plaidAccount in
+            accounts: detailsResponse.accounts.map { plaidAccount in
                 FFBankAccount(
                     from: plaidAccount,
                     institutionID: metadata.institution.id,
@@ -149,17 +155,35 @@ extension PlaidController {
         try await institutionStore.save(institution, on: req.db)
         return .ok
     }
+    
+    func itemDetails(req: Request, itemDetailsRequest: PlaidItemDetailsRequest) async throws -> PlaidItemDetailsResponse {
+        // Create Client URL
+        let clientURI = URI(string: Constants.plaidBaseURL.rawValue + "/accounts/balance/get")
+        
+        // Wait for response
+        let clientResponse = try await req.client.post(clientURI) { req in
+            try req.content.encode(itemDetailsRequest, as: .json)
+        }
+        
+        // Verify it's status .200
+        guard clientResponse.status == .ok else {
+            throw Abort(.badRequest, reason: "Plaid API request failed with status: \(clientResponse.status) and error: \(clientResponse.description)")
+        }
+        
+        return try clientResponse.content.decode(PlaidItemDetailsResponse.self)
+    }
 }
 
 fileprivate extension FFBankAccount {
-    init(from plaidAccount: FFPlaidAccount, institutionID: String, userID: UUID) {
+    init(from plaidAccount: PlaidAccount, institutionID: String, userID: UUID) {
         self.init(
-            accountID: plaidAccount.id,
+            accountID: plaidAccount.account_id,
             name: plaidAccount.name,
             subtype: plaidAccount.subtype,
             institutionID: institutionID,
             userID: userID,
-            isSyncingTransactions: true
+            isSyncingTransactions: true,
+            currentBalance: plaidAccount.balances.current
         )
     }
 }

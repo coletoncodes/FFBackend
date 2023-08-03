@@ -25,7 +25,7 @@ struct PlaidItemDetailsRequest: Codable {
     
     init(
         accessToken: String,
-        accountIds: [String]
+        plaidInstitutionAccountIds: [String]
     ) {
         self.accessToken = accessToken
         self.secret = Constants.plaidSecretKey.rawValue
@@ -33,7 +33,7 @@ struct PlaidItemDetailsRequest: Codable {
         let date = Date()
         let formatter = ISO8601DateFormatter()
         let currentDateISO8601 = formatter.string(from: date)
-        self.options = PlaidItemOptions(accountIds: accountIds, minLastUpdatedDatetime: currentDateISO8601)
+        self.options = PlaidItemOptions(accountIds: plaidInstitutionAccountIds, minLastUpdatedDatetime: currentDateISO8601)
     }
 }
 

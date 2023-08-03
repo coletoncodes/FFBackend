@@ -12,8 +12,9 @@ public struct FFBankAccount: Codable, Equatable, Hashable {
     public let name: String
     public let subtype: String
     public let institutionID: String
-    public let userID: UUID?
+    public let userID: UUID
     public var isSyncingTransactions: Bool
+    public let currentBalance: Double
     
     public init(
         accountID: String,
@@ -21,7 +22,8 @@ public struct FFBankAccount: Codable, Equatable, Hashable {
         subtype: String,
         institutionID: String,
         userID: UUID,
-        isSyncingTransactions: Bool
+        isSyncingTransactions: Bool,
+        currentBalance: Double
     ) {
         self.accountID = accountID
         self.name = name
@@ -29,5 +31,6 @@ public struct FFBankAccount: Codable, Equatable, Hashable {
         self.institutionID = institutionID
         self.userID = userID
         self.isSyncingTransactions = isSyncingTransactions
+        self.currentBalance = currentBalance
     }
 }
