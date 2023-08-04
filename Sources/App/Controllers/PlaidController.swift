@@ -132,7 +132,7 @@ extension PlaidController {
         
         let accountIDs = metadata.accounts.map { $0.id }
         
-        let institutionDetailsRequest = PlaidItemDetailsRequest(accessToken: accessTokenID.uuidString, plaidInstitutionAccountIds: accountIDs)
+        let institutionDetailsRequest = PlaidItemDetailsRequest(accessToken: plaidAccessToken.accessToken, plaidInstitutionAccountIds: accountIDs)
         let detailsResponse = try await itemDetails(req: req, itemDetailsRequest: institutionDetailsRequest)
         
         let institution = Institution(
@@ -142,9 +142,15 @@ extension PlaidController {
             name: metadata.institution.name
         )
         
-        let bankAccounts = detailsResponse.accounts.map { BankAccount(from: $0, institutionID: metadata.institution.id, userID: userID) }
-        
         try await institutionStore.save(institution, on: req.db)
+        let savedInstitution = try await institutionStore.findInstitutionBy(institution.plaidItemID, on: req.db)
+        
+        guard let institutionID = savedInstitution.id else {
+            throw Abort(.internalServerError, reason: "Institution ID value was nil.")
+        }
+        
+        let bankAccounts = detailsResponse.accounts.map { BankAccount(from: $0, institutionID: institutionID) }
+        
         try await bankAccountStore.save(bankAccounts, on: req.db)
         
         return .ok
@@ -161,7 +167,7 @@ extension PlaidController {
         
         // Verify it's status .200
         guard clientResponse.status == .ok else {
-            throw Abort(.badRequest, reason: "Plaid API request failed with status: \(clientResponse.status) and error: \(clientResponse.description)")
+            throw Abort(.badRequest, reason: "Plaid Item Details request failed with status: \(clientResponse.status) and error: \(clientResponse.description)")
         }
         
         return try clientResponse.content.decode(PlaidItemDetailsResponse.self)
@@ -169,9 +175,8 @@ extension PlaidController {
 }
 
 fileprivate extension BankAccount {
-    convenience init(from plaidAccount: PlaidAccount, institutionID: String, userID: UUID) {
+    convenience init(from plaidAccount: PlaidAccount, institutionID: UUID) {
         self.init(
-            userID: userID,
             institutionID: institutionID,
             accountID: plaidAccount.account_id,
             name: plaidAccount.name,

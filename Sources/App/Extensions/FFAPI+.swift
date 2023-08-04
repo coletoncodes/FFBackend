@@ -81,20 +81,19 @@ extension FFInstitution: Content {
             userID: institution.$user.id,
             plaidItemID: institution.plaidItemID,
             plaidAccessTokenID: institution.$accessToken.id,
-            accounts: try institution.accounts.map { try FFBankAccount(from: $0) }
+            accounts: try institution.accounts.map { try FFBankAccount(from: $0, institutionID: try institution.requireID()) }
         )
     }
 }
 
 extension FFBankAccount: Content {
-    init(from bankAccount: BankAccount) throws {
+    init(from bankAccount: BankAccount, institutionID: UUID) throws {
         self.init(
             id: try bankAccount.requireID(),
             accountID: bankAccount.accountID,
             name: bankAccount.name,
             subtype: bankAccount.subtype,
-            institutionID: bankAccount.institution.plaidItemID,
-            userID: try bankAccount.user.requireID(),
+            institutionID: institutionID,
             isSyncingTransactions: bankAccount.isSyncingTransactions,
             currentBalance: bankAccount.currentBalance
         )

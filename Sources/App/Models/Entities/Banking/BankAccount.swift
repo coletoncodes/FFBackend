@@ -14,9 +14,6 @@ final class BankAccount: Model {
     @ID(key: .id)
     var id: UUID?
     
-    @Parent(key: "user_id")
-    var user: User
-    
     @Parent(key: "institution_id")
     var institution: Institution
     
@@ -39,8 +36,7 @@ final class BankAccount: Model {
     
     init(
         id: UUID? = nil,
-        userID: UUID,
-        institutionID: String,
+        institutionID: UUID,
         accountID: String,
         name: String,
         subtype: String,
@@ -48,8 +44,8 @@ final class BankAccount: Model {
         currentBalance: Double
     ) {
         self.id = id
-        self.$user.id = userID
-        self.institution.plaidItemID = institutionID
+        self.$institution.id = institutionID
+        self.accountID = accountID
         self.name = name
         self.subtype = subtype
         self.isSyncingTransactions = isSyncingTransactions
