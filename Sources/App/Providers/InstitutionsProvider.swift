@@ -41,6 +41,7 @@ final class InstitutionsProvider: InstitutionsProviding {
 extension Institution {
     convenience init(from ffInstitution: FFInstitution) {
         self.init(
+            id: ffInstitution.id,
             accessTokenID: ffInstitution.plaidAccessTokenID,
             userID: ffInstitution.userID,
             plaidItemID: ffInstitution.plaidItemID,
