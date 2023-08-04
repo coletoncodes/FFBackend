@@ -137,19 +137,16 @@ extension PlaidController {
         let institutionDetailsRequest = PlaidItemDetailsRequest(accessToken: accessTokenID.uuidString, plaidInstitutionAccountIds: accountIDs)
         let detailsResponse = try await itemDetails(req: req, itemDetailsRequest: institutionDetailsRequest)
         
+        // create institution
         let institution = Institution(
             accessTokenID: accessTokenID,
             userID: userID,
             plaidItemID: metadata.institution.id,
-            name: metadata.institution.name,
-            accounts: detailsResponse.accounts.map { plaidAccount in
-                FFBankAccount(
-                    from: plaidAccount,
-                    institutionID: metadata.institution.id,
-                    userID: userID
-                )
-            }
+            name: metadata.institution.name
         )
+        
+        // create accounts
+        let bankAccounts = detailsResponse.accounts.map { BankAccount(from: $0, institutionID: metadata.institution.id, userID: userID) }
         
         // save institution
         try await institutionStore.save(institution, on: req.db)
@@ -174,14 +171,14 @@ extension PlaidController {
     }
 }
 
-fileprivate extension FFBankAccount {
-    init(from plaidAccount: PlaidAccount, institutionID: String, userID: UUID) {
+fileprivate extension BankAccount {
+    convenience init(from plaidAccount: PlaidAccount, institutionID: String, userID: UUID) {
         self.init(
+            userID: userID,
+            institutionID: institutionID,
             accountID: plaidAccount.account_id,
             name: plaidAccount.name,
             subtype: plaidAccount.subtype,
-            institutionID: institutionID,
-            userID: userID,
             isSyncingTransactions: true,
             currentBalance: plaidAccount.balances.current
         )

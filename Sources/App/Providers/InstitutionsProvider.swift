@@ -23,7 +23,7 @@ final class InstitutionsProvider: InstitutionsProviding {
     // MARK: - Interface
     func institutions(userID: UUID, database: Database) async throws -> [FFInstitution] {
         try await institutionStore.getInstitutions(userID: userID, from: database)
-            .map { FFInstitution(from: $0) }
+            .map { try FFInstitution(from: $0) }
     }
     
     func save(_ ffInstitution: FFInstitution, database: Database) async throws {
@@ -44,8 +44,7 @@ extension Institution {
             accessTokenID: ffInstitution.plaidAccessTokenID,
             userID: ffInstitution.userID,
             plaidItemID: ffInstitution.plaidItemID,
-            name: ffInstitution.name,
-            accounts: ffInstitution.accounts
+            name: ffInstitution.name
         )
     }
 }
