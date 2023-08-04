@@ -14,6 +14,7 @@ final class PlaidController: RouteCollection {
     @Injected(\.userStore) private var userStore
     @Injected(\.plaidAccessTokenStore) private var plaidAccessTokenStore
     @Injected(\.institutionStore) private var institutionStore
+    @Injected(\.bankAccountStore) private var bankAccountStore
     
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
@@ -109,8 +110,6 @@ extension PlaidController {
         
         // Create request body.
         let body = PlaidExchangePublicTokenRequest(public_token: publicTokenRequest.publicToken)
-        
-        // Create Client URL
         let clientURI = URI(string: Constants.plaidBaseURL.rawValue + "/item/public_token/exchange")
         
         // Wait for response
@@ -124,7 +123,6 @@ extension PlaidController {
         
         let publicTokenResponse = try exchangeTokenResponse.content.decode(PlaidExchangePublicTokenResponse.self)
         
-        // Save the token
         let plaidAccessToken = PlaidAccessToken(userID: userID, accessToken: publicTokenResponse.access_token)
         try await plaidAccessTokenStore.save(plaidAccessToken, on: req.db)
         
@@ -137,7 +135,6 @@ extension PlaidController {
         let institutionDetailsRequest = PlaidItemDetailsRequest(accessToken: accessTokenID.uuidString, plaidInstitutionAccountIds: accountIDs)
         let detailsResponse = try await itemDetails(req: req, itemDetailsRequest: institutionDetailsRequest)
         
-        // create institution
         let institution = Institution(
             accessTokenID: accessTokenID,
             userID: userID,
@@ -145,11 +142,11 @@ extension PlaidController {
             name: metadata.institution.name
         )
         
-        // create accounts
         let bankAccounts = detailsResponse.accounts.map { BankAccount(from: $0, institutionID: metadata.institution.id, userID: userID) }
         
-        // save institution
         try await institutionStore.save(institution, on: req.db)
+        try await bankAccountStore.save(bankAccounts, on: req.db)
+        
         return .ok
     }
     

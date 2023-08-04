@@ -62,6 +62,11 @@ extension Container {
             .graph
     }
     
+    var bankAccountStore: Factory<BankAccountStore> {
+        self { BankAccountRepository() }
+            .graph
+    }
+    
     var budgetCategoryStore: Factory<BudgetCategoryStore> {
         self { BudgetCategoryRepository() }
             .graph

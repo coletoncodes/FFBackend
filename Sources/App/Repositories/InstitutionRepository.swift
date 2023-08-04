@@ -19,26 +19,18 @@ final class InstitutionRepository: InstitutionStore {
     func getInstitutions(userID: UUID, from db: Database) async throws -> [Institution] {
         try await Institution.query(on: db)
             .filter(\.$user.$id == userID)
+            .with(\.$accounts)
             .all()
     }
     
     func save(_ institution: Institution, on db: Database) async throws {
-        if let existing = try await Institution
-            .query(on: db)
-            .filter(\.$name == institution.name)
-            .filter(\.$plaidItemID == institution.plaidItemID)
-            .first() {
-            existing.name = institution.name
-            existing.accounts = institution.accounts
-            try await existing.update(on: db)
-        } else {
-            try await institution.save(on: db)
-        }
+        try await institution.save(on: db)
     }
     
     func findInstitutionBy(_ plaidItemID: String, on db: Database) async throws -> Institution? {
         try await Institution.query(on: db)
             .filter(\.$plaidItemID == plaidItemID)
+            .with(\.$accounts)
             .first()
     }
     
