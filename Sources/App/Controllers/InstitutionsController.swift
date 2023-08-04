@@ -35,7 +35,10 @@ extension InstitutionsController {
             throw Abort(.internalServerError, reason: "Failed to get Institutions.", error: error)
         }
     }
-    
+}
+
+// MARK: - Internal Requests
+extension InstitutionsController {
     func postInstitutions(req: Request) async throws -> FFPostInstitutionsResponse {
         do {
             let body = try req.content.decode(FFPostInstitutionsRequestBody.self)
