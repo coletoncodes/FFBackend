@@ -89,6 +89,7 @@ extension FFInstitution: Content {
 extension FFBankAccount: Content {
     init(from bankAccount: BankAccount) throws {
         self.init(
+            id: try bankAccount.requireID(),
             accountID: bankAccount.accountID,
             name: bankAccount.name,
             subtype: bankAccount.subtype,

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct FFInstitution: Codable, Equatable, Hashable {
+public struct FFInstitution: Identifiable, Codable, Equatable, Hashable {
     public let id: UUID
     public let name: String
     public let userID: UUID
