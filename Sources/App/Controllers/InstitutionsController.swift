@@ -20,6 +20,7 @@ final class InstitutionsController: RouteCollection {
         let institutionRoutes = routes.grouped("institutions")
         institutionRoutes.get(":userID", use: getInstitutions)
         institutionRoutes.post("", use: postInstitutions)
+        institutionRoutes.post("balance", ":userID", use: getBalance)
     }
 }
 
@@ -32,7 +33,6 @@ extension InstitutionsController {
             }
             
             let institutions = try await provider.institutions(userID: userID, database: req.db)
-            try await updateAccounts(req: req, for: institutions)
             return FFGetInstitutionsResponse(institutions: institutions)
         } catch {
             req.logger.error("\(String(reflecting: error))")
@@ -40,17 +40,35 @@ extension InstitutionsController {
         }
     }
     
-    func updateAccounts(req: Request, for institutions: [FFInstitution]) async throws {
-        for institution in institutions {
+    /// Fetches the latest balance for all of the BankAccounts for a provided institution.
+    func getBalance(req: Request) async throws -> FFGetInstitutionsResponse {
+        do {
+            // Decode the body
+            let requestBody = try req.content.decode(FFRefreshBalanceRequestBody.self)
+            let institution = requestBody.institution
             let accountIDs = institution.accounts.map { $0.accountID }
+            // Request details from Plaid.
             let itemDetailsRequest = PlaidItemDetailsRequest(accessToken: institution.plaidAccessToken, plaidInstitutionAccountIds: accountIDs)
             let detailsResponse = try await plaidAPIService.itemDetails(req: req, itemDetailsRequest: itemDetailsRequest)
-            
+            // Save the updated accounts.
             let bankAccounts = detailsResponse.accounts.map { BankAccount(from: $0, institutionID: institution.id) }
             try await bankAccountStore.save(bankAccounts, on: req.db)
+            
+            // Return the updated categories
+            guard let userID = req.parameters.get("userID", as: UUID.self) else {
+                throw Abort(.badRequest, reason: "No USERID in URL.")
+            }
+            
+            let institutions = try await provider.institutions(userID: userID, database: req.db)
+            return FFGetInstitutionsResponse(institutions: institutions)
+        } catch {
+            req.logger.error("\(String(reflecting: error))")
+            throw Abort(.internalServerError, reason: "Failed to get Balances for institutions.", error: error)
         }
     }
 }
+
+
 
 // MARK: - Internal Requests
 extension InstitutionsController {

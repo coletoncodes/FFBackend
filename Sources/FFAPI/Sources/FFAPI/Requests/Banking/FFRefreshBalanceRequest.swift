@@ -1,13 +1,13 @@
 //
-//  FFGetInstitutionsRequest.swift
+//  FFRefreshBalanceRequest.swift
 //  
 //
-//  Created by Coleton Gorecke on 7/4/23.
+//  Created by Coleton Gorecke on 8/5/23.
 //
 
 import Foundation
 
-struct FFGetInstitutionsRequest: FFAPIRequest {
+struct FFRefreshBalanceRequest: FFAPIRequest {
     typealias Response = FFGetInstitutionsResponse
     
     var body: Encodable? = nil
@@ -15,7 +15,7 @@ struct FFGetInstitutionsRequest: FFAPIRequest {
     var method: HTTPMethod { .GET }
     
     var path: String {
-        "\(FFAPIPath.institutions)" + "/" + "\(userID)"
+        "\(FFAPIPath.institutions)" + "balance" + "\(userID)"
     }
     
     var headers: [FFAPIHeader] {
@@ -28,6 +28,7 @@ struct FFGetInstitutionsRequest: FFAPIRequest {
     
     init(
         userID: UUID,
+        body: FFRefreshBalanceRequestBody,
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken
     ) {
@@ -37,10 +38,10 @@ struct FFGetInstitutionsRequest: FFAPIRequest {
     }
 }
 
-public struct FFGetInstitutionsResponse: Codable {
-    public let institutions: [FFInstitution]
+public struct FFRefreshBalanceRequestBody: Codable {
+    public let institution: FFInstitution
     
-    public init(institutions: [FFInstitution]) {
-        self.institutions = institutions
+    public init(institution: FFInstitution) {
+        self.institution = institution
     }
 }

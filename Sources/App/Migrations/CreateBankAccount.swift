@@ -18,7 +18,7 @@ struct CreateBankAccount: AsyncMigration {
             .field("subtype", .string, .required)
             .field("is_syncing_transactions", .bool, .required)
             .field("current_balance", .double, .required)
-            .unique(on: "account_id")
+            .unique(on: .id)
             .create()
     }
     

@@ -72,6 +72,7 @@ extension FFBudgetItemResponse: Content {}
 extension FFGetInstitutionsResponse: Content {}
 extension FFPostInstitutionsRequestBody: Content {}
 extension FFPostInstitutionsResponse: Content {}
+extension FFRefreshBalanceRequestBody: Content {}
 
 extension FFInstitution: Content {
     init(from institution: Institution) throws {
