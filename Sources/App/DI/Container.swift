@@ -83,4 +83,9 @@ extension Container {
         self { JWTSigner.hs256(key: "your-secret-key") }
             .graph
     }
+    
+    var plaidAPIService: Factory<PlaidAPIService> {
+        self { PlaidAPIService() }
+            .graph
+    }
 }

@@ -12,12 +12,11 @@ struct CreateInstitution: AsyncMigration {
     func prepare(on database: Database) async throws {
         try await database.schema(Institution.schema)
             .id()
-            .field("name", .string, .required)
             .field("user_id", .uuid, .required,
                    .references(User.schema, .id, onDelete: .cascade))
-            .field("access_token_id", .uuid, .required, .references(PlaidAccessToken.schema, .id, onDelete: .cascade))
-            .field("plaid_item_id", .string, .required)
-            .unique(on: "plaid_item_id", "user_id")
+            .field("name", .string, .required)
+            .field("plaid_access_token", .string, .required)
+            .unique(on: "user_id", .id)
             .create()
     }
     

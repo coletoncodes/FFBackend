@@ -12,6 +12,8 @@ import Vapor
 final class InstitutionsController: RouteCollection {
     // MARK: - Dependencies
     @Injected(\.institutionProvider) private var provider
+    @Injected(\.plaidAPIService) private var plaidAPIService
+    @Injected(\.bankAccountStore) private var bankAccountStore
     
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
@@ -33,6 +35,17 @@ extension InstitutionsController {
         } catch {
             req.logger.error("\(String(reflecting: error))")
             throw Abort(.internalServerError, reason: "Failed to get Institutions.", error: error)
+        }
+    }
+    
+    func updateAccounts(req: Request, for institutions: [FFInstitution]) async throws {
+        for institution in institutions {
+            let accountIDs = institution.accounts.map { $0.accountID }
+            let itemDetailsRequest = PlaidItemDetailsRequest(accessToken: institution.plaidAccessToken, plaidInstitutionAccountIds: accountIDs)
+            let detailsResponse = try await plaidAPIService.itemDetails(req: req, itemDetailsRequest: itemDetailsRequest)
+            
+            let bankAccounts = detailsResponse.accounts.map { BankAccount(from: $0, institutionID: institution.id) }
+            try await bankAccountStore.save(bankAccounts, on: req.db)
         }
     }
 }

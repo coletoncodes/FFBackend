@@ -79,8 +79,7 @@ extension FFInstitution: Content {
             id: try institution.requireID(),
             name: institution.name,
             userID: institution.$user.id,
-            plaidItemID: institution.plaidItemID,
-            plaidAccessTokenID: institution.$accessToken.id,
+            plaidAccessToken: institution.plaidAccessToken,
             accounts: try institution.accounts.map { try FFBankAccount(from: $0, institutionID: try institution.requireID()) }
         )
     }

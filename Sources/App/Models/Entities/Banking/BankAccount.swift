@@ -51,4 +51,15 @@ final class BankAccount: Model {
         self.isSyncingTransactions = isSyncingTransactions
         self.currentBalance = currentBalance
     }
+    
+    convenience init(from plaidAccount: PlaidAccount, institutionID: UUID) {
+        self.init(
+            institutionID: institutionID,
+            accountID: plaidAccount.account_id,
+            name: plaidAccount.name,
+            subtype: plaidAccount.subtype,
+            isSyncingTransactions: true,
+            currentBalance: plaidAccount.balances.current
+        )
+    }
 }
