@@ -20,7 +20,7 @@ final class InstitutionsController: RouteCollection {
         let institutionRoutes = routes.grouped("institutions")
         institutionRoutes.get(":userID", use: getInstitutions)
         institutionRoutes.post("", use: postInstitutions)
-        institutionRoutes.post("balance", ":userID", use: getBalance)
+        institutionRoutes.post("balance", use: getBalance)
     }
 }
 

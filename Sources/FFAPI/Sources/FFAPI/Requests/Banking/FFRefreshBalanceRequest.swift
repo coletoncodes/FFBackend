@@ -15,7 +15,7 @@ struct FFRefreshBalanceRequest: FFAPIRequest {
     var method: HTTPMethod { .GET }
     
     var path: String {
-        "\(FFAPIPath.institutions)" + "balance" + "\(userID)"
+        "\(FFAPIPath.institutions)" + "balance"
     }
     
     var headers: [FFAPIHeader] {
@@ -24,15 +24,13 @@ struct FFRefreshBalanceRequest: FFAPIRequest {
     
     let refreshToken: FFRefreshToken
     let accessToken: FFAccessToken
-    let userID: UUID
     
     init(
-        userID: UUID,
         body: FFRefreshBalanceRequestBody,
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken
     ) {
-        self.userID = userID
+        self.body = body
         self.refreshToken = refreshToken
         self.accessToken = accessToken
     }
