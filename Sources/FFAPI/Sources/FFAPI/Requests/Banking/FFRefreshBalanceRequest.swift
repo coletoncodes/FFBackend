@@ -12,7 +12,7 @@ struct FFRefreshBalanceRequest: FFAPIRequest {
     
     var body: Encodable? = nil
     
-    var method: HTTPMethod { .GET }
+    var method: HTTPMethod { .POST }
     
     var path: String {
         "\(FFAPIPath.institutions)" + "balance"
