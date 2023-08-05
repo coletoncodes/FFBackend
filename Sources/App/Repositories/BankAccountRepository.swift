@@ -18,14 +18,13 @@ final class BankAccountRepository: BankAccountStore {
         for account in accounts {
             if let existingAccount = try await BankAccount
                 .query(on: db)
-                .filter(\.$id == account.requireID())
+                .filter(\.$accountID == account.accountID)
                 .first() {
-                existingAccount.accountID = account.accountID
                 existingAccount.currentBalance = account.currentBalance
-                existingAccount.institution = account.institution
                 existingAccount.isSyncingTransactions = account.isSyncingTransactions
                 existingAccount.name = account.name
                 existingAccount.subtype = account.subtype
+                existingAccount.currentBalance = account.currentBalance
                 try await existingAccount.save(on: db)
             } else {
                 try await account.save(on: db)

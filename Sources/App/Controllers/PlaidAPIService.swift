@@ -57,11 +57,6 @@ final class PlaidAPIService {
         let plaidAccessToken = PlaidAccessToken(userID: userID, accessToken: publicTokenResponse.access_token)
         try await plaidAccessTokenStore.save(plaidAccessToken, on: req.db)
         
-        let accountIDs = metadata.accounts.map { $0.id }
-        
-        let institutionDetailsRequest = PlaidItemDetailsRequest(accessToken: plaidAccessToken.accessToken, plaidInstitutionAccountIds: accountIDs)
-        let detailsResponse = try await itemDetails(req: req, itemDetailsRequest: institutionDetailsRequest)
-        
         let institution = Institution(
             plaidAccessToken: plaidAccessToken.accessToken,
             userID: userID,
@@ -75,8 +70,7 @@ final class PlaidAPIService {
             throw Abort(.internalServerError, reason: "Institution ID value was nil.")
         }
         
-        let bankAccounts = detailsResponse.accounts.map { BankAccount(from: $0, institutionID: institutionID) }
-        
+        let bankAccounts = metadata.accounts.map { BankAccount(from: $0, institutionID: institutionID)}
         try await bankAccountStore.save(bankAccounts, on: req.db)
         
         return .ok
@@ -97,5 +91,18 @@ final class PlaidAPIService {
         }
         
         return try clientResponse.content.decode(PlaidItemDetailsResponse.self)
+    }
+}
+
+fileprivate extension BankAccount {
+    convenience init(from ffPlaidAccount: FFPlaidAccount, institutionID: UUID) {
+        self.init(
+            institutionID: institutionID,
+            accountID: ffPlaidAccount.id,
+            name: ffPlaidAccount.name,
+            subtype: ffPlaidAccount.subtype,
+            isSyncingTransactions: true,
+            currentBalance: 0.0
+        )
     }
 }

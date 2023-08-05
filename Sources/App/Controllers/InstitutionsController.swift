@@ -45,25 +45,31 @@ extension InstitutionsController {
         do {
             // Decode the body
             let requestBody = try req.content.decode(FFRefreshBalanceRequestBody.self)
-            let institution = requestBody.institution
-            let accountIDs = institution.accounts.map { $0.accountID }
+            let plaidAccessToken = requestBody.institution.plaidAccessToken
+            print("Fetching existing institution")
+            let existingInstitution = try await provider.institutionMatching(plaidAccessToken, on: req.db)
+            print("Mapping account id's")
+            let accountIDs = existingInstitution.accounts.map { $0.accountID }
+            
+            guard !accountIDs.isEmpty else {
+                throw Abort(.internalServerError, reason: "AccountIDs are empty. Can't fetch balance details for empty accounts.")
+            }
+            
             // Request details from Plaid.
-            let itemDetailsRequest = PlaidItemDetailsRequest(accessToken: institution.plaidAccessToken, plaidInstitutionAccountIds: accountIDs)
+            let itemDetailsRequest = PlaidItemDetailsRequest(accessToken: plaidAccessToken, plaidInstitutionAccountIds: accountIDs)
             let detailsResponse = try await plaidAPIService.itemDetails(req: req, itemDetailsRequest: itemDetailsRequest)
+            
             // Save the updated accounts.
-            let bankAccounts = detailsResponse.accounts.map { BankAccount(from: $0, institutionID: institution.id) }
+            let bankAccounts = detailsResponse.accounts.map { BankAccount(from: $0, institutionID: existingInstitution.id) }
             try await bankAccountStore.save(bankAccounts, on: req.db)
             
-            let updatedInstitution = try await provider.institutionMatching(institution.plaidAccessToken, on: req.db)
-            return FFRefreshBalanceResponse(institution: updatedInstitution)
+            return FFRefreshBalanceResponse(institution: existingInstitution)
         } catch {
             req.logger.error("\(String(reflecting: error))")
-            throw Abort(.internalServerError, reason: "Failed to get Balances for institutions.", error: error)
+            throw Abort(.internalServerError, reason: "Failed to get Balances for institution.", error: error)
         }
     }
 }
-
-
 
 // MARK: - Internal Requests
 extension InstitutionsController {
