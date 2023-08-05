@@ -30,7 +30,9 @@ extension InstitutionsController {
             guard let userID = req.parameters.get("userID", as: UUID.self) else {
                 throw Abort(.badRequest, reason: "No USERID in URL.")
             }
+            
             let institutions = try await provider.institutions(userID: userID, database: req.db)
+            try await updateAccounts(req: req, for: institutions)
             return FFGetInstitutionsResponse(institutions: institutions)
         } catch {
             req.logger.error("\(String(reflecting: error))")
