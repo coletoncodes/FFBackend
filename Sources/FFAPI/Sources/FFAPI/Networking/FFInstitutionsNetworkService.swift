@@ -12,7 +12,7 @@ public protocol FFInstitutionsNetworkService {
     
     func postInstitutions(body: FFPostInstitutionsRequestBody) async throws -> FFPostInstitutionsResponse
     
-    func refreshBalance(userID: UUID, body: FFRefreshBalanceRequestBody) async throws -> FFGetInstitutionsResponse
+    func refreshBalance(userID: UUID, body: FFRefreshBalanceRequestBody) async throws -> FFRefreshBalanceResponse
 }
 
 public final class FFInstitutionsNetworkingService: FFInstitutionsNetworkService, FFNetworkService {
@@ -50,7 +50,7 @@ public final class FFInstitutionsNetworkingService: FFInstitutionsNetworkService
         )
     }
     
-    public func refreshBalance(userID: UUID, body: FFRefreshBalanceRequestBody) async throws -> FFGetInstitutionsResponse {
+    public func refreshBalance(userID: UUID, body: FFRefreshBalanceRequestBody) async throws -> FFRefreshBalanceResponse {
         return try await performRequest(
             FFRefreshBalanceRequest(
                 userID: userID,

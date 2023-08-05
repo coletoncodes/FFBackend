@@ -8,7 +8,7 @@
 import Foundation
 
 struct FFRefreshBalanceRequest: FFAPIRequest {
-    typealias Response = FFGetInstitutionsResponse
+    typealias Response = FFRefreshBalanceResponse
     
     var body: Encodable? = nil
     
@@ -39,6 +39,14 @@ struct FFRefreshBalanceRequest: FFAPIRequest {
 }
 
 public struct FFRefreshBalanceRequestBody: Codable {
+    public let institution: FFInstitution
+    
+    public init(institution: FFInstitution) {
+        self.institution = institution
+    }
+}
+
+public struct FFRefreshBalanceResponse: Codable {
     public let institution: FFInstitution
     
     public init(institution: FFInstitution) {
