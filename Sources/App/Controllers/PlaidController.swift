@@ -11,9 +11,8 @@ import Vapor
 
 final class PlaidController: RouteCollection {
     // MARK: - Dependencies
+    @Injected(\.plaidAPIService) private var plaidAPIService
     @Injected(\.userStore) private var userStore
-    @Injected(\.plaidAccessTokenStore) private var plaidAccessTokenStore
-    @Injected(\.institutionStore) private var institutionStore
     
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
@@ -28,7 +27,8 @@ extension PlaidController {
     /// api/plaid/create-link-token
     ///
     /// Creates a link_token using the Plaid API.
-    /// Must provide a `CreateLinkTokenRequest` as the body.
+    ///
+    /// Must provide a `PlaidCreateLinkTokenRequest` as the body.
     func createLinkToken(req: Request) async throws -> FFCreateLinkTokenResponse {
         // Decode the request body to get the userID
         let requestBody = try req.content.decode(FFCreateLinkTokenRequestBody.self)
@@ -76,90 +76,12 @@ extension PlaidController {
         // Create the exchange public token request
         let exchangePublicTokenRequest = ExchangePublicTokenRequest(userID: requestBody.userID, publicToken: requestBody.publicToken)
         
-        let exchangePublicTokenResponse = try await exchangePublicToken(req: req, publicTokenRequest: exchangePublicTokenRequest, metadata: requestBody.metadata)
+        let exchangePublicTokenResponse = try await plaidAPIService.exchangePublicToken(req: req, publicTokenRequest: exchangePublicTokenRequest, metadata: requestBody.metadata)
         
         guard exchangePublicTokenResponse == .ok else {
             throw Abort(.internalServerError, reason: "Failed to exchange public token")
         }
         
         return .ok
-    }
-}
-
-// MARK: - Internal Requests
-extension PlaidController {
-    /// Exchanges the public token for an access token for the linked item using the Plaid API.
-    ///
-    /// Must provide a `ExchangeLinkTokenRequest` as the body.
-    func exchangePublicToken(
-        req: Request,
-        publicTokenRequest: ExchangePublicTokenRequest,
-        metadata: FFPlaidSuccessMetadata
-    ) async throws -> HTTPStatus {
-        // Check if the user exists in the database
-        guard let foundUser = try await userStore.find(byID: publicTokenRequest.userID, on: req.db) else {
-            throw Abort(.notFound, reason: "Unable to find a user with id: \(publicTokenRequest.userID)")
-        }
-        
-        // Verify the foundUser's id isn't nil.
-        guard let userID = foundUser.id else {
-            throw Abort(.internalServerError, reason: "Missing ID for User.")
-        }
-        
-        // Create request body.
-        let body = PlaidExchangePublicTokenRequest(public_token: publicTokenRequest.publicToken)
-        
-        // Create Client URL
-        let clientURI = URI(string: Constants.plaidBaseURL.rawValue + "/item/public_token/exchange")
-        
-        // Wait for response
-        let exchangeTokenResponse = try await req.client.post(clientURI) { req in
-            try req.content.encode(body, as: .json)
-        }
-        
-        guard exchangeTokenResponse.status == .ok else {
-            throw Abort(exchangeTokenResponse.status, reason: "Unable to exchange token")
-        }
-        
-        let publicTokenResponse = try exchangeTokenResponse.content.decode(PlaidExchangePublicTokenResponse.self)
-        
-        // Save the token
-        let plaidAccessToken = PlaidAccessToken(userID: userID, accessToken: publicTokenResponse.access_token)
-        try await plaidAccessTokenStore.save(plaidAccessToken, on: req.db)
-        
-        guard let accessTokenID = plaidAccessToken.id else {
-            throw Abort(.internalServerError, reason: "Failed to determine accessToken")
-        }
-        
-        let institution = Institution(
-            accessTokenID: accessTokenID,
-            userID: userID,
-            plaidItemID: metadata.institution.id,
-            name: metadata.institution.name,
-            accounts: metadata.accounts.map { plaidAccount in
-                FFBankAccount(
-                    from: plaidAccount,
-                    institutionID: metadata.institution.id,
-                    userID: userID
-                )
-            }
-        )
-        
-        // save institution
-        try await institutionStore.save(institution, on: req.db)
-        return .ok
-    }
-}
-
-fileprivate extension FFBankAccount {
-    init(from plaidAccount: FFPlaidAccount, institutionID: String, userID: UUID) {
-        self.init(
-            accountID: plaidAccount.id,
-            name: plaidAccount.name,
-            subtype: plaidAccount.subtype,
-            institutionID: institutionID,
-            userID: userID,
-            isSyncingTransactions: true
-        )
     }
 }

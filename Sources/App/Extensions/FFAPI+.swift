@@ -74,13 +74,27 @@ extension FFPostInstitutionsRequestBody: Content {}
 extension FFPostInstitutionsResponse: Content {}
 
 extension FFInstitution: Content {
-    init(from institution: Institution) {
+    init(from institution: Institution) throws {
         self.init(
+            id: try institution.requireID(),
             name: institution.name,
             userID: institution.$user.id,
-            plaidItemID: institution.plaidItemID,
-            plaidAccessTokenID: institution.$accessToken.id,
-            accounts: institution.accounts
+            plaidAccessToken: institution.plaidAccessToken,
+            accounts: try institution.accounts.map { try FFBankAccount(from: $0, institutionID: try institution.requireID()) }
+        )
+    }
+}
+
+extension FFBankAccount: Content {
+    init(from bankAccount: BankAccount, institutionID: UUID) throws {
+        self.init(
+            id: try bankAccount.requireID(),
+            accountID: bankAccount.accountID,
+            name: bankAccount.name,
+            subtype: bankAccount.subtype,
+            institutionID: institutionID,
+            isSyncingTransactions: bankAccount.isSyncingTransactions,
+            currentBalance: bankAccount.currentBalance
         )
     }
 }

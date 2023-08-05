@@ -15,7 +15,7 @@ struct CreatePlaidAccessToken: AsyncMigration {
             .field("access_token", .string, .required)
             .field("user_id", .uuid, .required,
                    .references(User.schema, .id, onDelete: .cascade))
-            .unique(on: "access_token")
+            .unique(on: "access_token", "user_id")
             .create()
     }
 

@@ -15,36 +15,38 @@ final class Institution: Model {
     @ID(key: .id)
     var id: UUID?
 
-    @Parent(key: "access_token_id")
-    var accessToken: PlaidAccessToken
-    
     @Parent(key: "user_id")
     var user: User
+    
+    @Field(key: "plaid_access_token")
+    var plaidAccessToken: String
     
     @Field(key: "name")
     var name: String
     
-    @Field(key: "bank_accounts")
-    var accounts: [FFBankAccount]
+    @Children(for: \.$institution)
+    var accounts: [BankAccount]
     
-    @Field(key: "plaid_item_id")
-    var plaidItemID: String
-
     init() { }
 
     init(
         id: UUID? = nil,
-        accessTokenID: UUID,
+        plaidAccessToken: String,
         userID: UUID,
-        plaidItemID: String,
-        name: String,
-        accounts: [FFBankAccount]
+        name: String
     ) {
         self.id = id
         self.name = name
-        self.accounts = accounts
-        self.$accessToken.id = accessTokenID
-        self.plaidItemID = plaidItemID
+        self.plaidAccessToken = plaidAccessToken
         self.$user.id = userID
+    }
+    
+    convenience init(from ffInstitution: FFInstitution) {
+        self.init(
+            id: ffInstitution.id,
+            plaidAccessToken: ffInstitution.plaidAccessToken,
+            userID: ffInstitution.userID,
+            name: ffInstitution.name
+        )
     }
 }

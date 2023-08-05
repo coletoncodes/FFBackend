@@ -11,40 +11,35 @@ import Vapor
 protocol InstitutionStore {
     func getInstitutions(userID: UUID, from db: Database) async throws -> [Institution]
     func save(_ institution: Institution, on db: Database) async throws
-    func findInstitutionBy(_ plaidItemID: String, on db: Database) async throws -> Institution?
-    func deleteInstitution(_ plaidItemID: String, on db: Database) async throws
+    func findInstitutionBy(_ plaidAccessToken: String, on db: Database) async throws -> Institution
+    func delete(_ institution: Institution, on db: Database) async throws
 }
 
 final class InstitutionRepository: InstitutionStore {
     func getInstitutions(userID: UUID, from db: Database) async throws -> [Institution] {
         try await Institution.query(on: db)
             .filter(\.$user.$id == userID)
+            .with(\.$accounts)
             .all()
     }
     
     func save(_ institution: Institution, on db: Database) async throws {
-        if let existing = try await Institution
-            .query(on: db)
-            .filter(\.$name == institution.name)
-            .filter(\.$plaidItemID == institution.plaidItemID)
-            .first() {
-            existing.name = institution.name
-            existing.accounts = institution.accounts
-            try await existing.update(on: db)
-        } else {
-            try await institution.save(on: db)
-        }
+        try await institution.save(on: db)
     }
     
-    func findInstitutionBy(_ plaidItemID: String, on db: Database) async throws -> Institution? {
-        try await Institution.query(on: db)
-            .filter(\.$plaidItemID == plaidItemID)
-            .first()
+    func findInstitutionBy(_ plaidAccessToken: String, on db: Database) async throws -> Institution {
+        guard let institution = try await Institution.query(on: db)
+            .filter(\.$plaidAccessToken == plaidAccessToken)
+            .with(\.$accounts)
+            .first() else {
+            throw Abort(.internalServerError, reason: "No institution found")
+        }
+        return institution
     }
     
-    func deleteInstitution(_ plaidItemID: String, on db: Database) async throws {
-        if let foundInstitution = try await findInstitutionBy(plaidItemID, on: db) {
-            try await foundInstitution.delete(on: db)
-        }
+    func delete(_ institution: Institution, on db: Database) async throws {
+        let existingInstitution =
+        try await findInstitutionBy(institution.plaidAccessToken, on: db)
+        try await existingInstitution.delete(on: db)
     }
 }
