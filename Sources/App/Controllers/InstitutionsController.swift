@@ -46,9 +46,7 @@ extension InstitutionsController {
             // Decode the body
             let requestBody = try req.content.decode(FFRefreshBalanceRequestBody.self)
             let plaidAccessToken = requestBody.institution.plaidAccessToken
-            print("Fetching existing institution")
             let existingInstitution = try await provider.institutionMatching(plaidAccessToken, on: req.db)
-            print("Mapping account id's")
             let accountIDs = existingInstitution.accounts.map { $0.accountID }
             
             guard !accountIDs.isEmpty else {

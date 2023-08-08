@@ -28,10 +28,8 @@ final class BudgetItemRepository: BudgetItemStore {
             existingItem.planned = item.planned
             existingItem.type = item.type
             try await existingItem.update(on: db)
-            print("Updated Item: \(existingItem)")
         } else {
             try await item.create(on: db)
-            print("Created Item: \(item)")
         }
     }
     
