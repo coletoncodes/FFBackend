@@ -65,6 +65,7 @@ extension FFCreateLinkTokenResponse: Content {}
 
 extension FFMonthlyBudgetResponse: Content {}
 extension FFPostMonthlyBudgetRequestBody: Content {}
+extension FFAllMonthlyBudgetsResponse: Content {}
 
 extension FFPostBudgetCategoriesRequestBody: Content {}
 extension FFBudgetCategoriesResponse: Content {}

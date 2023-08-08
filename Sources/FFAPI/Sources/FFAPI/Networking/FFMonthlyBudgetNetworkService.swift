@@ -10,6 +10,7 @@ import Foundation
 public protocol FFMonthlyBudgetNetworkService {
     func getMonthlyBudget(monthlyBudgetID: UUID) async throws -> FFMonthlyBudgetResponse
     func postMonthlyBudget(body: FFPostMonthlyBudgetRequestBody) async throws
+    func getAllMonthlyBudgets(userID: UUID) async throws -> FFAllMonthlyBudgetsResponse
 }
 
 public final class FFMonthlyBudgetNetworkingService: FFMonthlyBudgetNetworkService, FFNetworkService {
@@ -40,6 +41,16 @@ public final class FFMonthlyBudgetNetworkingService: FFMonthlyBudgetNetworkServi
         return try await performRequest(
             FFPostMonthlyBudgetRequest(
                 body: body,
+                accessToken: accessToken,
+                refreshToken: refreshToken
+            )
+        )
+    }
+    
+    public func getAllMonthlyBudgets(userID: UUID) async throws -> FFAllMonthlyBudgetsResponse {
+        return try await performRequest(
+            FFGetAllMonthlyBudgetsRequest(
+                userID: userID,
                 accessToken: accessToken,
                 refreshToken: refreshToken
             )

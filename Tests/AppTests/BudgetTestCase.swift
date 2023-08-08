@@ -15,10 +15,13 @@ class BudgetTestCase: AuthenticatedTestCase {
     var budgetCategoriesPath: String { "/api/categories/" }
     
     // MARK: - Interface
-    func postMonthlyBudget() throws -> FFMonthlyBudget? {
-        let janBudget = FFMonthlyBudget(id: .init(), userID: user.id, month: 01, year: 2023)
+    func postMonthlyBudget(_ monthlyBudget: FFMonthlyBudget? = nil) throws -> FFMonthlyBudget? {
+        var budgetToPost = FFMonthlyBudget(id: .init(), userID: user.id, month: 01, year: 2023)
+        if let monthlyBudget = monthlyBudget {
+            budgetToPost = monthlyBudget
+        }
         
-        let body = FFPostMonthlyBudgetRequestBody(monthlyBudget: janBudget)
+        let body = FFPostMonthlyBudgetRequestBody(monthlyBudget: budgetToPost)
         
         /** When */
         var postedBudget: FFMonthlyBudget?
@@ -34,7 +37,7 @@ class BudgetTestCase: AuthenticatedTestCase {
                 let response = try res.content.decode(FFMonthlyBudgetResponse.self)
                 
                 // Verify matches expected
-                XCTAssertEqual(response.monthlyBudget, janBudget)
+                XCTAssertEqual(response.monthlyBudget, budgetToPost)
                 postedBudget = response.monthlyBudget
             })
         return postedBudget

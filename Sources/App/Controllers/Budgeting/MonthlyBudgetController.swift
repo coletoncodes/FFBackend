@@ -60,7 +60,7 @@ extension MonthlyBudgetController {
     func getAllMonthlyBudgetsForUser(req: Request) async throws -> FFAllMonthlyBudgetsResponse {
         do {
             guard let userID = req.parameters.get("userID", as: UUID.self) else {
-                throw Abort(.badRequest, reason: "No month in URL.")
+                throw Abort(.badRequest, reason: "No userID in URL.")
             }
             
             let monthlyBudgets = try await provider.getAllMonthlyBudgets(userID, on: req.db)
@@ -70,17 +70,5 @@ extension MonthlyBudgetController {
             req.logger.error("\(errorStr)")
             throw Abort(.internalServerError, reason: errorStr, error: error)
         }
-    }
-}
-
-// TODO: Move to FFAPI+
-extension FFAllMonthlyBudgetsResponse: Content {}
-
-// TODO: Move to FFAPI
-public struct FFAllMonthlyBudgetsResponse: Codable {
-    public let monthlyBudgets: [FFMonthlyBudget]
-    
-    public init(monthlyBudgets: [FFMonthlyBudget]) {
-        self.monthlyBudgets = monthlyBudgets
     }
 }
