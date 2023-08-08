@@ -108,7 +108,7 @@ extension FFMonthlyBudget {
     init(from monthlyBudget: MonthlyBudget) throws {
         self.init(
             id: try monthlyBudget.requireID(),
-            userID: try monthlyBudget.user.requireID(),
+            userID: monthlyBudget.$user.id,
             month: monthlyBudget.month,
             year: monthlyBudget.year
         )

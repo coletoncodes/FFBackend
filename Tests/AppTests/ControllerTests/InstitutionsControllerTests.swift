@@ -32,12 +32,12 @@ final class InstitutionsControllerTests: AuthenticatedTestCase {
         plaidAccessToken = nil
     }
     
+    // MARK: - Helpers
     private func savePlaidAccessToken() async throws {
         plaidAccessToken = PlaidAccessToken(id: UUID(), userID: user.id!, accessToken: UUID().uuidString)
         try await plaidAccessTokenStore.save(plaidAccessToken, on: app.db)
     }
     
-    // MARK: - Helpers
     private func postInstitutions() throws -> [FFInstitution] {
         let institutions = [
             FFInstitution(id: .init(), name: "Institution 1", userID: user.id!, plaidAccessToken: plaidAccessToken.accessToken, accounts: []),

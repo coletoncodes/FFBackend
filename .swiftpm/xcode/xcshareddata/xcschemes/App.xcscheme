@@ -52,6 +52,14 @@
                BlueprintName = "AppTests"
                ReferencedContainer = "container:">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "AuthenticatedTestCase">
+               </Test>
+               <Test
+                  Identifier = "DatabaseInteracting">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>

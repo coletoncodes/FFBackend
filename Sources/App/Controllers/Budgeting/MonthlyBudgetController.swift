@@ -26,11 +26,13 @@ final class MonthlyBudgetController: RouteCollection {
 // MARK: - Public Requests
 extension MonthlyBudgetController {
     
-    func postMonthlyBudget(req: Request) async throws -> HTTPStatus {
+    func postMonthlyBudget(req: Request) async throws -> FFMonthlyBudgetResponse {
         do {
             let body = try req.content.decode(FFPostMonthlyBudgetRequestBody.self)
             try await provider.save(body.monthlyBudget, on: req.db)
-            return .ok
+            
+            let monthlyBudget = try await provider.getMonthlyBudget(body.monthlyBudget.id, on: req.db)
+            return FFMonthlyBudgetResponse(monthlyBudget: monthlyBudget)
         } catch {
             let errorStr = "Failed to save monthly budget"
             req.logger.error("\(errorStr)")
