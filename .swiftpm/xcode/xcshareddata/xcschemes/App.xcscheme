@@ -57,6 +57,9 @@
                   Identifier = "AuthenticatedTestCase">
                </Test>
                <Test
+                  Identifier = "BudgetTestCase">
+               </Test>
+               <Test
                   Identifier = "DatabaseInteracting">
                </Test>
             </SkippedTests>
