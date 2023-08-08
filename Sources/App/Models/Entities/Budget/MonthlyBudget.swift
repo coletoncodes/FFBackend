@@ -7,6 +7,7 @@
 
 import Fluent
 import Foundation
+import FFAPI
 
 final class MonthlyBudget: Model {
     static let schema = "monthly_budgets"
@@ -38,5 +39,14 @@ final class MonthlyBudget: Model {
         self.month = month
         self.year = year
         self.$user.id = userID
+    }
+    
+    convenience init(from ffMonthlyBudget: FFMonthlyBudget) {
+        self.init(
+            id: ffMonthlyBudget.id,
+            month: ffMonthlyBudget.month,
+            year: ffMonthlyBudget.year,
+            userID: ffMonthlyBudget.userID
+        )
     }
 }

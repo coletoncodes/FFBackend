@@ -10,7 +10,7 @@ import Vapor
 
 protocol MonthlyBudgetStore {
     func save(_ monthlyBudget: MonthlyBudget, on db: Database) async throws
-    func getMonthlyBudget(_ monthlyBudget: MonthlyBudget, on db: Database) async throws -> MonthlyBudget
+    func getMonthlyBudget(_ monthlyBudgetID: MonthlyBudget.IDValue, on db: Database) async throws -> MonthlyBudget
 }
 
 final class MonthlyBudgetRepository: MonthlyBudgetStore {
@@ -23,13 +23,12 @@ final class MonthlyBudgetRepository: MonthlyBudgetStore {
         try await monthlyBudget.save(on: db)
     }
     
-    func getMonthlyBudget(_ monthlyBudget: MonthlyBudget, on db: Database) async throws -> MonthlyBudget {
+    func getMonthlyBudget(_ monthlyBudgetID: MonthlyBudget.IDValue, on db: Database) async throws -> MonthlyBudget {
         guard let foundItem = try await MonthlyBudget
             .query(on: db)
-            .filter(\.$id == monthlyBudget.requireID())
-            .filter(\.$user.$id == monthlyBudget.$user.id)
+            .filter(\.$id == monthlyBudgetID)
             .first() else {
-            throw Abort(.internalServerError, reason: "No MonthlyBudget exists")
+            throw Abort(.internalServerError, reason: "No MonthlyBudget for the provided ID exists")
         }
         
         return foundItem

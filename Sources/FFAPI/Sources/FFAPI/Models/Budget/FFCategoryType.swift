@@ -7,7 +7,11 @@
 
 import Foundation
 
-public enum FFCategoryType: String, Codable {
+public enum FFCategoryType: String, Codable, Identifiable {
     case income
     case expense
+    
+    public var id: String {
+        self.rawValue
+    }
 }

@@ -101,6 +101,17 @@ extension FFBankAccount: Content {
     }
 }
 
+extension FFMonthlyBudget {
+    init(from monthlyBudget: MonthlyBudget) throws {
+        self.init(
+            id: try monthlyBudget.requireID(),
+            userID: try monthlyBudget.user.requireID(),
+            month: monthlyBudget.month,
+            year: monthlyBudget.year
+        )
+    }
+}
+
 extension FFBudgetCategory: Content {
     init(from category: BudgetCategory) throws {
         self.init(
