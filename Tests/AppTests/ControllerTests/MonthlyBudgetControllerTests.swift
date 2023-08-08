@@ -15,7 +15,7 @@ final class MonthlyBudgetControllerTests: AuthenticatedTestCase {
     private var monthlyBudgetPath: String { "api/monthly-budget/" }
     
     // MARK: - Helpers
-    private func postMonthlyBudget() async throws -> FFMonthlyBudget? {
+    private func postMonthlyBudget() throws -> FFMonthlyBudget? {
         let janBudget = FFMonthlyBudget(id: .init(), userID: user.id!, month: 01, year: 2023)
         
         let body = FFPostMonthlyBudgetRequestBody(monthlyBudget: janBudget)
@@ -41,14 +41,14 @@ final class MonthlyBudgetControllerTests: AuthenticatedTestCase {
     }
     
     // MARK: - Tests
-    func test_PostMonthlyBudget_Success() async throws {
-        let postedMonthlyBudget = try await postMonthlyBudget()
+    func test_PostMonthlyBudget_Success() throws {
+        let postedMonthlyBudget = try postMonthlyBudget()
         XCTAssertNotNil(postedMonthlyBudget)
     }
     
-    func test_GetMonthlyBudget_Success() async throws {
+    func test_GetMonthlyBudget_Success() throws {
         /** Given */
-        let postedMonthlyBudget = try await postMonthlyBudget()
+        let postedMonthlyBudget = try postMonthlyBudget()
         
         /** When */
         let getMonthlyBudgetPath = monthlyBudgetPath + "\(postedMonthlyBudget!.id)"

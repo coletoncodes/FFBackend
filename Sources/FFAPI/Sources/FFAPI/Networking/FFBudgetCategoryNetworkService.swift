@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol FFBudgetCategoryNetworkService {
-    func getCategories(userID: UUID) async throws -> FFBudgetCategoriesResponse
+    func getCategories(monthlyBudgetID: UUID) async throws -> FFBudgetCategoriesResponse
     func saveCategories(body: FFPostBudgetCategoriesRequestBody) async throws -> FFBudgetCategoriesResponse
     func deleteCategory(categoryID: UUID) async throws
 }
@@ -27,9 +27,13 @@ public final class FFBudgetCategoryNetworkingService: FFBudgetCategoryNetworkSer
         self.refreshToken = refreshToken
     }
     
-    public func getCategories(userID: UUID) async throws -> FFBudgetCategoriesResponse {
+    public func getCategories(monthlyBudgetID: UUID) async throws -> FFBudgetCategoriesResponse {
         return try await performRequest(
-            FFGetBudgetCategoriesRequest(userID: userID, refreshToken: refreshToken, accessToken: accessToken)
+            FFGetBudgetCategoriesRequest(
+                monthlyBudgetID: monthlyBudgetID,
+                refreshToken: refreshToken,
+                accessToken: accessToken
+            )
         )
     }
     

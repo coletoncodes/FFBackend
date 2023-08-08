@@ -41,13 +41,13 @@ struct FFPostBudgetCategoriesRequest: FFAPIRequest {
 
 public struct FFPostBudgetCategoriesRequestBody: Codable {
     public let budgetCategories: [FFBudgetCategory]
-    public let userID: UUID
+    public let monthlyBudgetID: UUID
     
     public init(
         budgetCategories: [FFBudgetCategory],
-        userID: UUID
+        monthlyBudgetID: UUID
     ) {
         self.budgetCategories = budgetCategories
-        self.userID = userID
+        self.monthlyBudgetID = monthlyBudgetID
     }
 }

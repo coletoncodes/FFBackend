@@ -119,7 +119,7 @@ extension FFBudgetCategory: Content {
     init(from category: BudgetCategory) throws {
         self.init(
             id: try category.requireID(),
-            monthlyBudgetID: try category.monthlyBudget.requireID(),
+            monthlyBudgetID: category.$monthlyBudget.id,
             name: category.name,
             budgetItems: try category.budgetItems.map { try FFBudgetItem(from: $0, categoryID: category.requireID()) }
         )
