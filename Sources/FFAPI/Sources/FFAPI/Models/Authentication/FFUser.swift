@@ -8,14 +8,14 @@
 import Foundation
 
 public struct FFUser: Codable, Equatable, Hashable, Identifiable {
-    public let id: UUID?
+    public let id: UUID
     public let firstName: String
     public let lastName: String
     public let email: String
     public let passwordHash: String
     
     public init(
-        id: UUID? = UUID(),
+        id: UUID,
         firstName: String,
         lastName: String,
         email: String,

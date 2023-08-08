@@ -31,7 +31,7 @@ final class UserProvider: UserProviding {
             return nil
         }
         
-        return FFUser(from: user)
+        return try FFUser(from: user)
     }
     
     func findBy(id: UUID, from req: Request) async throws -> FFUser? {
@@ -39,6 +39,6 @@ final class UserProvider: UserProviding {
             return nil
         }
         
-        return FFUser(from: user)
+        return try FFUser(from: user)
     }
 }

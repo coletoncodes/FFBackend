@@ -52,7 +52,7 @@ private extension AuthenticationController {
             }
             
             let user = try User(from: registerRequest)
-            let ffUser = FFUser(from: user)
+            let ffUser = try FFUser(from: user)
             try await userProvider.save(ffUser: ffUser, from: req)
             
             // Return the session for the user

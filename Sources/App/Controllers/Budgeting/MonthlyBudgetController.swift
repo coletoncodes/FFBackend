@@ -18,8 +18,10 @@ final class MonthlyBudgetController: RouteCollection {
         let budgetRoutes = routes.grouped("monthly-budget")
         // Post's a new monthly budget
         budgetRoutes.post("", use: postMonthlyBudget)
-        // Get's the monthly budget for the given month and year.
+        // Get's the monthly budget for the given monthlyBudgetID.
         budgetRoutes.get(":monthlyBudgetID", use: getMonthlyBudget)
+        // Get's all the monthly budget item's for a given user.
+        budgetRoutes.get("all", ":userID", use: getAllMonthlyBudgetsForUser)
     }
 }
 
@@ -53,5 +55,32 @@ extension MonthlyBudgetController {
             req.logger.error("\(errorStr)")
             throw Abort(.internalServerError, reason: errorStr, error: error)
         }
+    }
+    
+    func getAllMonthlyBudgetsForUser(req: Request) async throws -> FFAllMonthlyBudgetsResponse {
+        do {
+            guard let userID = req.parameters.get("userID", as: UUID.self) else {
+                throw Abort(.badRequest, reason: "No month in URL.")
+            }
+            
+            let monthlyBudgets = try await provider.getAllMonthlyBudgets(userID, on: req.db)
+            return FFAllMonthlyBudgetsResponse(monthlyBudgets: monthlyBudgets)
+        } catch {
+            let errorStr = "Failed to get monthly budgets for user"
+            req.logger.error("\(errorStr)")
+            throw Abort(.internalServerError, reason: errorStr, error: error)
+        }
+    }
+}
+
+// TODO: Move to FFAPI+
+extension FFAllMonthlyBudgetsResponse: Content {}
+
+// TODO: Move to FFAPI
+public struct FFAllMonthlyBudgetsResponse: Codable {
+    public let monthlyBudgets: [FFMonthlyBudget]
+    
+    public init(monthlyBudgets: [FFMonthlyBudget]) {
+        self.monthlyBudgets = monthlyBudgets
     }
 }

@@ -34,17 +34,17 @@ final class InstitutionsControllerTests: AuthenticatedTestCase {
     
     // MARK: - Helpers
     private func savePlaidAccessToken() async throws {
-        plaidAccessToken = PlaidAccessToken(id: UUID(), userID: user.id!, accessToken: UUID().uuidString)
+        plaidAccessToken = PlaidAccessToken(id: UUID(), userID: user.id, accessToken: UUID().uuidString)
         try await plaidAccessTokenStore.save(plaidAccessToken, on: app.db)
     }
     
     private func postInstitutions() throws -> [FFInstitution] {
         let institutions = [
-            FFInstitution(id: .init(), name: "Institution 1", userID: user.id!, plaidAccessToken: plaidAccessToken.accessToken, accounts: []),
-            FFInstitution(id: .init(), name: "Institution 2", userID: user.id!, plaidAccessToken: plaidAccessToken.accessToken, accounts: []),
+            FFInstitution(id: .init(), name: "Institution 1", userID: user.id, plaidAccessToken: plaidAccessToken.accessToken, accounts: []),
+            FFInstitution(id: .init(), name: "Institution 2", userID: user.id, plaidAccessToken: plaidAccessToken.accessToken, accounts: []),
         ]
         
-        let requestBody = FFPostInstitutionsRequestBody(userID: user.id!, institutions: institutions)
+        let requestBody = FFPostInstitutionsRequestBody(userID: user.id, institutions: institutions)
         
         var postedInstitutions: [FFInstitution] = []
         try app.test(.POST, institutionsPath, headers: authHeaders, beforeRequest: { req in
@@ -74,7 +74,7 @@ final class InstitutionsControllerTests: AuthenticatedTestCase {
         let institutions = try postInstitutions()
         
         /** When */
-        let getPath = institutionsPath + "\(user.id!)"
+        let getPath = institutionsPath + "\(user.id)"
         try app.test(.GET, getPath, headers: authHeaders, afterResponse: { res in
             /** Then */
             XCTAssertEqual(res.status, .ok)

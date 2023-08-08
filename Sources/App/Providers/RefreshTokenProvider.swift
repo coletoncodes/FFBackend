@@ -24,16 +24,12 @@ final class RefreshTokenProvider: RefreshTokenProviding {
     
     // MARK: - Interface
     func generateRefreshToken(for ffUser: FFUser, database: Database) async throws -> FFRefreshToken {
-        guard let userID = ffUser.id else {
-            throw Abort(.unauthorized, reason: "UserID was nil.")
-        }
-        
         // Remove any existing tokens
         try await removeExistingTokens(for: ffUser, database: database)
         
         // Create a new RefreshToken that expires in 30 days.
         let refreshToken = RefreshToken(
-            userID: userID,
+            userID: ffUser.id,
             token: UUID().uuidString,
             expiresAt: Date.thirtyDaysFromNow
         )
@@ -82,12 +78,8 @@ final class RefreshTokenProvider: RefreshTokenProviding {
     
     // MARK: - Helpers
     func removeExistingTokens(for ffUser: FFUser, database: Database) async throws {
-        guard let userID = ffUser.id else {
-            throw Abort(.unauthorized, reason: "Unable to find matching tokens for user.")
-        }
-        
         // Get Tokens
-        let tokens = try await tokenStore.tokens(userID: userID, on: database)
+        let tokens = try await tokenStore.tokens(userID: ffUser.id, on: database)
         
         guard !tokens.isEmpty else { return }
         

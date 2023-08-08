@@ -13,6 +13,7 @@ import Fluent
 protocol MonthlyBudgetProviding {
     func save(_ ffMonthlyBudget: FFMonthlyBudget, on db: Database) async throws
     func getMonthlyBudget(_ ffMonthlyBudgetID: FFMonthlyBudget.ID, on db: Database) async throws -> FFMonthlyBudget
+    func getAllMonthlyBudgets(_ userID: FFUser.ID, on db: Database) async throws -> [FFMonthlyBudget]
 }
 
 final class MonthlyBudgetProvider: MonthlyBudgetProviding {
@@ -32,5 +33,9 @@ final class MonthlyBudgetProvider: MonthlyBudgetProviding {
     func getMonthlyBudget(_ ffMonthlyBudgetID: FFMonthlyBudget.ID, on db: Database) async throws -> FFMonthlyBudget {
         let monthlyBudget = try await store.getMonthlyBudget(ffMonthlyBudgetID, on: db)
         return try FFMonthlyBudget(from: monthlyBudget)
+    }
+    
+    func getAllMonthlyBudgets(_ userID: FFUser.ID, on db: Database) async throws -> [FFMonthlyBudget] {
+        return try await store.getAllMonthlyBudgets(for: userID, on: db).map { try FFMonthlyBudget(from: $0) }
     }
 }

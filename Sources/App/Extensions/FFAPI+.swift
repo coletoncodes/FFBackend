@@ -11,9 +11,9 @@ import Vapor
 extension FFSessionResponse: Content {}
 
 extension FFUser {
-    init(from user: User) {
+    init(from user: User) throws {
         self.init(
-            id: user.id,
+            id: try user.requireID(),
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,

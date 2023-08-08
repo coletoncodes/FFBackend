@@ -28,10 +28,7 @@ public final class FFAuthenticationNetworkService: FFAuthNetworkService, FFNetwo
     }
     
     public func logout(_ user: FFUser) async throws {
-        guard let userID = user.id else {
-            throw FFAPIError.nilValue(details: "Unable to logout user, user id is nil")
-        }
-        return try await performRequest(FFLogoutRequest(userID: userID))
+        return try await performRequest(FFLogoutRequest(userID: user.id))
     }
         
     public func loadSession(with refreshToken: FFRefreshToken, accessToken: FFAccessToken) async throws -> FFSessionResponse {

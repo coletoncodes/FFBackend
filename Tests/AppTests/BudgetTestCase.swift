@@ -16,7 +16,7 @@ class BudgetTestCase: AuthenticatedTestCase {
     
     // MARK: - Interface
     func postMonthlyBudget() throws -> FFMonthlyBudget? {
-        let janBudget = FFMonthlyBudget(id: .init(), userID: user.id!, month: 01, year: 2023)
+        let janBudget = FFMonthlyBudget(id: .init(), userID: user.id, month: 01, year: 2023)
         
         let body = FFPostMonthlyBudgetRequestBody(monthlyBudget: janBudget)
         
