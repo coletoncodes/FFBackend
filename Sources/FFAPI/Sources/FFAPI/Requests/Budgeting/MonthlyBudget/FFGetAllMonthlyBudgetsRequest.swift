@@ -1,23 +1,23 @@
 //
-//  FFPostBudgetItemRequest.swift
+//  FFGetAllMonthlyBudgetsRequest.swift
 //  
 //
-//  Created by Coleton Gorecke on 7/25/23.
+//  Created by Coleton Gorecke on 8/7/23.
 //
 
 import Foundation
 
-struct FFPostBudgetItemRequest: FFAPIRequest {
-    typealias Response = FFBudgetItemResponse
+struct FFGetAllMonthlyBudgetsRequest: FFAPIRequest {
+    typealias Response = FFAllMonthlyBudgetsResponse
     
-    var body: Encodable?
+    var body: Encodable? = nil
     
     var method: HTTPMethod {
-        .POST
+        .GET
     }
     
     var path: String {
-        FFAPIPath.budgetItems
+        FFAPIPath.monthlyBudgetAll + "\(userID)"
     }
     
     var headers: [FFAPIHeader] {
@@ -26,24 +26,15 @@ struct FFPostBudgetItemRequest: FFAPIRequest {
     
     let accessToken: FFAccessToken
     let refreshToken: FFRefreshToken
+    let userID: UUID
     
     init(
-        body: FFBudgetItemRequestBody,
+        userID: UUID,
         accessToken: FFAccessToken,
         refreshToken: FFRefreshToken
     ) {
-        self.body = body
+        self.userID = userID
         self.accessToken = accessToken
         self.refreshToken = refreshToken
-    }
-}
-
-public struct FFBudgetItemRequestBody: Codable {
-    public let budgetItem: FFBudgetItem
-    
-    public init(
-        budgetItem: FFBudgetItem
-    ) {
-        self.budgetItem = budgetItem
     }
 }

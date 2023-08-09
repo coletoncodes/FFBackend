@@ -49,16 +49,12 @@ final class AccessTokenProvider: AccessTokenProviding {
     
     // MARK: - Interface
     func generateAccessToken(for user: FFUser) throws -> FFAccessToken {
-        guard let userID = user.id else {
-            throw Abort(.internalServerError, reason: "Nil User ID")
-        }
-        
         // Create the JWT payload that expires in one hour.
         guard let oneHourFromNow = Date.oneHourFromNow else {
             throw Abort(.internalServerError, reason: "Failed to configure date for JWT token.")
         }
         
-        let payload = JWTTokenPayload(expiration: .init(value: oneHourFromNow), userID: userID)
+        let payload = JWTTokenPayload(expiration: .init(value: oneHourFromNow), userID: user.id)
         
         // Sign the JWT payload & return
         return try signAccessToken(for: payload)

@@ -21,26 +21,26 @@ final class BudgetCategory: Model {
     @Children(for: \.$category)
     var budgetItems: [BudgetItem]
     
-    @Parent(key: "user_id")
-    var user: User
+    @Parent(key: "monthly_budget_id")
+    var monthlyBudget: MonthlyBudget
     
     init() {}
 
     init(
         id: UUID? = nil,
         name: String,
-        userID: UUID
+        monthlyBudgetID: UUID
     ) {
         self.id = id
         self.name = name
-        self.$user.id = userID
+        self.$monthlyBudget.id = monthlyBudgetID
     }
     
     convenience init(from category: FFBudgetCategory) {
         self.init(
             id: category.id,
             name: category.name,
-            userID: category.userID
+            monthlyBudgetID: category.monthlyBudgetID
         )
     }
 }

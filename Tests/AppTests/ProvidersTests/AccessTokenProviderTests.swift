@@ -28,7 +28,7 @@ final class AccessTokenProviderTests: XCTestCase {
     /// Verify generating an access token succeeds
     func test_GenerateAccessToken_Success() throws {
         let user = User(id: UUID(), firstName: "John", lastName: "Doe", email: "john@johndoe.com", passwordHash: "passwordHash")
-        let userDTO = FFUser(from: user)
+        let userDTO = try FFUser(from: user)
         
         // Generate the access token
         let accessTokenDTO = try sut.generateAccessToken(for: userDTO)
@@ -40,19 +40,10 @@ final class AccessTokenProviderTests: XCTestCase {
         XCTAssertEqual(accessTokenDTO.userID, user.id, "The user id in the token payload should match with the user id.")
     }
     
-    /// Verify an error is thrown when the user.id is nil
-    func test_GenerateAccessToken_WithNilUserID_Fails() throws {
-        let user = User(id: nil, firstName: "John", lastName: "Doe", email: "john@johndoe.com", passwordHash: "passwordHash")
-        let userDTO = FFUser(from: user)
-        
-        // Generate the access token
-        XCTAssertThrowsError(try sut.generateAccessToken(for: userDTO))
-    }
-    
     // MARK: - validateAccessToken(token)
     func test_ValidateAccessToken_Success() throws {
         let user = User(id: UUID(), firstName: "John", lastName: "Doe", email: "john@johndoe.com", passwordHash: "passwordHash")
-        let userDTO = FFUser(from: user)
+        let userDTO = try FFUser(from: user)
         
         // Generate the access token
         let accessTokenDTO = try sut.generateAccessToken(for: userDTO)

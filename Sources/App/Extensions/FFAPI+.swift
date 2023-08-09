@@ -11,9 +11,9 @@ import Vapor
 extension FFSessionResponse: Content {}
 
 extension FFUser {
-    init(from user: User) {
+    init(from user: User) throws {
         self.init(
-            id: user.id,
+            id: try user.requireID(),
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
@@ -63,6 +63,10 @@ extension FFLoginRequest: Validatable, Content {
 extension FFCreateLinkTokenRequestBody: Content {}
 extension FFCreateLinkTokenResponse: Content {}
 
+extension FFMonthlyBudgetResponse: Content {}
+extension FFPostMonthlyBudgetRequestBody: Content {}
+extension FFAllMonthlyBudgetsResponse: Content {}
+
 extension FFPostBudgetCategoriesRequestBody: Content {}
 extension FFBudgetCategoriesResponse: Content {}
 
@@ -101,11 +105,22 @@ extension FFBankAccount: Content {
     }
 }
 
+extension FFMonthlyBudget {
+    init(from monthlyBudget: MonthlyBudget) throws {
+        self.init(
+            id: try monthlyBudget.requireID(),
+            userID: monthlyBudget.$user.id,
+            month: monthlyBudget.month,
+            year: monthlyBudget.year
+        )
+    }
+}
+
 extension FFBudgetCategory: Content {
     init(from category: BudgetCategory) throws {
         self.init(
             id: try category.requireID(),
-            userID: category.$user.id,
+            monthlyBudgetID: category.$monthlyBudget.id,
             name: category.name,
             budgetItems: try category.budgetItems.map { try FFBudgetItem(from: $0, categoryID: category.requireID()) }
         )

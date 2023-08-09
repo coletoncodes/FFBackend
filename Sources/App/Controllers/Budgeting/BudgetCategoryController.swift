@@ -16,8 +16,8 @@ final class BudgetCategoryController: RouteCollection {
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
         let budgetingRoutes = routes.grouped("categories")
-        // Get's all categories for a user
-        budgetingRoutes.get(":userID", use: getCategories)
+        // Get's all categories for the given month
+        budgetingRoutes.get(":monthlyBudgetID", use: getCategories)
         // Post's all categories
         budgetingRoutes.post("", use: postCategories)
         // Delete's the category with the given ID.
@@ -29,10 +29,10 @@ final class BudgetCategoryController: RouteCollection {
 extension BudgetCategoryController {
     func getCategories(req: Request) async throws -> FFBudgetCategoriesResponse {
         do {
-            guard let userID = req.parameters.get("userID", as: UUID.self) else {
-                throw Abort(.badRequest, reason: "No USERID in URL.")
+            guard let monthlyBudgetID = req.parameters.get("monthlyBudgetID", as: UUID.self) else {
+                throw Abort(.badRequest, reason: "No monthlyBudgetID in URL.")
             }
-            let budgetCategories = try await budgetCategoryProvider.getCategories(for: userID, database: req.db)
+            let budgetCategories = try await budgetCategoryProvider.getCategories(for: monthlyBudgetID, database: req.db)
             return FFBudgetCategoriesResponse(budgetCategories: budgetCategories)
         } catch {
             throw Abort(.internalServerError, reason: "Failed to get BudgetCategories.", error: error)
@@ -43,7 +43,7 @@ extension BudgetCategoryController {
         do {
             let body = try req.content.decode(FFPostBudgetCategoriesRequestBody.self)
             try await budgetCategoryProvider.save(categories: body.budgetCategories, database: req.db)
-            let budgetCategories = try await budgetCategoryProvider.getCategories(for: body.userID, database: req.db)
+            let budgetCategories = try await budgetCategoryProvider.getCategories(for: body.monthlyBudgetID, database: req.db)
             return FFBudgetCategoriesResponse(budgetCategories: budgetCategories)
         } catch {
             throw Abort(.internalServerError, reason: "Failed to save BudgetCategories.", error: error)

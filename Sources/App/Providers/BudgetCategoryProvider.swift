@@ -11,7 +11,7 @@ import Factory
 import Fluent
 
 protocol BudgetCategoryProviding {
-    func getCategories(for userID: UUID, database: Database) async throws -> [FFBudgetCategory]
+    func getCategories(for monthlyBudgetID: UUID, database: Database) async throws -> [FFBudgetCategory]
     func deleteCategory(with id: UUID, database: Database) async throws
     func save(categories: [FFBudgetCategory], database: Database) async throws
     func save(category: FFBudgetCategory, database: Database) async throws
@@ -25,8 +25,8 @@ final class BudgetCategoryProvider: BudgetCategoryProviding {
     init() {}
     
     // MARK: - Interface
-    func getCategories(for userID: UUID, database: Database) async throws -> [FFBudgetCategory] {
-        return try await store.getCategories(for: userID, on: database)
+    func getCategories(for monthlyBudgetID: UUID, database: Database) async throws -> [FFBudgetCategory] {
+        return try await store.getCategories(for: monthlyBudgetID, on: database)
             .map { try FFBudgetCategory(from: $0) }
     }
     

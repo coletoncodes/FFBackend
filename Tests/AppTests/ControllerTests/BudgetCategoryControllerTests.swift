@@ -10,40 +10,7 @@ import FFAPI
 import XCTVapor
 import XCTest
 
-final class BudgetCategoryControllerTests: AuthenticatedTestCase {
-    private var budgetingPath: String {
-        "/api/categories/"
-    }
-    
-    // MARK: - Helpers
-    private func postBudgetCategories() throws -> [FFBudgetCategory] {
-        let budgetCategories = [
-            FFBudgetCategory(id: .init(), userID: user.id!, name: "Test Category 1"),
-            FFBudgetCategory(id: .init(), userID: user.id!, name: "Test Category 2"),
-            FFBudgetCategory(id: .init(), userID: user.id!, name: "Test Category 3")
-        ]
-        let body = FFPostBudgetCategoriesRequestBody(budgetCategories: budgetCategories, userID: user.id!)
-        
-        /** When */
-        var postedCategories: [FFBudgetCategory] = []
-        try app.test(
-            .POST, budgetingPath, headers: authHeaders,
-            beforeRequest: { req in
-                try req.content.encode(body)
-            }, afterResponse: { res in
-                
-                /** Then */
-                XCTAssertEqual(res.status, .ok)
-                
-                let response = try res.content.decode(FFBudgetCategoriesResponse.self)
-                
-                // Verify matches expected
-                XCTAssertEqual(response.budgetCategories, budgetCategories)
-                postedCategories = response.budgetCategories
-            })
-        return postedCategories
-    }
-    
+final class BudgetCategoryControllerTests: BudgetTestCase {
     // MARK: - func postBudgetCategories()
     func test_PostBudgetCategories_Success() throws {
         let categories = try postBudgetCategories()
@@ -54,9 +21,10 @@ final class BudgetCategoryControllerTests: AuthenticatedTestCase {
     func test_GetBudgetCategories_Success() throws {
         /** Given */
         let categories = try postBudgetCategories()
+        let monthlyBudgetID = categories[0].monthlyBudgetID
         
         /** When */
-        let getPath = budgetingPath + "\(user.id!)"
+        let getPath = budgetCategoriesPath + "\(monthlyBudgetID)"
         try app.test(
             .GET, getPath, headers: authHeaders, afterResponse: { res in
                 
@@ -78,7 +46,7 @@ final class BudgetCategoryControllerTests: AuthenticatedTestCase {
         let categories = try postBudgetCategories()
         
         /** Given */
-        let deletePath = budgetingPath + "\(categories[0].id)"
+        let deletePath = budgetCategoriesPath + "\(categories[0].id)"
         
         /** When */
         // We delete the category
