@@ -17,10 +17,10 @@ enum FFAPIPath {
     // MARK: - Authentication
     
     /// auth/register
-    static let registerUser = "\(auth)/register"
+    static let registerUser = "\(auth)/register/"
     
     /// auth/login
-    static let loginUser = "\(auth)/login"
+    static let loginUser = "\(auth)/login/"
     
     /// auth/logout/:userID
     static func logoutUser(_ userID: UUID) -> String {
@@ -28,21 +28,21 @@ enum FFAPIPath {
     }
     
     /// auth/refresh
-    static let refreshSession = "\(auth)/refresh"
+    static let refreshSession = "\(auth)/refresh/"
     
     /// auth/load-session
-    static let loadSession = "\(auth)/load-session"
+    static let loadSession = "\(auth)/load-session/"
     
     // MARK: - Plaid
     
     /// api/plaid
-    static let plaid = "\(api)/plaid"
+    static let plaid = "\(api)/plaid/"
     
     /// api/plaid/create-link-token
-    static let createLinkToken = "\(plaid)/create-link-token"
+    static let createLinkToken = "\(plaid)/create-link-token/"
     
     /// api/plaid/link-success
-    static let linkSuccess = "\(plaid)/link-success"
+    static let linkSuccess = "\(plaid)/link-success/"
     
     // MARK: - Institutions
     
@@ -51,14 +51,14 @@ enum FFAPIPath {
     
     // MARK: - Budgeting
     /// api/monthly-budget
-    static let monthlyBudget = "\(api)/monthly-budget"
+    static let monthlyBudget = "\(api)/monthly-budget/"
     
     /// api/monthly-budget/all
-    static let monthlyBudgetAll = "\(api)/monthly-budget/all"
+    static let monthlyBudgetAll = "\(api)/monthly-budget/all/"
     
     /// api/categories/
     static let budgetCategories = "\(api)/categories/"
     
     /// api/items
-    static let budgetItems = "\(api)/items"
+    static let budgetItems = "\(api)/items/"
 }
