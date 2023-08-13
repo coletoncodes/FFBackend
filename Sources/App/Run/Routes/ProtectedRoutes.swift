@@ -19,7 +19,7 @@ final class ProtectedRoutes {
     func routes() throws {
         try app.group("api") { api in 
             let protectedRoutes = api.grouped(AuthenticationMiddleware())
-            try protectedRoutes.register(collection: PlaidController())
+            try protectedRoutes.register(collection: PlaidLinkController())
             try protectedRoutes.register(collection: InstitutionsController())
             try protectedRoutes.register(collection: MonthlyBudgetController())
             try protectedRoutes.register(collection: BudgetCategoryController())

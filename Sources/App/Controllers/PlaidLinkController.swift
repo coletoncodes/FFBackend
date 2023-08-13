@@ -1,5 +1,5 @@
 //
-//  PlaidController.swift
+//  PlaidLinkController.swift
 //  
 //
 //  Created by Coleton Gorecke on 5/18/23.
@@ -9,7 +9,7 @@ import FFAPI
 import Factory
 import Vapor
 
-final class PlaidController: RouteCollection {
+final class PlaidLinkController: RouteCollection {
     // MARK: - Dependencies
     @Injected(\.plaidAPIService) private var plaidAPIService
     @Injected(\.userStore) private var userStore
@@ -23,7 +23,7 @@ final class PlaidController: RouteCollection {
 }
 
 // MARK: - Public Requests
-extension PlaidController {
+extension PlaidLinkController {
     /// api/plaid/create-link-token
     ///
     /// Creates a link_token using the Plaid API.
