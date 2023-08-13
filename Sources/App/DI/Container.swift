@@ -87,6 +87,11 @@ extension Container {
             .graph
     }
     
+    var transactionStore: Factory<TransactionStore> {
+        self { TransactionRepository() }
+            .graph
+    }
+    
     // MARK: - Utilities
     // TODO: Inject from environment
     var jwtSigner: Factory<JWTSigner> {
