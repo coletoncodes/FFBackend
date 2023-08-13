@@ -8,7 +8,6 @@
 import Foundation
 
 public protocol FFMonthlyBudgetNetworkService {
-    func getMonthlyBudget(monthlyBudgetID: UUID) async throws -> FFMonthlyBudgetResponse
     func postMonthlyBudget(body: FFPostMonthlyBudgetRequestBody) async throws
     func getAllMonthlyBudgets(userID: UUID) async throws -> FFAllMonthlyBudgetsResponse
 }
@@ -25,16 +24,6 @@ public final class FFMonthlyBudgetNetworkingService: FFMonthlyBudgetNetworkServi
     ) {
         self.accessToken = accessToken
         self.refreshToken = refreshToken
-    }
-    
-    public func getMonthlyBudget(monthlyBudgetID: UUID) async throws -> FFMonthlyBudgetResponse {
-        return try await performRequest(
-            FFGetMonthlyBudgetRequest(
-                monthlyBudgetID: monthlyBudgetID,
-                accessToken: accessToken,
-                refreshToken: refreshToken
-            )
-        )
     }
     
     public func postMonthlyBudget(body: FFPostMonthlyBudgetRequestBody) async throws {
