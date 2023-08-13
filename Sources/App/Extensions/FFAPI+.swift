@@ -149,3 +149,15 @@ extension FFCategoryType {
         }
     }
 }
+
+extension FFTransaction {
+    init(from transaction: Transaction) throws {
+        self.init(
+            id: try transaction.requireID(),
+            bankAccountID: transaction.$bankAccount.id,
+            name: transaction.name,
+            amount: transaction.amount,
+            date: transaction.date
+        )
+    }
+}
