@@ -1,5 +1,5 @@
 //
-//  PlaidControllerTests.swift
+//  PlaidLinkControllerTests.swift
 //  
 //
 //  Created by Coleton Gorecke on 5/30/23.
@@ -10,7 +10,7 @@ import FFAPI
 import Fluent
 import XCTVapor
 
-final class PlaidControllerTests: AuthenticatedTestCase {
+final class PlaidLinkControllerTests: AuthenticatedTestCase {
 
     // MARK: - Lifecycle
     override func setUp() async throws {
