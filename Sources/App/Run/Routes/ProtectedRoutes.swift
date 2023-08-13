@@ -24,6 +24,7 @@ final class ProtectedRoutes {
             try protectedRoutes.register(collection: MonthlyBudgetController())
             try protectedRoutes.register(collection: BudgetCategoryController())
             try protectedRoutes.register(collection: BudgetItemController())
+            try protectedRoutes.register(collection: TransactionsController())
         }
     }
 }
