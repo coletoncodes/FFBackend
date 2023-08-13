@@ -16,7 +16,7 @@ struct CreateMonthlyBudget: AsyncMigration {
             .field("year", .int16, .required)
             .field("user_id", .uuid, .required,
                    .references(User.schema, .id, onDelete: .cascade, onUpdate: .cascade))
-            .unique(on: "month", .id, "year")
+            .unique(on: "month", "year", "user_id")
             .create()
     }
     

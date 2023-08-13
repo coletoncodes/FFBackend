@@ -117,10 +117,10 @@ extension FFMonthlyBudget {
 }
 
 extension FFBudgetCategory: Content {
-    init(from category: BudgetCategory) throws {
+    init(from category: BudgetCategory, monthlyBudgetID: UUID) throws {
         self.init(
             id: try category.requireID(),
-            monthlyBudgetID: category.$monthlyBudget.id,
+            monthlyBudgetID: monthlyBudgetID,
             name: category.name,
             budgetItems: try category.budgetItems.map { try FFBudgetItem(from: $0, categoryID: category.requireID()) }
         )
