@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  TransactionProvider.swift
 //  
 //
 //  Created by Coleton Gorecke on 8/12/23.
@@ -10,7 +10,12 @@ import Foundation
 import Factory
 import Fluent
 
-final class TransactionProvider {
+protocol TransactionProviding {
+    func save(_ transactions: [FFTransaction], database: Database) async throws
+    func getTransactions(for id: FFBankAccount.ID, database: Database) async throws -> [FFTransaction]
+}
+
+final class TransactionProvider: TransactionProviding {
     // MARK: - Dependencies
     @Injected(\.transactionStore) private var store
     
