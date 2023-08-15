@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct FFTransaction: Codable, Hashable, Equatable {
+public struct FFTransaction: Identifiable, Codable, Hashable, Equatable {
     public let id: UUID
     public let institutionID: UUID
     public let name: String
