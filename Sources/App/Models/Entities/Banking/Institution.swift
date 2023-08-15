@@ -18,8 +18,8 @@ final class Institution: Model {
     @Parent(key: "user_id")
     var user: User
     
-    @Field(key: "plaid_access_token")
-    var plaidAccessToken: String
+    @Parent(key: "plaid_access_token_id")
+    var plaidAccessToken: PlaidAccessToken
     
     @Field(key: "name")
     var name: String
@@ -31,20 +31,20 @@ final class Institution: Model {
 
     init(
         id: UUID? = nil,
-        plaidAccessToken: String,
+        plaidAccessTokenID: UUID,
         userID: UUID,
         name: String
     ) {
         self.id = id
         self.name = name
-        self.plaidAccessToken = plaidAccessToken
+        self.$plaidAccessToken.id = plaidAccessTokenID
         self.$user.id = userID
     }
     
     convenience init(from ffInstitution: FFInstitution) {
         self.init(
             id: ffInstitution.id,
-            plaidAccessToken: ffInstitution.plaidAccessToken,
+            plaidAccessTokenID: ffInstitution.plaidAccessTokenID,
             userID: ffInstitution.userID,
             name: ffInstitution.name
         )

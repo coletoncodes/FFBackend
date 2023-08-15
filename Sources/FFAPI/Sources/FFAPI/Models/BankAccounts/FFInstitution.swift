@@ -11,20 +11,20 @@ public struct FFInstitution: Identifiable, Codable, Equatable, Hashable {
     public let id: UUID
     public let name: String
     public let userID: UUID
-    public let plaidAccessToken: String
+    public let plaidAccessTokenID: UUID
     public var accounts: [FFBankAccount]
     
     public init(
         id: UUID,
         name: String,
         userID: UUID,
-        plaidAccessToken: String,
+        plaidAccessTokenID: UUID,
         accounts: [FFBankAccount]
     ) {
         self.id = id
         self.name = name
         self.userID = userID
-        self.plaidAccessToken = plaidAccessToken
+        self.plaidAccessTokenID = plaidAccessTokenID
         self.accounts = accounts
     }
 }

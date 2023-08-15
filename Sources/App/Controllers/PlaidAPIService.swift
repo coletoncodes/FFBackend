@@ -57,14 +57,18 @@ final class PlaidAPIService {
         let plaidAccessToken = PlaidAccessToken(userID: userID, accessToken: publicTokenResponse.access_token)
         try await plaidAccessTokenStore.save(plaidAccessToken, on: req.db)
         
+        guard let plaidAccessTokenID = plaidAccessToken.id else {
+            throw Abort(.internalServerError, reason: "Nil ID for PlaidAccessToken.")
+        }
+        
         let institution = Institution(
-            plaidAccessToken: plaidAccessToken.accessToken,
+            plaidAccessTokenID: plaidAccessTokenID,
             userID: userID,
             name: metadata.institution.name
         )
         
         try await institutionStore.save(institution, on: req.db)
-        let savedInstitution = try await institutionStore.findInstitutionBy(institution.plaidAccessToken, on: req.db)
+        let savedInstitution = try await institutionStore.findInstitutionByPlaidAccessToken(with: plaidAccessTokenID, on: req.db)
         
         guard let institutionID = savedInstitution.id else {
             throw Abort(.internalServerError, reason: "Institution ID value was nil.")

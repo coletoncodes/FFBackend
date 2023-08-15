@@ -14,7 +14,7 @@ protocol InstitutionsProviding {
     func institutions(userID: UUID, database: Database) async throws -> [FFInstitution]
     func save(_ ffInstitution: FFInstitution, database: Database) async throws
     func save(_ ffInstitutions: [FFInstitution], database: Database) async throws
-    func institutionMatching(_ plaidAccessToken: String, on db: Database) async throws -> FFInstitution
+    func institutionMatching(_ plaidAccessTokenID: UUID, on db: Database) async throws -> FFInstitution
 }
 
 final class InstitutionsProvider: InstitutionsProviding {
@@ -38,8 +38,8 @@ final class InstitutionsProvider: InstitutionsProviding {
         }
     }
     
-    func institutionMatching(_ plaidAccessToken: String, on db: Database) async throws -> FFInstitution {
-        let institution = try await institutionStore.findInstitutionBy(plaidAccessToken, on: db)
+    func institutionMatching(_ plaidAccessTokenID: UUID, on db: Database) async throws -> FFInstitution {
+        let institution = try await institutionStore.findInstitutionByPlaidAccessToken(with: plaidAccessTokenID, on: db)
         return try FFInstitution(from: institution)
     }
 }

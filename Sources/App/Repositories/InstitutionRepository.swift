@@ -11,7 +11,7 @@ import Vapor
 protocol InstitutionStore {
     func getInstitutions(userID: UUID, from db: Database) async throws -> [Institution]
     func save(_ institution: Institution, on db: Database) async throws
-    func findInstitutionBy(_ plaidAccessToken: String, on db: Database) async throws -> Institution
+    func findInstitutionByPlaidAccessToken(with id: PlaidAccessToken.IDValue, on db: Database) async throws -> Institution
     func delete(_ institution: Institution, on db: Database) async throws
 }
 
@@ -27,19 +27,26 @@ final class InstitutionRepository: InstitutionStore {
         try await institution.save(on: db)
     }
     
-    func findInstitutionBy(_ plaidAccessToken: String, on db: Database) async throws -> Institution {
-        guard let institution = try await Institution.query(on: db)
-            .filter(\.$plaidAccessToken == plaidAccessToken)
+    func findInstitutionByPlaidAccessToken(with id: PlaidAccessToken.IDValue, on db: Database) async throws -> Institution {
+        guard let institution = try await Institution
+            .query(on: db)
+            .filter(\.$plaidAccessToken.$id == id)
             .with(\.$accounts)
             .first() else {
-            throw Abort(.internalServerError, reason: "No institution found")
+            throw Abort(.internalServerError, reason: "No institution with matching plaidAccessTokenID: \(id)")
         }
         return institution
     }
     
     func delete(_ institution: Institution, on db: Database) async throws {
-        let existingInstitution =
-        try await findInstitutionBy(institution.plaidAccessToken, on: db)
-        try await existingInstitution.delete(on: db)
+        guard let existing = try await Institution
+            .query(on: db)
+            .filter(\.$plaidAccessToken.$id == institution.requireID())
+            .filter(\.$user.$id == institution.user.requireID())
+            .first()
+        else {
+            throw Abort(.internalServerError, reason: "Failed to find matching institution.")
+        }
+        try await existing.delete(on: db)
     }
 }
