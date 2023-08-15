@@ -19,7 +19,7 @@ final class TransactionsController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         let transactionRoutes = routes.grouped("transactions")
         // Get's the non deleted transactions for a given plaid bank account
-        transactionRoutes.get("non-deleted", ":institutionID", use: getTransactions)
+        transactionRoutes.get(":institutionID", use: getTransactions)
     }
 }
 
