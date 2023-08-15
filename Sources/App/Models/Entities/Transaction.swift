@@ -15,8 +15,8 @@ final class Transaction: Model {
     @ID(key: .id)
     var id: UUID?
 
-    @Parent(key: "bank_account_id")
-    var bankAccount: BankAccount
+    @Parent(key: "institution_id")
+    var institution: Institution
     
     @Field(key: "name")
     var name: String
@@ -31,13 +31,13 @@ final class Transaction: Model {
 
     init(
         id: UUID? = nil,
-        bankAccountID: UUID,
+        institutionID: UUID,
         name: String,
         date: Date,
         amount: Double
     ) {
         self.id = id
-        self.$bankAccount.id = bankAccountID
+        self.$institution.id = institutionID
         self.name = name
         self.date = date
         self.amount = amount
@@ -46,7 +46,7 @@ final class Transaction: Model {
     convenience init(from ffTransaction: FFTransaction) {
         self.init(
             id: ffTransaction.id,
-            bankAccountID: ffTransaction.bankAccountID,
+            institutionID: ffTransaction.institutionID,
             name: ffTransaction.name,
             date: ffTransaction.date,
             amount: ffTransaction.amount

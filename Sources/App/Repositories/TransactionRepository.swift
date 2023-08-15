@@ -10,7 +10,10 @@ import Vapor
 
 protocol TransactionStore {
     func save(_ transactions: [Transaction], on db: Database) async throws
-    func getTransactions(for bankAccountID: BankAccount.IDValue, on db: Database) async throws -> [Transaction]
+    func getTransactionsForInstitution(
+        matching id: Institution.IDValue,
+        on db: Database
+    ) async throws -> [Transaction]
 }
 
 final class TransactionRepository: TransactionStore {
@@ -31,14 +34,13 @@ final class TransactionRepository: TransactionStore {
         }
     }
     
-    // TODO: It's possible this will return the transactions for multiple users..
-    func getTransactions(
-        for bankAccountID: BankAccount.IDValue,
+    func getTransactionsForInstitution(
+        matching id: Institution.IDValue,
         on db: Database
     ) async throws -> [Transaction] {
         return try await Transaction
             .query(on: db)
-            .filter(\.$bankAccount.$id == bankAccountID)
+            .filter(\.$institution.$id == id)
             .all()
     }
 }

@@ -78,6 +78,7 @@ extension FFPostInstitutionsRequestBody: Content {}
 extension FFPostInstitutionsResponse: Content {}
 extension FFRefreshBalanceRequestBody: Content {}
 extension FFRefreshBalanceResponse: Content {}
+extension FFGetTransactionsResponse: Content {}
 
 extension FFInstitution: Content {
     init(from institution: Institution) throws {
@@ -154,7 +155,7 @@ extension FFTransaction {
     init(from transaction: Transaction) throws {
         self.init(
             id: try transaction.requireID(),
-            bankAccountID: transaction.$bankAccount.id,
+            institutionID: transaction.$institution.id,
             name: transaction.name,
             amount: transaction.amount,
             date: transaction.date

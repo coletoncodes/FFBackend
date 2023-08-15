@@ -12,7 +12,7 @@ import Fluent
 
 protocol TransactionProviding {
     func save(_ transactions: [FFTransaction], database: Database) async throws
-    func getTransactions(for id: FFBankAccount.ID, database: Database) async throws -> [FFTransaction]
+    func getTransactionsForInstitution(matching id: FFInstitution.ID, database: Database) async throws -> [FFTransaction]
 }
 
 final class TransactionProvider: TransactionProviding {
@@ -28,8 +28,8 @@ final class TransactionProvider: TransactionProviding {
         try await store.save(transactions, on: database)
     }
     
-    func getTransactions(for id: FFBankAccount.ID, database: Database) async throws -> [FFTransaction] {
-        return try await store.getTransactions(for: id, on: database)
+    func getTransactionsForInstitution(matching id: FFInstitution.ID, database: Database) async throws -> [FFTransaction] {
+        return try await store.getTransactionsForInstitution(matching: id, on: database)
             .map { try FFTransaction(from: $0) }
     }
 }

@@ -26,7 +26,7 @@ final class TransactionsController: RouteCollection {
 // MARK: - Public Requests
 extension TransactionsController {
     
-    func getTransactions(req: Request) async throws -> HTTPStatus {
+    func getTransactions(req: Request) async throws -> FFGetTransactionsResponse {
         do {
             guard let institutionID = req.parameters.get("institutionID", as: UUID.self) else {
                 throw Abort(.badRequest, reason: "No institutionID in URL.")
@@ -34,27 +34,24 @@ extension TransactionsController {
             
             let institution = try await institutionStore.findInstitutionMatching(institutionID, on: req.db)
             
-//            guard let bankAccount = try await bankAccountStore.getBankAccount(matching: bankAccountID, on: req.db) else {
-//                throw Abort(.notFound, reason: "No bank account found for the given id")
-//            }
-//            
-//            let response = try await plaidAPI.syncTransactions(req: req, for: bankAccount.accountID)
-//            
-//            let ffTransactions = response.added.map { addedTransaction in
-//                FFTransaction(
-//                    id: .init(),
-//                    bankAccountID: <#T##UUID#>,
-//                    name: <#T##String#>,
-//                    amount: <#T##Double#>,
-//                    date: <#T##Date#>
-//                )
-//            }
-//            
-//            try await provider.save(<#T##transactions: [FFTransaction]##[FFTransaction]#>, database: <#T##Database#>)
-            // TODO: Return response after saving to database.
-            return .ok
+            let response = try await plaidAPI.syncTransactions(req: req, for: institution)
+            
+            let ffTransactions = try response.added.map { addedTransaction in
+                FFTransaction(
+                    id: .init(),
+                    institutionID: try institution.requireID(),
+                    name: addedTransaction.name,
+                    amount: addedTransaction.amount,
+                    date: try CustomDateFormatter.toRoundedDate(from: addedTransaction.date)
+                )
+            }
+            
+            try await provider.save(ffTransactions, database: req.db)
+            let savedTransactions = try await provider.getTransactionsForInstitution(matching: try institution.requireID(), database: req.db)
+            return FFGetTransactionsResponse(transactions: savedTransactions)
         } catch {
-            throw Abort(.internalServerError, reason: "Failed to get BudgetCategories.", error: error)
+            req.logger.log(level: .error, "Failed to get Transactions. Error: \(error)")
+            throw Abort(.internalServerError, reason: "Failed to get Transactions.", error: error)
         }
     }
 }

@@ -97,12 +97,12 @@ final class PlaidAPIService {
         return try clientResponse.content.decode(PlaidItemDetailsResponse.self)
     }
     
-    func syncTransactions(req: Request, for plaidItemAccessToken: String) async throws -> PlaidTransactionSyncResponse {
+    func syncTransactions(req: Request, for institution: Institution) async throws -> PlaidTransactionSyncResponse {
         // Create Client URL
         let clientURI = URI(string: Constants.plaidBaseURL.rawValue + "/transactions/sync")
         
         // TODO: Get the last saved curser for the plaidItem, if empty, can keep as empty or maybe nil?
-        let request = PlaidTransactionSyncRequest(plaidItemAccessToken: plaidItemAccessToken, cursor: "")
+        let request = PlaidTransactionSyncRequest(plaidItemAccessToken: institution.plaidAccessToken.accessToken, cursor: "")
         
         // Wait for response
         let clientResponse = try await req.client.post(clientURI) { req in

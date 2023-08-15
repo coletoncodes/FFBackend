@@ -9,20 +9,20 @@ import Foundation
 
 public struct FFTransaction: Codable, Hashable, Equatable {
     public let id: UUID
-    public let bankAccountID: UUID
+    public let institutionID: UUID
     public let name: String
     public let amount: Double
     public let date: Date
     
     public init(
         id: UUID,
-        bankAccountID: UUID,
+        institutionID: UUID,
         name: String,
         amount: Double,
         date: Date
     ) {
         self.id = id
-        self.bankAccountID = bankAccountID
+        self.institutionID = institutionID
         self.name = name
         self.amount = amount
         self.date = date
