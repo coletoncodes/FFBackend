@@ -6,7 +6,7 @@
 //
 
 public protocol FFTransactionNetworkService {
-    func getTransactionsForInstitution(with id: FFInstitution.ID) async throws -> FFGetTransactionsResponse
+    func getTransactionsFor(_ institution: FFInstitution) async throws -> FFGetTransactionsResponse
 }
 
 public final class FFTransactionNetworkingService: FFTransactionNetworkService, FFNetworkService {
@@ -23,9 +23,13 @@ public final class FFTransactionNetworkingService: FFTransactionNetworkService, 
         self.refreshToken = refreshToken
     }
     
-    public func getTransactionsForInstitution(with id: FFInstitution.ID) async throws -> FFGetTransactionsResponse {
+    public func getTransactionsFor(_ institution: FFInstitution) async throws -> FFGetTransactionsResponse {
         return try await performRequest(
-            FFGetTransactionsRequest(institutionID: id, refreshToken: refreshToken, accessToken: accessToken)
+            FFGetTransactionsRequest(
+                institutionID: institution.id,
+                plaidAccessTokenID: institution.plaidAccessTokenID,
+                refreshToken: refreshToken,
+                accessToken: accessToken)
         )
     }
 }

@@ -15,7 +15,7 @@ struct FFGetTransactionsRequest: FFAPIRequest {
     var method: HTTPMethod { .GET }
     
     var path: String {
-        "\(FFAPIPath.transactions)" + "\(institutionID)"
+        "\(FFAPIPath.transactions)" + "\(institutionID)" + "/\(plaidAccessTokenID)"
     }
     
     var headers: [FFAPIHeader] {
@@ -25,13 +25,16 @@ struct FFGetTransactionsRequest: FFAPIRequest {
     let refreshToken: FFRefreshToken
     let accessToken: FFAccessToken
     let institutionID: UUID
+    let plaidAccessTokenID: UUID
     
     init(
         institutionID: UUID,
+        plaidAccessTokenID: UUID,
         refreshToken: FFRefreshToken,
         accessToken: FFAccessToken
     ) {
         self.institutionID = institutionID
+        self.plaidAccessTokenID = plaidAccessTokenID
         self.refreshToken = refreshToken
         self.accessToken = accessToken
     }

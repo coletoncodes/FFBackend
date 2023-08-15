@@ -14,12 +14,13 @@ final class TransactionsController: RouteCollection {
     @Injected(\.plaidAPIService) private var plaidAPI
     @Injected(\.transactionProvider) private var provider
     @Injected(\.institutionStore) private var institutionStore
+    @Injected(\.plaidAccessTokenStore) private var plaidAccessTokenStore
     
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
         let transactionRoutes = routes.grouped("transactions")
         // Get's the non deleted transactions for a given plaid bank account
-        transactionRoutes.get(":institutionID", use: getTransactions)
+        transactionRoutes.get(":institutionID", ":plaidAccessTokenID", use: getTransactions)
     }
 }
 
@@ -32,9 +33,15 @@ extension TransactionsController {
                 throw Abort(.badRequest, reason: "No institutionID in URL.")
             }
             
+            guard let plaidAccessTokenID = req.parameters.get("plaidAccessTokenID", as: UUID.self) else {
+                throw Abort(.badRequest, reason: "No plaidAccessTokenID in URL.")
+            }
+            
             let institution = try await institutionStore.findInstitutionMatching(institutionID, on: req.db)
             
-            let response = try await plaidAPI.syncTransactions(req: req, for: institution)
+            let plaidAccessToken = try await plaidAccessTokenStore.findTokenMatching(plaidAccessTokenID, on: req.db)
+            
+            let response = try await plaidAPI.syncTransactions(req: req, for: plaidAccessToken)
             
             let ffTransactions = try response.added.map { addedTransaction in
                 FFTransaction(
