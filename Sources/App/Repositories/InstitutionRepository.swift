@@ -13,6 +13,7 @@ protocol InstitutionStore {
     func save(_ institution: Institution, on db: Database) async throws
     func findInstitutionByPlaidAccessToken(with id: PlaidAccessToken.IDValue, on db: Database) async throws -> Institution
     func delete(_ institution: Institution, on db: Database) async throws
+    func findInstitutionMatching(_ id: Institution.IDValue, on db: Database) async throws -> Institution
 }
 
 final class InstitutionRepository: InstitutionStore {
@@ -36,6 +37,17 @@ final class InstitutionRepository: InstitutionStore {
             throw Abort(.internalServerError, reason: "No institution with matching plaidAccessTokenID: \(id)")
         }
         return institution
+    }
+    
+    func findInstitutionMatching(_ id: Institution.IDValue, on db: Database) async throws -> Institution {
+        guard let foundInstitution = try await Institution
+            .query(on: db)
+            .filter(\.$id == id)
+            .first()
+        else {
+            throw Abort(.internalServerError, reason: "Failed to find matching institution.")
+        }
+        return foundInstitution
     }
     
     func delete(_ institution: Institution, on db: Database) async throws {

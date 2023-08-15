@@ -13,7 +13,7 @@ final class TransactionsController: RouteCollection {
     // MARK: - Dependencies
     @Injected(\.plaidAPIService) private var plaidAPI
     @Injected(\.transactionProvider) private var provider
-    @Injected(\.bankAccountStore) private var bankAccountStore
+    @Injected(\.institutionStore) private var institutionStore
     
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
@@ -31,6 +31,8 @@ extension TransactionsController {
             guard let institutionID = req.parameters.get("institutionID", as: UUID.self) else {
                 throw Abort(.badRequest, reason: "No institutionID in URL.")
             }
+            
+            let institution = try await institutionStore.findInstitutionMatching(institutionID, on: req.db)
             
 //            guard let bankAccount = try await bankAccountStore.getBankAccount(matching: bankAccountID, on: req.db) else {
 //                throw Abort(.notFound, reason: "No bank account found for the given id")
