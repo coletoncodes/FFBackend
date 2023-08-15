@@ -10,8 +10,8 @@ import Vapor
 
 protocol PlaidAccessTokenStore {
     func save(_ token: PlaidAccessToken, on db: Database) async throws
-    func findTokenForUser(_ userId: UUID, on db: Database) async throws -> PlaidAccessToken?
     func delete(_ token: PlaidAccessToken, on db: Database) async throws
+    func findTokenMatching(_ id: PlaidAccessToken.IDValue, on db: Database) async throws -> PlaidAccessToken
 }
 
 final class PlaidAccessTokenRepository: PlaidAccessTokenStore {
@@ -19,13 +19,18 @@ final class PlaidAccessTokenRepository: PlaidAccessTokenStore {
         try await token.save(on: db)
     }
     
-    func findTokenForUser(_ userId: UUID, on db: Database) async throws -> PlaidAccessToken? {
-        try await PlaidAccessToken.query(on: db)
-            .filter(\.$user.$id == userId)
-            .first()
-    }
-    
     func delete(_ token: PlaidAccessToken, on db: Database) async throws {
         try await token.delete(on: db)
+    }
+    
+    func findTokenMatching(_ id: PlaidAccessToken.IDValue, on db: Database) async throws -> PlaidAccessToken {
+        guard let foundToken = try await PlaidAccessToken
+            .query(on: db)
+            .filter(\.$id == id)
+            .first()
+        else {
+            throw Abort(.internalServerError, reason: "No matching PlaidAccessToken with id: \(id) exists.")
+        }
+        return foundToken
     }
 }

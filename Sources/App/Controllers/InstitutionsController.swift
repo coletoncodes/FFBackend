@@ -14,6 +14,7 @@ final class InstitutionsController: RouteCollection {
     @Injected(\.institutionProvider) private var provider
     @Injected(\.plaidAPIService) private var plaidAPIService
     @Injected(\.bankAccountStore) private var bankAccountStore
+    @Injected(\.plaidAccessTokenStore) private var plaidAccessTokenStore
     
     // MARK: - RoutesBuilder
     func boot(routes: RoutesBuilder) throws {
@@ -45,16 +46,18 @@ extension InstitutionsController {
         do {
             // Decode the body
             let requestBody = try req.content.decode(FFRefreshBalanceRequestBody.self)
-            let plaidAccessToken = requestBody.institution.plaidAccessToken
-            let existingInstitution = try await provider.institutionMatching(plaidAccessToken, on: req.db)
+            let plaidAccessTokenID = requestBody.institution.plaidAccessTokenID
+            let existingInstitution = try await provider.institutionMatching(plaidAccessTokenID, on: req.db)
             let accountIDs = existingInstitution.accounts.map { $0.accountID }
             
             guard !accountIDs.isEmpty else {
                 throw Abort(.internalServerError, reason: "AccountIDs are empty. Can't fetch balance details for empty accounts.")
             }
             
+            let plaidAccessToken = try await plaidAccessTokenStore.findTokenMatching(plaidAccessTokenID, on: req.db)
+            
             // Request details from Plaid.
-            let itemDetailsRequest = PlaidItemDetailsRequest(accessToken: plaidAccessToken, plaidInstitutionAccountIds: accountIDs)
+            let itemDetailsRequest = PlaidItemDetailsRequest(accessToken: plaidAccessToken.accessToken, plaidInstitutionAccountIds: accountIDs)
             let detailsResponse = try await plaidAPIService.itemDetails(req: req, itemDetailsRequest: itemDetailsRequest)
             
             // Save the updated accounts.

@@ -30,7 +30,9 @@ extension BudgetItemController {
             let body = try req.content.decode(FFBudgetItemRequestBody.self)
             try await budgetItemProvider.save(body.budgetItem, on: req.db)
             let budgetItem = try await budgetItemProvider.getItem(with: body.budgetItem.id, on: req.db)
-            return FFBudgetItemResponse(budgetItem: budgetItem)
+            let response = FFBudgetItemResponse(budgetItem: budgetItem)
+            req.logger.log(level: .info, "\(response)")
+            return response
         } catch {
             throw Abort(.internalServerError, reason: "Failed to post BudgetItem.", error: error)
         }

@@ -78,6 +78,7 @@ extension FFPostInstitutionsRequestBody: Content {}
 extension FFPostInstitutionsResponse: Content {}
 extension FFRefreshBalanceRequestBody: Content {}
 extension FFRefreshBalanceResponse: Content {}
+extension FFGetTransactionsResponse: Content {}
 
 extension FFInstitution: Content {
     init(from institution: Institution) throws {
@@ -85,7 +86,7 @@ extension FFInstitution: Content {
             id: try institution.requireID(),
             name: institution.name,
             userID: institution.$user.id,
-            plaidAccessToken: institution.plaidAccessToken,
+            plaidAccessTokenID: institution.$plaidAccessToken.id,
             accounts: try institution.accounts.map { try FFBankAccount(from: $0, institutionID: try institution.requireID()) }
         )
     }
@@ -117,10 +118,10 @@ extension FFMonthlyBudget {
 }
 
 extension FFBudgetCategory: Content {
-    init(from category: BudgetCategory) throws {
+    init(from category: BudgetCategory, monthlyBudgetID: UUID) throws {
         self.init(
             id: try category.requireID(),
-            monthlyBudgetID: category.$monthlyBudget.id,
+            monthlyBudgetID: monthlyBudgetID,
             name: category.name,
             budgetItems: try category.budgetItems.map { try FFBudgetItem(from: $0, categoryID: category.requireID()) }
         )
@@ -147,5 +148,17 @@ extension FFCategoryType {
         case .expense:
             self = .expense
         }
+    }
+}
+
+extension FFTransaction {
+    init(from transaction: Transaction) throws {
+        self.init(
+            id: try transaction.requireID(),
+            institutionID: transaction.$institution.id,
+            name: transaction.name,
+            amount: transaction.amount,
+            date: transaction.date
+        )
     }
 }

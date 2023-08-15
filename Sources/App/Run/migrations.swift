@@ -16,4 +16,5 @@ func addMigrations(_ app: Application) {
     app.migrations.add(CreateMonthlyBudget())
     app.migrations.add(CreateBudgetCategory())
     app.migrations.add(CreateBudgetItem())
+    app.migrations.add(CreateTransaction())
 }

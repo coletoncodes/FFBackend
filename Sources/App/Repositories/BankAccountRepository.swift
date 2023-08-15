@@ -10,6 +10,7 @@ import Vapor
 
 protocol BankAccountStore {
     func save(_ accounts: [BankAccount], on db: Database) async throws
+    func getBankAccount(matching id: BankAccount.IDValue, on db: Database) async throws -> BankAccount?
 }
 
 final class BankAccountRepository: BankAccountStore {
@@ -30,5 +31,12 @@ final class BankAccountRepository: BankAccountStore {
                 try await account.save(on: db)
             }
         }
+    }
+    
+    func getBankAccount(matching id: BankAccount.IDValue, on db: Database) async throws -> BankAccount? {
+        return try await BankAccount
+            .query(on: db)
+            .filter(\.$id == id)
+            .first()
     }
 }

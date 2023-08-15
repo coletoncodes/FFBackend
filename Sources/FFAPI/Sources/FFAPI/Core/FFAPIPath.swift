@@ -61,4 +61,7 @@ enum FFAPIPath {
     
     /// api/items
     static let budgetItems = "\(api)/items/"
+    
+    /// api/transactions
+    static let transactions = "\(api)/transactions/"
 }

@@ -34,7 +34,9 @@ extension MonthlyBudgetController {
             try await provider.save(body.monthlyBudget, on: req.db)
             
             let monthlyBudget = try await provider.getMonthlyBudget(body.monthlyBudget.id, on: req.db)
-            return FFMonthlyBudgetResponse(monthlyBudget: monthlyBudget)
+            let response = FFMonthlyBudgetResponse(monthlyBudget: monthlyBudget)
+            req.logger.log(level: .info, "\(response)")
+            return response
         } catch {
             let errorStr = "Failed to save monthly budget"
             req.logger.error("\(errorStr)")
@@ -49,7 +51,8 @@ extension MonthlyBudgetController {
             }
             
             let monthlyBudget = try await provider.getMonthlyBudget(monthlyBudgetID, on: req.db)
-            return FFMonthlyBudgetResponse(monthlyBudget: monthlyBudget)
+            let response = FFMonthlyBudgetResponse(monthlyBudget: monthlyBudget)
+            return response
         } catch {
             let errorStr = "Failed to get monthly budget"
             req.logger.error("\(errorStr)")
@@ -64,7 +67,9 @@ extension MonthlyBudgetController {
             }
             
             let monthlyBudgets = try await provider.getAllMonthlyBudgets(userID, on: req.db)
-            return FFAllMonthlyBudgetsResponse(monthlyBudgets: monthlyBudgets)
+            let response = FFAllMonthlyBudgetsResponse(monthlyBudgets: monthlyBudgets)
+            req.logger.log(level: .info, "\(response)")
+            return response
         } catch {
             let errorStr = "Failed to get monthly budgets for user"
             req.logger.error("\(errorStr)")

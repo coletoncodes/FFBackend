@@ -40,8 +40,8 @@ final class InstitutionsControllerTests: AuthenticatedTestCase {
     
     private func postInstitutions() throws -> [FFInstitution] {
         let institutions = [
-            FFInstitution(id: .init(), name: "Institution 1", userID: user.id, plaidAccessToken: plaidAccessToken.accessToken, accounts: []),
-            FFInstitution(id: .init(), name: "Institution 2", userID: user.id, plaidAccessToken: plaidAccessToken.accessToken, accounts: []),
+            FFInstitution(id: .init(), name: "Institution 1", userID: user.id, plaidAccessTokenID: plaidAccessToken.id!, accounts: []),
+            FFInstitution(id: .init(), name: "Institution 2", userID: user.id, plaidAccessTokenID: plaidAccessToken.id!, accounts: []),
         ]
         
         let requestBody = FFPostInstitutionsRequestBody(userID: user.id, institutions: institutions)

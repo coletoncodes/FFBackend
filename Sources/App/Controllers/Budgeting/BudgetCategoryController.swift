@@ -33,7 +33,9 @@ extension BudgetCategoryController {
                 throw Abort(.badRequest, reason: "No monthlyBudgetID in URL.")
             }
             let budgetCategories = try await budgetCategoryProvider.getCategories(for: monthlyBudgetID, database: req.db)
-            return FFBudgetCategoriesResponse(budgetCategories: budgetCategories)
+            let response = FFBudgetCategoriesResponse(budgetCategories: budgetCategories)
+            req.logger.log(level: .info, "\(response)")
+            return response
         } catch {
             throw Abort(.internalServerError, reason: "Failed to get BudgetCategories.", error: error)
         }
@@ -44,7 +46,9 @@ extension BudgetCategoryController {
             let body = try req.content.decode(FFPostBudgetCategoriesRequestBody.self)
             try await budgetCategoryProvider.save(categories: body.budgetCategories, database: req.db)
             let budgetCategories = try await budgetCategoryProvider.getCategories(for: body.monthlyBudgetID, database: req.db)
-            return FFBudgetCategoriesResponse(budgetCategories: budgetCategories)
+            let response = FFBudgetCategoriesResponse(budgetCategories: budgetCategories)
+            req.logger.log(level: .info, "\(response)")
+            return response
         } catch {
             throw Abort(.internalServerError, reason: "Failed to save BudgetCategories.", error: error)
         }

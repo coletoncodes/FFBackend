@@ -57,14 +57,18 @@ final class PlaidAPIService {
         let plaidAccessToken = PlaidAccessToken(userID: userID, accessToken: publicTokenResponse.access_token)
         try await plaidAccessTokenStore.save(plaidAccessToken, on: req.db)
         
+        guard let plaidAccessTokenID = plaidAccessToken.id else {
+            throw Abort(.internalServerError, reason: "Nil ID for PlaidAccessToken.")
+        }
+        
         let institution = Institution(
-            plaidAccessToken: plaidAccessToken.accessToken,
+            plaidAccessTokenID: plaidAccessTokenID,
             userID: userID,
             name: metadata.institution.name
         )
         
         try await institutionStore.save(institution, on: req.db)
-        let savedInstitution = try await institutionStore.findInstitutionBy(institution.plaidAccessToken, on: req.db)
+        let savedInstitution = try await institutionStore.findInstitutionByPlaidAccessToken(with: plaidAccessTokenID, on: req.db)
         
         guard let institutionID = savedInstitution.id else {
             throw Abort(.internalServerError, reason: "Institution ID value was nil.")
@@ -91,6 +95,26 @@ final class PlaidAPIService {
         }
         
         return try clientResponse.content.decode(PlaidItemDetailsResponse.self)
+    }
+    
+    func syncTransactions(req: Request, for institution: Institution) async throws -> PlaidTransactionSyncResponse {
+        // Create Client URL
+        let clientURI = URI(string: Constants.plaidBaseURL.rawValue + "/transactions/sync")
+        
+        // TODO: Get the last saved curser for the plaidItem, if empty, can keep as empty or maybe nil?
+        let request = PlaidTransactionSyncRequest(plaidItemAccessToken: institution.plaidAccessToken.accessToken, cursor: "")
+        
+        // Wait for response
+        let clientResponse = try await req.client.post(clientURI) { req in
+            try req.content.encode(request, as: .json)
+        }
+        
+        // Verify it's status .200
+        guard clientResponse.status == .ok else {
+            throw Abort(.badRequest, reason: "Plaid Sync Transactions request failed with status: \(clientResponse.status) and error: \(clientResponse.description)")
+        }
+        
+        return try clientResponse.content.decode(PlaidTransactionSyncResponse.self)
     }
 }
 

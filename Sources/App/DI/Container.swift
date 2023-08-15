@@ -46,6 +46,11 @@ extension Container {
             .graph
     }
     
+    var transactionProvider: Factory<TransactionProviding> {
+        self { TransactionProvider() }
+            .graph
+    }
+    
     // MARK: - Stores
     var refreshTokenStore: Factory<RefreshTokenStore> {
         self { RefreshTokenRepository() }
@@ -84,6 +89,11 @@ extension Container {
     
     var monthlyBudgetStore: Factory<MonthlyBudgetStore> {
         self { MonthlyBudgetRepository() }
+            .graph
+    }
+    
+    var transactionStore: Factory<TransactionStore> {
+        self { TransactionRepository() }
             .graph
     }
     
