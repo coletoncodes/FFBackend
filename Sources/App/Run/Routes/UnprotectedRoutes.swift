@@ -20,6 +20,7 @@ final class UnprotectedRoutes {
     func routes() throws {
         try app.register(collection: LeafController())
         try app.register(collection: AuthenticationController())
+        app.middleware.use(DatabaseErrorMiddleware())
         
         // Serve apple-app-site-association
         app.get(".well-known", "apple-app-site-association") { req async throws -> Response in

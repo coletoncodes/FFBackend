@@ -10,8 +10,8 @@ func routes(_ app: Application) throws {
     let protectedRoutes = ProtectedRoutes(app)
     try protectedRoutes.routes()
     
-    print("Available Routes:")
     for route in app.routes.all {
-        print(route.description)
+        let logger = Logger(label: "Route Logger")
+        logger.log(level: .info, "\(route)")
     }
 }

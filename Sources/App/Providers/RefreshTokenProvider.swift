@@ -5,91 +5,87 @@
 //  Created by Coleton Gorecke on 5/20/23.
 //
 
+import FFAPI
+import Factory
 import Foundation
 import Vapor
-import FluentKit
+import Fluent
 
 protocol RefreshTokenProviding {
-    func generateRefreshToken(for user: User, on req: Request) async throws -> RefreshTokenDTO
-    func validateRefreshToken(_ token: String, on req: Request) async throws -> RefreshTokenDTO
-    func invalidate(_ token: String, on req: Request) async throws
+    func generateRefreshToken(for ffUser: FFUser, database: Database) async throws -> FFRefreshToken
+    func validateRefreshToken(_ token: String, database: Database) async throws -> FFRefreshToken
+    func invalidate(_ token: String, database: Database) async throws
+    func existingToken(for ffUser: FFUser, database: Database) async throws -> FFRefreshToken?
 }
 
 final class RefreshTokenProvider: RefreshTokenProviding {
     // MARK: - Dependencies
-    private var tokenStore: RefreshTokenStore
-    
-    // MARK: - Initializer
-    init(
-        tokenStore: RefreshTokenStore = RefreshTokenRepository()
-    ) {
-        self.tokenStore = tokenStore
-    }
+    @Injected(\.refreshTokenStore) private var tokenStore
     
     // MARK: - Interface
-    func generateRefreshToken(for user: User, on req: Request) async throws -> RefreshTokenDTO {
-        guard let userID = user.id else {
-            throw Abort(.unauthorized, reason: "UserID was nil.")
-        }
-        
+    func generateRefreshToken(for ffUser: FFUser, database: Database) async throws -> FFRefreshToken {
         // Remove any existing tokens
-        try await removeExistingTokens(for: user, on: req)
+        try await removeExistingTokens(for: ffUser, database: database)
         
         // Create a new RefreshToken that expires in 30 days.
         let refreshToken = RefreshToken(
-            userID: userID,
+            userID: ffUser.id,
             token: UUID().uuidString,
             expiresAt: Date.thirtyDaysFromNow
         )
         
         // Save it to the database
-        try await tokenStore.save(refreshToken, on: req.db)
+        try await tokenStore.save(refreshToken, on: database)
         
         // Return a DTO
-        return RefreshTokenDTO(userID: refreshToken.$user.id, token: refreshToken.token, expiresAt: refreshToken.expiresAt)
+        return FFRefreshToken(userID: refreshToken.$user.id, token: refreshToken.token)
     }
     
-    func validateRefreshToken(_ token: String, on req: Request) async throws -> RefreshTokenDTO {
+    func validateRefreshToken(_ token: String, database: Database) async throws -> FFRefreshToken {
         // Find the token in the database
-        guard let foundRefreshToken = try await tokenStore.find(token, on: req.db) else {
+        guard let foundRefreshToken = try await tokenStore.find(token, on: database) else {
             throw Abort(.unauthorized, reason: "Unable to find matching token in database.")
         }
         
         // Get the user associated with the token
-        let user = try await foundRefreshToken.$user.get(on: req.db)
+        let user = try await foundRefreshToken.$user.get(on: database)
         
-        // Invalidate the old token.
-        try await invalidate(foundRefreshToken.token, on: req)
+        guard let userID = user.id else {
+            throw Abort(.internalServerError, reason: "Cannot validate token for user, id is nil.")
+        }
         
-        // Return the new token
-        return try await generateRefreshToken(for: user, on: req)
+        return FFRefreshToken(userID: userID, token: foundRefreshToken.token)
     }
     
-    func invalidate(_ token: String, on req: Request) async throws {
+    func invalidate(_ token: String, database: Database) async throws {
         // Find the token in the database
-        guard let foundRefreshToken = try await tokenStore.find(token, on: req.db) else {
+        guard let foundRefreshToken = try await tokenStore.find(token, on: database) else {
             throw Abort(.unauthorized, reason: "Unable to find matching token in database.")
         }
         
         // Delete the token
-        try await tokenStore.delete(foundRefreshToken, on: req.db)
+        try await tokenStore.delete(foundRefreshToken, on: database)
+    }
+    
+    func existingToken(for ffUser: FFUser, database: Database) async throws -> FFRefreshToken? {
+        let user = User(from: ffUser)
+        guard let existingToken = try await tokenStore.findToken(for: user, on: database) else {
+            throw Abort(.unauthorized, reason: "Unable to find matching token in database.")
+        }
+        
+        return FFRefreshToken(from: existingToken)
     }
     
     // MARK: - Helpers
-    func removeExistingTokens(for user: User, on req: Request) async throws {
-        guard let userID = user.id else {
-            throw Abort(.unauthorized, reason: "Unable to find matching tokens for user.")
-        }
-        
+    func removeExistingTokens(for ffUser: FFUser, database: Database) async throws {
         // Get Tokens
-        let tokens = try await RefreshToken
-            .query(on: req.db)
-            .filter(\.$user.$id == userID)
-            .all()
+        let tokens = try await tokenStore.tokens(userID: ffUser.id, on: database)
+        
+        guard !tokens.isEmpty else { return }
         
         // Delete each one
         for refreshToken in tokens {
-            try await self.invalidate(refreshToken.token, on: req)
+            try await invalidate(refreshToken.token, database: database)
         }
     }
 }

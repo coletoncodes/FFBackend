@@ -5,6 +5,8 @@
 //  Created by Coleton Gorecke on 5/20/23.
 //
 
+import FFAPI
+import Factory
 import JWT
 import Vapor
 
@@ -19,7 +21,13 @@ protocol AccessTokenProviding {
     ///
     /// - Parameter user: The User object for which to generate a token.
     /// - Returns: The newly generated JWTToken as a String.
-    func generateAccessToken(for user: User) throws -> AccessTokenDTO
+    func generateAccessToken(for user: FFUser) throws -> FFAccessToken
+    
+    
+    /// Sign's an existing access token for a give JWTTokenPayload
+    /// - Parameter payload: The token object representing a validated token.
+    /// - Returns: The access token object
+    func signAccessToken(for payload: JWTTokenPayload) throws -> FFAccessToken
     
     /// Validates a provided Access token.
     ///
@@ -36,33 +44,52 @@ protocol AccessTokenProviding {
 ///
 /// This object utilizes Vapor's JWT library to generate and validate JWT tokens.
 final class AccessTokenProvider: AccessTokenProviding {
-    private let signer: JWTSigner
+    // MARK: - Dependencies
+    @Injected(\.jwtSigner) private var signer
     
-    init() {
-        // Create an HMAC with SHA-256 signer using your application's secret key
-        // TODO: Inject from environment
-        self.signer = JWTSigner.hs256(key: "your-secret-key")
-    }
-    
-    func generateAccessToken(for user: User) throws -> AccessTokenDTO {
-        guard let userID = user.id else {
-            throw Abort(.internalServerError, reason: "Missing userID in payload.")
-        }
-        
+    // MARK: - Interface
+    func generateAccessToken(for user: FFUser) throws -> FFAccessToken {
         // Create the JWT payload that expires in one hour.
         guard let oneHourFromNow = Date.oneHourFromNow else {
             throw Abort(.internalServerError, reason: "Failed to configure date for JWT token.")
         }
         
-        let payload = JWTTokenPayload(expiration: .init(value: oneHourFromNow), userID: userID)
+        let payload = JWTTokenPayload(expiration: .init(value: oneHourFromNow), userID: user.id)
         
         // Sign the JWT payload & return
+        return try signAccessToken(for: payload)
+    }
+    
+    // Sign the JWT payload
+    func signAccessToken(for payload: JWTTokenPayload) throws -> FFAccessToken {
         let token = try signer.sign(payload)
-        return AccessTokenDTO(token: token, payload: payload)
+        return FFAccessToken(token: token, payload: payload)
     }
     
     func validateAccessToken(_ token: String) throws -> JWTTokenPayload {
         // Verify the JWT signature and decode the payload
-        return try signer.verify(token)
+        do {
+            return try signer.verify(token)
+        } catch {
+            throw Abort(.unauthorized, reason: "Access Token is expired or invalid. Please login again.")
+        }
+    }
+}
+
+extension FFAccessToken {
+    init(token: String, payload: JWTTokenPayload) {
+        self.init(
+            token: token,
+            userID: payload.userID
+        )
+    }
+}
+
+struct JWTTokenPayload: JWTPayload, Authenticatable {
+    let expiration: ExpirationClaim
+    let userID: User.IDValue
+    
+    func verify(using signer: JWTSigner) throws {
+        try expiration.verifyNotExpired()
     }
 }

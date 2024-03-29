@@ -5,6 +5,8 @@
 //  Created by Coleton Gorecke on 5/13/23.
 //
 
+import FFAPI
+import Crypto
 import Fluent
 import Vapor
 
@@ -29,7 +31,7 @@ final class User: Model, Content, Authenticatable {
     init() { }
     
     init(
-        id: UUID? = nil,
+        id: UUID? = UUID(),
         firstName: String,
         lastName: String,
         email: String,
@@ -40,5 +42,15 @@ final class User: Model, Content, Authenticatable {
         self.lastName = lastName
         self.email = email
         self.passwordHash = passwordHash
+    }
+    
+    convenience init(from ffUser: FFUser) {
+        self.init(
+            id: ffUser.id,
+            firstName: ffUser.firstName,
+            lastName: ffUser.lastName,
+            email: ffUser.email,
+            passwordHash: ffUser.passwordHash
+        )
     }
 }
